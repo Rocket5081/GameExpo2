@@ -1,0 +1,95 @@
+[gd_scene load_steps=3 format=3 uid="uid://dufyvricl5qqi"]
+
+[ext_resource type="Script" uid="uid://buq7bi58l3fu1" path="res://WanLobbySystem/BetterLobby/LobbyStreamlined.cs" id="1_nacce"]
+[ext_resource type="Script" path="res://NetworkCore.cs" id="2_nacce"]
+
+[node name="AbsoluteRoot" type="Node"]
+
+[node name="GenericLobbySystem" type="CanvasLayer" parent="." node_paths=PackedStringArray("AgentSpawner", "GameNameBox")]
+script = ExtResource("1_nacce")
+PublicIP = "68.155.153.211"
+PrivateIP = "10.1.1.4"
+PortMinimum = 9000
+AgentSpawner = NodePath("HBoxContainer/ColorRect2/ActiveGames/ActiveGames/MultiplayerSpawner")
+GameNameBox = NodePath("HBoxContainer/ColorRect/MarginContainer/LeftMenu/GameName")
+MaxGameTime = 60.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="GenericLobbySystem"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="ColorRect" type="ColorRect" parent="GenericLobbySystem/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+color = Color(0, 0.6, 0, 1)
+
+[node name="MarginContainer" type="MarginContainer" parent="GenericLobbySystem/HBoxContainer/ColorRect"]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.005
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_top = -4.0
+offset_right = 0.13000488
+offset_bottom = -4.0
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="LeftMenu" type="VBoxContainer" parent="GenericLobbySystem/HBoxContainer/ColorRect/MarginContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="Label" type="Label" parent="GenericLobbySystem/HBoxContainer/ColorRect/MarginContainer/LeftMenu"]
+layout_mode = 2
+text = "REALLY COOL LOBBY SYSTEM"
+horizontal_alignment = 1
+
+[node name="GameName" type="TextEdit" parent="GenericLobbySystem/HBoxContainer/ColorRect/MarginContainer/LeftMenu"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+placeholder_text = "Enter Game Name"
+
+[node name="Button" type="Button" parent="GenericLobbySystem/HBoxContainer/ColorRect/MarginContainer/LeftMenu"]
+layout_mode = 2
+text = "Create Game"
+
+[node name="ColorRect2" type="ColorRect" parent="GenericLobbySystem/HBoxContainer"]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+size_flags_horizontal = 3
+color = Color(0.03529412, 1, 0.050980393, 1)
+
+[node name="ActiveGames" type="MarginContainer" parent="GenericLobbySystem/HBoxContainer/ColorRect2"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 2.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="ActiveGames" type="VBoxContainer" parent="GenericLobbySystem/HBoxContainer/ColorRect2/ActiveGames"]
+layout_mode = 2
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="GenericLobbySystem/HBoxContainer/ColorRect2/ActiveGames/ActiveGames"]
+_spawnable_scenes = PackedStringArray("uid://cs7s4kaurdy11")
+spawn_path = NodePath("..")
+script = ExtResource("2_nacce")
+SpawnInexZeroOnConnect = true
+
+[node name="GameRoot" type="Node" parent="."]
+
+[connection signal="pressed" from="GenericLobbySystem/HBoxContainer/ColorRect/MarginContainer/LeftMenu/Button" to="GenericLobbySystem" method="CreatNewGameServer"]
