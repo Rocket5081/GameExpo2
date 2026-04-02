@@ -1,0 +1,21 @@
+[gd_scene load_steps=2 format=3 uid="uid://lptd167x2g0q"]
+
+[ext_resource type="PackedScene" uid="uid://dasl4cwcqllbs" path="res://Assets/head_of_cthulhu (1).glb" id="1_hb45f"]
+
+[node name="CthuluHead" type="Node3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2597.6104, 266.77142, -323.40543)
+
+[node name="Sketchfab_Scene" parent="." instance=ExtResource("1_hb45f")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.109192, 0, -685.39526)
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.96002054, 0.27992955, 0, -0.27992955, 0.96002054, 0, 24.306686, -360.29257)
+fov = 61.2
+
+[node name="O" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -21.534973, -539.76)
+light_color = Color(1, 0.4, 1, 1)
+light_energy = 16.0
+light_size = 1.0
+omni_range = 4096.0
+omni_attenuation = 0.291

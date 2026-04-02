@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3 uid="uid://hyeotxo58imo"]
+
+[ext_resource type="PackedScene" uid="uid://c5woxgkprdqbu" path="res://Assets/pirate_hand_painted_idle.glb" id="1_n46at"]
+
+[node name="PiratePreview" type="Node3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.4368033, 0, 0)
+
+[node name="Sketchfab_Scene" parent="." instance=ExtResource("1_n46at")]
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8832457, 1.3865323)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+visible = false

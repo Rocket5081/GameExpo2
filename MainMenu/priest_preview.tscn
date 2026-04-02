@@ -1,0 +1,15 @@
+[gd_scene load_steps=2 format=3 uid="uid://bg6bx5jr3jygn"]
+
+[ext_resource type="PackedScene" uid="uid://dg3ftxgbuoqei" path="res://Assets/lowpoly_angel_knight.glb" id="1_rilg1"]
+
+[node name="PriestPreview" type="Node3D"]
+
+[node name="Sketchfab_Scene" parent="." instance=ExtResource("1_rilg1")]
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0453357, 2.7492747)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7053635, 5.9443817)
+visible = false
+light_energy = 4.6

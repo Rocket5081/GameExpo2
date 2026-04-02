@@ -1,0 +1,262 @@
+[gd_scene load_steps=6 format=3 uid="uid://dueebmf0c7uio"]
+
+[ext_resource type="Script" uid="uid://c3xyxqeo68ya6" path="res://MainMenu/MainMenuLobby.cs" id="1_lobby"]
+[ext_resource type="PackedScene" uid="uid://d3enrlsl5me4x" path="res://MainMenu/cowboy_preview.tscn" id="2_qg7sa"]
+[ext_resource type="PackedScene" uid="uid://hyeotxo58imo" path="res://MainMenu/pirate_preview.tscn" id="3_g6puw"]
+[ext_resource type="PackedScene" uid="uid://bg6bx5jr3jygn" path="res://MainMenu/priest_preview.tscn" id="4_bwg8i"]
+[ext_resource type="PackedScene" uid="uid://lptd167x2g0q" path="res://cthulu_head.tscn" id="5_bwg8i"]
+
+[node name="MainMenuLobby" type="Control" node_paths=PackedStringArray("NameEntry", "ClassDropdown", "ItemDropdown", "NameColorLabel", "CharacterPreviewArea", "CowboyPreview", "PiratePreview", "PriestPreview", "ConnectButton", "OfflinePanel", "OnlinePanel")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_lobby")
+NameEntry = NodePath("OfflinePanel/VBox/NameEntry")
+ClassDropdown = NodePath("OfflinePanel/VBox/ClassDropdown")
+ItemDropdown = NodePath("OfflinePanel/VBox/ItemDropdown")
+NameColorLabel = NodePath("OfflinePanel/VBox/NameColorLabel")
+CharacterPreviewArea = NodePath("OfflinePanel/CharacterPreviewArea")
+CowboyPreview = NodePath("OfflinePanel/CharacterPreviewArea/CowboyPreview")
+PiratePreview = NodePath("OfflinePanel/CharacterPreviewArea/PiratePreview")
+PriestPreview = NodePath("OfflinePanel/CharacterPreviewArea/PriestPreview")
+ConnectButton = NodePath("OfflinePanel/VBox/ConnectButton")
+OfflinePanel = NodePath("OfflinePanel")
+OnlinePanel = NodePath("OnlinePanel")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.07, 0.07, 0.12, 1)
+
+[node name="TitleLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -300.0
+offset_top = 30.0
+offset_right = 300.0
+offset_bottom = 80.0
+grow_horizontal = 2
+text = "CHOOSE YOUR CHARACTER"
+horizontal_alignment = 1
+
+[node name="OfflinePanel" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="OfflinePanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.03
+anchor_top = 0.1
+anchor_right = 0.45
+anchor_bottom = 0.85
+theme_override_constants/separation = 18
+
+[node name="NameLabel" type="Label" parent="OfflinePanel/VBox"]
+layout_mode = 2
+text = "Player Name"
+
+[node name="NameEntry" type="LineEdit" parent="OfflinePanel/VBox"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+placeholder_text = "Enter your name…"
+
+[node name="Sep1" type="HSeparator" parent="OfflinePanel/VBox"]
+layout_mode = 2
+
+[node name="ClassLabel" type="Label" parent="OfflinePanel/VBox"]
+layout_mode = 2
+text = "Choose Class"
+
+[node name="ClassDropdown" type="OptionButton" parent="OfflinePanel/VBox"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+
+[node name="Sep2" type="HSeparator" parent="OfflinePanel/VBox"]
+layout_mode = 2
+
+[node name="ItemLabel" type="Label" parent="OfflinePanel/VBox"]
+layout_mode = 2
+text = "Starting Relic"
+
+[node name="ItemDropdown" type="OptionButton" parent="OfflinePanel/VBox"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+
+[node name="Sep3" type="HSeparator" parent="OfflinePanel/VBox"]
+layout_mode = 2
+
+[node name="NameColorLabel" type="Label" parent="OfflinePanel/VBox"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+text = "Player"
+
+[node name="ConnectButton" type="Button" parent="OfflinePanel/VBox"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "Connect"
+
+[node name="CharacterPreviewArea" type="Control" parent="OfflinePanel"]
+z_index = 1
+layout_mode = 1
+anchor_left = 0.5
+anchor_top = 0.1
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="PreviewBG" type="ColorRect" parent="OfflinePanel/CharacterPreviewArea"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.1, 0.1, 0.18, 1)
+
+[node name="PreviewLabel" type="Label" parent="OfflinePanel/CharacterPreviewArea"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 10.0
+offset_bottom = 40.0
+grow_horizontal = 2
+text = "Character Preview"
+horizontal_alignment = 1
+
+[node name="CowboyPreview" type="SubViewportContainer" parent="OfflinePanel/CharacterPreviewArea"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.19600001
+anchor_top = 0.1
+anchor_right = 0.8
+anchor_bottom = 0.859
+offset_left = -73.89601
+offset_top = -23.12001
+offset_right = 75.19998
+offset_bottom = 28.23117
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="OfflinePanel/CharacterPreviewArea/CowboyPreview"]
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(497, 494)
+render_target_update_mode = 4
+
+[node name="CowboyPreview" parent="OfflinePanel/CharacterPreviewArea/CowboyPreview/SubViewport" instance=ExtResource("2_qg7sa")]
+
+[node name="PiratePreview" type="SubViewportContainer" parent="OfflinePanel/CharacterPreviewArea"]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.2
+anchor_top = 0.1
+anchor_right = 0.8
+anchor_bottom = 0.85
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="OfflinePanel/CharacterPreviewArea/PiratePreview"]
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(345, 437)
+render_target_update_mode = 0
+
+[node name="PiratePreview" parent="OfflinePanel/CharacterPreviewArea/PiratePreview/SubViewport" instance=ExtResource("3_g6puw")]
+
+[node name="PriestPreview" type="SubViewportContainer" parent="OfflinePanel/CharacterPreviewArea"]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.2
+anchor_top = 0.1
+anchor_right = 0.8
+anchor_bottom = 0.85
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="OfflinePanel/CharacterPreviewArea/PriestPreview"]
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(345, 437)
+render_target_update_mode = 0
+
+[node name="PriestPreview" parent="OfflinePanel/CharacterPreviewArea/PriestPreview/SubViewport" instance=ExtResource("4_bwg8i")]
+
+[node name="StatLabel" type="RichTextLabel" parent="OfflinePanel/CharacterPreviewArea"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.85
+anchor_right = 1.0
+anchor_bottom = 1.0
+bbcode_enabled = true
+text = "[center][b]Stats[/b][/center]"
+
+[node name="OnlinePanel" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ConnectedLabel" type="Label" parent="OnlinePanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.4
+anchor_right = 0.5
+anchor_bottom = 0.4
+offset_left = -200.0
+offset_top = -30.0
+offset_right = 200.0
+offset_bottom = 30.0
+text = "Connected! Waiting for players…"
+horizontal_alignment = 1
+
+[node name="DisconnectButton" type="Button" parent="OnlinePanel"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.55
+anchor_right = 0.5
+anchor_bottom = 0.55
+offset_left = -100.0
+offset_top = -25.0
+offset_right = 100.0
+offset_bottom = 25.0
+text = "Disconnect"
+
+[node name="CthuluBackground" type="SubViewportContainer" parent="."]
+layout_mode = 0
+offset_left = 53.0
+offset_top = -49.0
+offset_right = 1187.0
+offset_bottom = 588.0
+mouse_filter = 2
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="CthuluBackground"]
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(1134, 637)
+render_target_update_mode = 4
+
+[node name="CthuluHead" parent="CthuluBackground/SubViewport" instance=ExtResource("5_bwg8i")]
+
+[connection signal="text_changed" from="OfflinePanel/VBox/NameEntry" to="." method="OnNameChanged"]
+[connection signal="item_selected" from="OfflinePanel/VBox/ClassDropdown" to="." method="OnClassSelected"]
+[connection signal="item_selected" from="OfflinePanel/VBox/ItemDropdown" to="." method="OnItemSelected"]
+[connection signal="pressed" from="OfflinePanel/VBox/ConnectButton" to="." method="OnConnectPressed"]
+[connection signal="pressed" from="OnlinePanel/DisconnectButton" to="." method="Disconnect"]
