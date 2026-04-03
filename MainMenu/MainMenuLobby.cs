@@ -27,9 +27,9 @@ public partial class MainMenuLobby : Control
 	public int    Score        = 0;
 
 	// Class colours
-	private static readonly Color ColorCowboy = new Color("ff4444");   // red
-	private static readonly Color ColorPirate = new Color("4488ff");   // blue
-	private static readonly Color ColorPriest = new Color("44cc66");   // green
+	private static readonly Color ColorCowboy = new Color("ff4444"); 
+	private static readonly Color ColorPirate = new Color("4488ff");  
+	private static readonly Color ColorPriest = new Color("44cc66");  
 
  
 	public override void _Ready()
@@ -41,7 +41,7 @@ public partial class MainMenuLobby : Control
 		ClassDropdown.AddItem("Priest  (Support)");
 		ClassDropdown.Selected = 0;
 
-		// Populate item dropdown
+		//item dropdown
 		ItemDropdown.Clear();
 		ItemDropdown.AddItem("Relic of Health");
 		ItemDropdown.AddItem("Relic of Cooldown");

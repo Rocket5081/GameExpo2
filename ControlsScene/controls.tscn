@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://byrs25mfymlb3"]
+
+[node name="Controls" type="Node2D"]
+
+[node name="ColBackground" type="ColorRect" parent="."]
+offset_right = 1151.0
+offset_bottom = 650.0
+color = Color(0.6577963, 0.30475074, 0.82767, 1)
