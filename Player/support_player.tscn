@@ -1,0 +1,33 @@
+[gd_scene load_steps=7 format=3 uid="uid://bqn4egd1x7c21"]
+
+[ext_resource type="Script" uid="uid://yo2i7m3b6pph" path="res://NetworkCore/NetID.cs" id="1_acfcq"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_ta8ye"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_acfcq"]
+albedo_color = Color(0.08235294, 1, 0, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_q1xqf"]
+material = SubResource("StandardMaterial3D_acfcq")
+size = Vector3(0.5, 0.5, 0.7)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_km5gb"]
+size = Vector3(1, 2, 1)
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_ktfil"]
+
+[node name="Support_Player" type="CharacterBody3D"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("CylinderMesh_ta8ye")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="MeshInstance3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.28425622, 0.45988727, 0)
+mesh = SubResource("BoxMesh_q1xqf")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_km5gb")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_ktfil")
+script = ExtResource("1_acfcq")

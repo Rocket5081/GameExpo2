@@ -15,7 +15,6 @@ public partial class Player : CharacterBody3D
     [Export] public float jumpForce = 10f;
     [Export] public float gravity = 20f;
 
-    public float timer = 0.5f;
     [Export] public bool canShoot = true;
     [Export] public bool canJump = true;
     [Export] public bool SyncedIsOnFloor = true;
@@ -24,6 +23,18 @@ public partial class Player : CharacterBody3D
     private float _mouseDeltaX = 0f;
 
     private bool _mouseCaptured = false;
+
+    //Player Stats
+
+    public float timer = 0.5f;
+
+    public float abilityCooldown;
+
+    public float damage = 10f;
+
+    public int hp;
+
+    public int maxHp;
 
     public override void _Ready()
     {
@@ -145,7 +156,7 @@ public partial class Player : CharacterBody3D
     public void PlayAttackAnimation()
     {
         if (myAnimation == null) return;
-        myAnimation.Play("primary");
+        //myAnimation.Play("primary");
     }
 
     [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
@@ -160,24 +171,9 @@ public partial class Player : CharacterBody3D
     }
 
     [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    public void Fire()
+    public virtual void Fire()
     {
-        if (GenericCore.Instance.IsServer)
-        {
-            canShoot = false;
-            timer = 0.5f;
-
-            Vector3 spawnPos = GlobalPosition + (Transform.Basis.X * 1.5f) + new Vector3(0, 1f, 0);
-
-            var t = GenericCore.Instance.MainNetworkCore.NetCreateObject(
-                1,
-                spawnPos,
-                Transform.Basis.GetRotationQuaternion(),
-                1
-            );
-
-            ((RigidBody3D)t).LinearVelocity = Transform.Basis.X * 40f;
-        }
+        // This will be overridden in the character class scripts
     }
 
     [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
