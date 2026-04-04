@@ -26,8 +26,8 @@ public partial class Controls : Button
 		
 		AddThemeStyleboxOverride("normal",   normal);
 		AddThemeStyleboxOverride("hover",    hover);
-		AddThemeStyleboxOverride("pressed",  normal);   
-		AddThemeStyleboxOverride("focus",    normal);
+		AddThemeStyleboxOverride("pressed",  new StyleBoxEmpty());
+		AddThemeStyleboxOverride("focus",    new StyleBoxEmpty());
 		AddThemeStyleboxOverride("disabled", normal);
 
 		MouseEntered += OnMouseEntered;

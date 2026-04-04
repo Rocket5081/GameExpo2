@@ -174,11 +174,10 @@ flat = true
 script = ExtResource("3_sybf7")
 TweenDuration = 1.0
 
-[node name="About" type="Button" parent="OfflinePanel/VBox"]
+[node name="Developers" type="Button" parent="OfflinePanel/VBox"]
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
-text = "About
-"
+text = "Developers"
 flat = true
 script = ExtResource("4_sybf7")
 TweenDuration = 1.0

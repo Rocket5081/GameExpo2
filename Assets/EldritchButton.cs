@@ -39,8 +39,8 @@ public partial class EldritchButton : Button
 
 		// Apply normal style to all non-hover states
 		AddThemeStyleboxOverride("normal",   NormalStyle);
-		AddThemeStyleboxOverride("pressed",  NormalStyle);
-		AddThemeStyleboxOverride("focus",    NormalStyle);
+		AddThemeStyleboxOverride("pressed",  new StyleBoxEmpty());
+		AddThemeStyleboxOverride("focus",    new StyleBoxEmpty());
 		AddThemeStyleboxOverride("disabled", NormalStyle);
 		AddThemeStyleboxOverride("hover",    HoverStyle);
 

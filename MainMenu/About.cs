@@ -26,8 +26,8 @@ public partial class About : Button
 		
 		AddThemeStyleboxOverride("normal",   normal);
 		AddThemeStyleboxOverride("hover",    hover);
-		AddThemeStyleboxOverride("pressed",  normal);   
-		AddThemeStyleboxOverride("focus",    normal);
+		AddThemeStyleboxOverride("pressed",  new StyleBoxEmpty());
+		AddThemeStyleboxOverride("focus",    new StyleBoxEmpty());
 		AddThemeStyleboxOverride("disabled", normal);
 
 		MouseEntered += OnMouseEntered;
@@ -49,7 +49,7 @@ public partial class About : Button
 
 	private void OnPressed()
 	{
-		GetTree().ChangeSceneToFile("res://AboutScene/about.tscn");
+		GetTree().ChangeSceneToFile("res://DevelopersScene/Developers.tscn");
 	}
 
 	private void AnimateTo(float target)

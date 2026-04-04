@@ -1,12 +1,12 @@
-[gd_scene load_steps=7 format=3 uid="uid://y25qb6y7y8hs"]
+[gd_scene load_steps=7 format=3 uid="uid://dson7ns4dmdqx"]
 
-[ext_resource type="Script" uid="uid://b3onqlu2im7ym" path="res://AboutScene/AboutScene.cs" id="1_about"]
-[ext_resource type="Script" uid="uid://0nkih8l5ekmn" path="res://ControlsScene/BackButton.cs" id="2_back"]
-[ext_resource type="Theme" uid="uid://cf6xkkbigiumk" path="res://Assets/Eldritch Theme1.tres" id="3_theme"]
-[ext_resource type="Shader" uid="uid://bbbfsutlv7yi5" path="res://MainMenu/void_background.gdshader" id="4_void"]
+[ext_resource type="Theme" uid="uid://cf6xkkbigiumk" path="res://Assets/Eldritch Theme1.tres" id="1_mhg08"]
+[ext_resource type="Script" uid="uid://b3onqlu2im7ym" path="res://DevelopersScene/AboutScene.cs" id="2_fdbfv"]
+[ext_resource type="Shader" uid="uid://bbbfsutlv7yi5" path="res://MainMenu/void_background.gdshader" id="3_wv4wq"]
+[ext_resource type="Script" uid="uid://0nkih8l5ekmn" path="res://ControlsScene/BackButton.cs" id="4_wypl2"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_void"]
-shader = ExtResource("4_void")
+shader = ExtResource("3_wv4wq")
 shader_parameter/speed = 0.42600001860506
 shader_parameter/rune_count = 6.73600017746
 shader_parameter/rune_size = 0.08300000254546999
@@ -37,8 +37,8 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("3_theme")
-script = ExtResource("1_about")
+theme = ExtResource("1_mhg08")
+script = ExtResource("2_fdbfv")
 
 [node name="Background" type="ColorRect" parent="."]
 material = SubResource("ShaderMaterial_void")
@@ -155,7 +155,7 @@ offset_right = 80.0
 offset_bottom = 33.76001
 text = "← Back"
 flat = true
-script = ExtResource("2_back")
+script = ExtResource("4_wypl2")
 HoverScale = 1.5
 
 [connection signal="pressed" from="BackButton" to="." method="OnBackPressed"]

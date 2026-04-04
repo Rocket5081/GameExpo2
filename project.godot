@@ -20,9 +20,10 @@ project/assembly_name="GameExpo2"
 [file_customization]
 
 folder_colors={
-"res://AboutScene/": "teal",
 "res://Assets/": "purple",
 "res://ControlsScene/": "gray",
+"res://DevelopersScene/": "teal",
+"res://MainGame/": "orange",
 "res://MainMenu/": "red",
 "res://NetworkCore/": "blue",
 "res://Player/": "yellow",
