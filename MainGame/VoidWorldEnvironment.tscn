@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://pd1bju26mdj0"]
+
+[ext_resource type="Environment" uid="uid://vw4b4w8dvb6f" path="res://MainGame/void_environment.tres" id="1_40ioj"]
+
+[node name="VoidWorldEnvironment" type="WorldEnvironment"]
+environment = ExtResource("1_40ioj")
