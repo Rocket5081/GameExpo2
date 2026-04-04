@@ -23,9 +23,14 @@ folder_colors={
 "res://Assets/": "purple",
 "res://ControlsScene/": "gray",
 "res://DevelopersScene/": "teal",
+"res://Enemies/": "pink",
 "res://MainGame/": "orange",
 "res://MainMenu/": "red",
 "res://NetworkCore/": "blue",
 "res://Player/": "yellow",
 "res://Sounds/": "pink"
 }
+
+[global_group]
+
+Players=""

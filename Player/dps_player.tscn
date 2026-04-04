@@ -47,7 +47,7 @@ properties/9/path = NodePath(".:rotation")
 properties/9/spawn = true
 properties/9/replication_mode = 2
 
-[node name="DPS_Player" type="CharacterBody3D" node_paths=PackedStringArray("myId")]
+[node name="DPS_Player" type="CharacterBody3D" node_paths=PackedStringArray("myId") groups=["Players"]]
 script = ExtResource("1_k2htt")
 myId = NodePath("MultiplayerSynchronizer")
 

@@ -15,6 +15,15 @@ size = Vector3(0.5, 0.5, 0.7)
 size = Vector3(1, 2, 1)
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_ktfil"]
+properties/0/path = NodePath("MultiplayerSynchronizer:IsNetworkReady")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+properties/1/path = NodePath("MultiplayerSynchronizer:IsSynced")
+properties/1/spawn = true
+properties/1/replication_mode = 1
+properties/2/path = NodePath("MultiplayerSynchronizer:OwnerId")
+properties/2/spawn = true
+properties/2/replication_mode = 1
 
 [node name="Support_Player" type="CharacterBody3D"]
 
@@ -25,7 +34,7 @@ mesh = SubResource("CylinderMesh_ta8ye")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.28425622, 0.45988727, 0)
 mesh = SubResource("BoxMesh_q1xqf")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." groups=["Players"]]
 shape = SubResource("BoxShape3D_km5gb")
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
