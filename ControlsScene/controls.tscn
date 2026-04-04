@@ -1,8 +1,168 @@
-[gd_scene format=3 uid="uid://byrs25mfymlb3"]
+[gd_scene load_steps=7 format=3 uid="uid://8dpidvgmemaq"]
 
-[node name="Controls" type="Node2D"]
+[ext_resource type="Script" uid="uid://bsnx0hon0wwak" path="res://ControlsScene/ControlsScene.cs" id="1_ctrl"]
+[ext_resource type="Script" uid="uid://0nkih8l5ekmn" path="res://ControlsScene/BackButton.cs" id="2_back"]
+[ext_resource type="Theme" uid="uid://cf6xkkbigiumk" path="res://Assets/Eldritch Theme1.tres" id="3_theme"]
+[ext_resource type="Shader" uid="uid://bbbfsutlv7yi5" path="res://MainMenu/void_background.gdshader" id="4_void"]
 
-[node name="ColBackground" type="ColorRect" parent="."]
-offset_right = 1151.0
-offset_bottom = 650.0
-color = Color(0.6577963, 0.30475074, 0.82767, 1)
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_void"]
+shader = ExtResource("4_void")
+shader_parameter/speed = 0.42600001860506
+shader_parameter/rune_count = 6.73600017746
+shader_parameter/rune_size = 0.08300000254546999
+shader_parameter/glow_radius = 8.0
+shader_parameter/void_dark = Color(0.01, 0, 0.04, 1)
+shader_parameter/void_mid = Color(0.03, 0.01, 0.1, 1)
+shader_parameter/rune_glow = Color(0.4, 0, 0, 1)
+shader_parameter/rune_core = Color(0.8509804, 0.023529412, 0.039215688, 1)
+shader_parameter/rune_dim = Color(0.46834505, 0.00015459597, 0.46877855, 1)
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_void"]
+emission_shape = 1
+emission_sphere_radius = 1.0
+direction = Vector3(0, 0, 0)
+spread = 180.0
+initial_velocity_min = 3.0
+initial_velocity_max = 18.0
+angular_velocity_min = -15.0
+angular_velocity_max = 15.0
+gravity = Vector3(0, 0, 0)
+scale_max = 3.5
+color = Color(0.7183078, 0.0167779, 0.4645422, 0.7019608)
+
+[node name="ControlsScene" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("3_theme")
+script = ExtResource("1_ctrl")
+
+[node name="Background" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_void")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 2.0
+offset_bottom = 2.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(1.0004766, 0.9873909)
+
+[node name="VoidParticles" type="GPUParticles2D" parent="."]
+position = Vector2(578, 247)
+amount = 500
+lifetime = 84.88
+speed_scale = 20.13
+explosiveness = 0.09
+randomness = 1.0
+visibility_rect = Rect2(-600, -360, 1200, 720)
+process_material = SubResource("ParticleProcessMaterial_void")
+
+[node name="TitleLabel" type="Label" parent="."]
+z_index = 2
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -291.0
+offset_top = 16.0
+offset_right = 309.0
+offset_bottom = 74.0
+grow_horizontal = 2
+scale = Vector2(1, 1.04)
+theme_override_colors/font_outline_color = Color(1, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 50
+text = "CONTROLS"
+horizontal_alignment = 1
+
+[node name="Card" type="PanelContainer" parent="."]
+z_index = 2
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.25
+anchor_top = 0.18
+anchor_right = 0.75
+anchor_bottom = 0.82
+offset_left = 13.0
+offset_top = -15.640007
+offset_right = 13.0
+offset_bottom = -6.3599854
+scale = Vector2(1, 1.0799997)
+
+[node name="VBox" type="VBoxContainer" parent="Card"]
+layout_mode = 2
+theme_override_constants/separation = 28
+
+[node name="MovementHeader" type="Label" parent="Card/VBox"]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(1, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 24
+text = "Movement"
+horizontal_alignment = 1
+
+[node name="MoveForward" type="Label" parent="Card/VBox"]
+layout_mode = 2
+text = "W  -  Move Forward"
+horizontal_alignment = 1
+
+[node name="MoveBackward" type="Label" parent="Card/VBox"]
+layout_mode = 2
+text = "S  -  Move Backward"
+horizontal_alignment = 1
+
+[node name="MoveLeft" type="Label" parent="Card/VBox"]
+layout_mode = 2
+text = "A  -  Move Left"
+horizontal_alignment = 1
+
+[node name="MoveRight" type="Label" parent="Card/VBox"]
+layout_mode = 2
+text = "D  -  Move Right"
+horizontal_alignment = 1
+
+[node name="DividerA" type="HSeparator" parent="Card/VBox"]
+visible = false
+layout_mode = 2
+
+[node name="CombatHeader" type="Label" parent="Card/VBox"]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(1, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 24
+text = "Combat"
+horizontal_alignment = 1
+
+[node name="Shoot" type="Label" parent="Card/VBox"]
+layout_mode = 2
+text = "Left Click -  Shoot"
+horizontal_alignment = 1
+
+[node name="Ability" type="Label" parent="Card/VBox"]
+layout_mode = 2
+text = "Q  -  Use Ability"
+horizontal_alignment = 1
+
+[node name="BackButton" type="Button" parent="."]
+z_index = 2
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.88
+anchor_right = 0.5
+anchor_bottom = 0.88
+offset_left = -65.0
+offset_top = 6.76001
+offset_right = 95.0
+offset_bottom = 54.76001
+text = "← Back"
+flat = true
+script = ExtResource("2_back")
+HoverScale = 1.2
+
+[connection signal="pressed" from="BackButton" to="." method="OnBackPressed"]

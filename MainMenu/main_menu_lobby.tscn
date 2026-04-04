@@ -87,6 +87,7 @@ visibility_rect = Rect2(-600, -360, 1200, 720)
 process_material = SubResource("ParticleProcessMaterial_void")
 
 [node name="TitleLabel" type="Label" parent="."]
+visible = false
 z_index = 2
 layout_mode = 1
 anchors_preset = 5
@@ -98,8 +99,9 @@ offset_right = 300.0
 offset_bottom = 66.0
 grow_horizontal = 2
 scale = Vector2(1, 1.0399998)
-theme_override_colors/font_outline_color = Color(1, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(0.4, 0, 0.9019608, 1)
 theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 37
 text = "CHOOSE YOUR CHARACTER"
 horizontal_alignment = 1
 
@@ -118,12 +120,12 @@ anchor_left = 0.007
 anchor_top = 0.1
 anchor_right = 0.5
 anchor_bottom = 0.97200006
-offset_left = -1.0640001
-offset_top = -38.800003
-offset_right = 16.30365
-offset_bottom = 43.143982
-scale = Vector2(0.94274634, 0.9234492)
-theme_override_constants/separation = 30
+offset_left = -2.0640006
+offset_top = -26.800003
+offset_right = 15.30365
+offset_bottom = 82.14398
+scale = Vector2(0.94274634, 0.8834494)
+theme_override_constants/separation = 33
 
 [node name="NameLabel" type="Label" parent="OfflinePanel/VBox"]
 layout_mode = 2
@@ -205,6 +207,7 @@ scale = Vector2(1, 1.1889626)
 color = Color(0, 0, 0, 1)
 
 [node name="PreviewLabel" type="Label" parent="OfflinePanel/CharacterPreviewArea"]
+visible = false
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -284,6 +287,7 @@ bbcode_enabled = true
 text = "[center][b]Stats[/b][/center]"
 
 [node name="Sep1" type="ColorRect" parent="OfflinePanel"]
+visible = false
 material = SubResource("ShaderMaterial_ug2ni")
 custom_minimum_size = Vector2(0, 30)
 layout_mode = 0
@@ -295,6 +299,7 @@ scale = Vector2(0.23879124, 1)
 size_flags_vertical = 3
 
 [node name="Sep2" type="ColorRect" parent="OfflinePanel"]
+visible = false
 material = SubResource("ShaderMaterial_ug2ni")
 custom_minimum_size = Vector2(0, 30)
 layout_mode = 0
@@ -306,6 +311,7 @@ scale = Vector2(0.23879124, 1)
 size_flags_vertical = 3
 
 [node name="Sep3" type="ColorRect" parent="OfflinePanel"]
+visible = false
 material = SubResource("ShaderMaterial_ug2ni")
 custom_minimum_size = Vector2(0, 30)
 layout_mode = 0
@@ -354,10 +360,10 @@ text = "Disconnect"
 
 [node name="CthuluBackground" type="SubViewportContainer" parent="."]
 layout_mode = 0
-offset_left = 138.0
-offset_top = -67.0
-offset_right = 1272.0
-offset_bottom = 570.0
+offset_left = 329.0
+offset_top = -284.0
+offset_right = 1463.0
+offset_bottom = 353.0
 mouse_filter = 2
 stretch = true
 
