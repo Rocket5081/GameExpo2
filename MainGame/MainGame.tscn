@@ -35,18 +35,6 @@ mesh = SubResource("PlaneMesh_mh0ok")
 transform = Transform3D(-0.1, 0, 0, 0, 0.1, -8.742278e-09, 0, 8.742278e-09, 0.1, 0, 0, 0)
 shape = SubResource("WorldBoundaryShape3D_3tbxw")
 
-[node name="Sp1" type="Marker3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -97.43295, 19.784943, 0)
-
-[node name="Sp2" type="Marker3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.732849, 0, 0)
-
-[node name="Sp3" type="Marker3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26.333633, 0, 0)
-
-[node name="Sp4" type="Marker3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 87.673325, 0, 0)
-
 [node name="VoidParticles" type="GPUParticles3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 296.86932, -261.2442, -520)
 amount = 750
@@ -85,7 +73,16 @@ transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -132.19006, -0.074278355, 165
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(0.78075767, 0, -0.62483394, 0, 1, 0, 0.62483394, 0, 0.78075767, 8.35614, 27.718584, 29.341045)
 
-[node name="OmniLight3D" type="SpotLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -133.51337, 7.0120354, 173.70845)
-light_energy = 17.883
-spot_range = 30.23696
+[node name="PlayerSpawns" type="Node3D" parent="."]
+
+[node name="SpawnPoints0" type="Node3D" parent="PlayerSpawns"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -97.43295, 19.784943, 0)
+
+[node name="SpawnPoints1" type="Node3D" parent="PlayerSpawns"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.732849, 0, 0)
+
+[node name="SpawnPoints2" type="Node3D" parent="PlayerSpawns"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26.333633, 0, 0)
+
+[node name="SpawnPoints3" type="Node3D" parent="PlayerSpawns"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 87.673325, 0, 0)
