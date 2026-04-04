@@ -1,10 +1,29 @@
-[gd_scene load_steps=3 format=3 uid="uid://dkloqt2lomuxg"]
+[gd_scene load_steps=10 format=3 uid="uid://dkloqt2lomuxg"]
+
+[ext_resource type="Material" uid="uid://bf80snneu4sbx" path="res://VoidParticles.tres" id="1_6bbl1"]
+[ext_resource type="PackedScene" uid="uid://dasl4cwcqllbs" path="res://Assets/head_of_cthulhu (1).glb" id="1_yfhen"]
+[ext_resource type="PackedScene" uid="uid://f2s0hloywdgu" path="res://Assets/Statue2.glb" id="2_vj0bg"]
+[ext_resource type="PackedScene" uid="uid://bkllvy4oqjbnc" path="res://MainGame/VoidWorldEnvironment (1).tscn" id="4_yfhen"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ry3at"]
+albedo_color = Color(0, 0, 0, 1)
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_mh0ok"]
+material = SubResource("StandardMaterial3D_ry3at")
 
 [sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_3tbxw"]
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5y8m1"]
+next_pass = ExtResource("1_6bbl1")
+albedo_color = Color(0.41568628, 0.23137255, 1, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_8e541"]
+material = SubResource("StandardMaterial3D_5y8m1")
+
 [node name="Node3D" type="Node3D"]
+
+[node name="Sketchfab_Scene" parent="." instance=ExtResource("1_yfhen")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -198.83478, 284.88364, -915.4341)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(156.01945, 0, 0, 0, 1, 0, 0, 0, 179.25375, 0, 0, 0)
@@ -15,3 +34,58 @@ mesh = SubResource("PlaneMesh_mh0ok")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="MeshInstance3D/Area3D"]
 transform = Transform3D(-0.1, 0, 0, 0, 0.1, -8.742278e-09, 0, 8.742278e-09, 0.1, 0, 0, 0)
 shape = SubResource("WorldBoundaryShape3D_3tbxw")
+
+[node name="Sp1" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -97.43295, 19.784943, 0)
+
+[node name="Sp2" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.732849, 0, 0)
+
+[node name="Sp3" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26.333633, 0, 0)
+
+[node name="Sp4" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 87.673325, 0, 0)
+
+[node name="VoidParticles" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 296.86932, -261.2442, -520)
+amount = 750
+lifetime = 84.88000000000001
+speed_scale = 20.13
+explosiveness = 0.09
+randomness = 1.0
+process_material = ExtResource("1_6bbl1")
+draw_pass_1 = SubResource("SphereMesh_8e541")
+
+[node name="VoidParticles2" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1367.1658, 3267.9856, -520)
+amount = 3000
+lifetime = 84.88000000000001
+speed_scale = 20.13
+explosiveness = 0.09
+randomness = 1.0
+process_material = ExtResource("1_6bbl1")
+draw_pass_1 = SubResource("SphereMesh_8e541")
+
+[node name="VoidParticles3" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -84.126526, -277.75684, 469.14642)
+amount = 750
+lifetime = 84.88000000000001
+speed_scale = 20.13
+explosiveness = 0.09
+randomness = 1.0
+process_material = ExtResource("1_6bbl1")
+draw_pass_1 = SubResource("SphereMesh_8e541")
+
+[node name="Statue2" parent="." instance=ExtResource("2_vj0bg")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -132.19006, -0.074278355, 165.54662)
+
+[node name="VoidWorldEnvironment" parent="." instance=ExtResource("4_yfhen")]
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(0.78075767, 0, -0.62483394, 0, 1, 0, 0.62483394, 0, 0.78075767, 8.35614, 27.718584, 29.341045)
+
+[node name="OmniLight3D" type="SpotLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -133.51337, 7.0120354, 173.70845)
+light_energy = 17.883
+spot_range = 30.23696

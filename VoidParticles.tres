@@ -1,0 +1,14 @@
+[gd_resource type="ParticleProcessMaterial" format=3 uid="uid://bf80snneu4sbx"]
+
+[resource]
+emission_shape = 1
+emission_sphere_radius = 1.0
+direction = Vector3(0, 0, 0)
+spread = 180.0
+initial_velocity_min = 3.0
+initial_velocity_max = 18.0
+angular_velocity_min = -15.0
+angular_velocity_max = 15.0
+gravity = Vector3(0, 0, 0)
+scale_max = 3.5
+color = Color(0.5, 0.1, 0.9, 0.7)

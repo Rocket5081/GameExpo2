@@ -155,7 +155,7 @@ public partial class MainMenuLobby : Control
 
 		// Reset port so next join starts fresh
 		LastPort = 0;
-		GenericCore.Instance.SetPort("9000");
+		GenericCore.Instance.SetPort("7000");
 
 		// Reset game state
 		HP    = 100;

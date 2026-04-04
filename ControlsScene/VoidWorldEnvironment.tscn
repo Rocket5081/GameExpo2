@@ -1,0 +1,17 @@
+[gd_scene load_steps=2 format=3 uid="uid://bkllvy4oqjbnc"]
+
+[ext_resource type="Environment" path="res://World/void_environment.tres" id="1_env"]
+
+; Drop this scene as a child of your root Node3D in any level.
+; It brings the void sky, purple fog, volumetric fog, and glow with it.
+
+[node name="VoidWorldEnvironment" type="WorldEnvironment"]
+environment = ExtResource("1_env")
+
+; ── Directional light — dim purple moonlight so models are visible ─────────────
+[node name="SunLight" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.707, -0.5, 0.5, 0.0, 0.707, 0.707, -0.707, -0.5, 0.5, 0, 0, 0)
+light_color        = Color(0.6, 0.3, 1.0, 1)
+light_energy       = 0.6
+light_indirect_energy = 0.4
+shadow_enabled     = true
