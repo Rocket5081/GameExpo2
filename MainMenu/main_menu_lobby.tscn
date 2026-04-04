@@ -1,10 +1,50 @@
-[gd_scene load_steps=6 format=3 uid="uid://dueebmf0c7uio"]
+[gd_scene load_steps=15 format=3 uid="uid://dueebmf0c7uio"]
 
 [ext_resource type="Script" uid="uid://c3xyxqeo68ya6" path="res://MainMenu/MainMenuLobby.cs" id="1_lobby"]
+[ext_resource type="Theme" uid="uid://cf6xkkbigiumk" path="res://Assets/Eldritch Theme1.tres" id="1_qloij"]
+[ext_resource type="Shader" uid="uid://bbbfsutlv7yi5" path="res://MainMenu/void_background.gdshader" id="2_l1scf"]
 [ext_resource type="PackedScene" uid="uid://d3enrlsl5me4x" path="res://MainMenu/cowboy_preview.tscn" id="2_qg7sa"]
 [ext_resource type="PackedScene" uid="uid://hyeotxo58imo" path="res://MainMenu/pirate_preview.tscn" id="3_g6puw"]
+[ext_resource type="Script" uid="uid://rlcy66epeniw" path="res://MainMenu/Controls.cs" id="3_sybf7"]
 [ext_resource type="PackedScene" uid="uid://bg6bx5jr3jygn" path="res://MainMenu/priest_preview.tscn" id="4_bwg8i"]
-[ext_resource type="PackedScene" uid="uid://lptd167x2g0q" path="res://cthulu_head.tscn" id="5_bwg8i"]
+[ext_resource type="Shader" uid="uid://cdd37dhr13xxy" path="res://Assets/eldritch_separator.gdshader" id="4_fvl13"]
+[ext_resource type="Script" uid="uid://dtu02dnn3cgjc" path="res://MainMenu/About.cs" id="4_sybf7"]
+[ext_resource type="Script" uid="uid://buk05j0bwtce2" path="res://MainMenu/ConnectButton.cs" id="4_ug2ni"]
+[ext_resource type="PackedScene" uid="uid://lptd167x2g0q" path="res://MainMenu/cthulu_head.tscn" id="5_bwg8i"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_void"]
+shader = ExtResource("2_l1scf")
+shader_parameter/speed = 0.42600001860506
+shader_parameter/rune_count = 6.73600017746
+shader_parameter/rune_size = 0.08300000254546999
+shader_parameter/glow_radius = 8.0
+shader_parameter/void_dark = Color(0.01, 0, 0.04, 1)
+shader_parameter/void_mid = Color(0.03, 0.01, 0.1, 1)
+shader_parameter/rune_glow = Color(0.4, 0, 0.9, 1)
+shader_parameter/rune_core = Color(0.85, 0.6, 1, 1)
+shader_parameter/rune_dim = Color(0.15, 0, 0.35, 1)
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_void"]
+emission_shape = 1
+emission_sphere_radius = 1.0
+direction = Vector3(0, 0, 0)
+spread = 180.0
+initial_velocity_min = 3.0
+initial_velocity_max = 18.0
+angular_velocity_min = -15.0
+angular_velocity_max = 15.0
+gravity = Vector3(0, 0, 0)
+scale_max = 3.5
+color = Color(0.5, 0.1, 0.9, 0.7)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ug2ni"]
+shader = ExtResource("4_fvl13")
+shader_parameter/speed = 1.2410000589475
+shader_parameter/drip_count = 20.0
+shader_parameter/drip_speed = 1.62000007369012
+shader_parameter/line_color = Color(0.54901963, 0, 0, 1)
+shader_parameter/drip_color = Color(0.34901962, 0, 0, 1)
+shader_parameter/glow_color = Color(0.8, 0, 0.050980393, 1)
 
 [node name="MainMenuLobby" type="Control" node_paths=PackedStringArray("NameEntry", "ClassDropdown", "ItemDropdown", "NameColorLabel", "CharacterPreviewArea", "CowboyPreview", "PiratePreview", "PriestPreview", "ConnectButton", "OfflinePanel", "OnlinePanel")]
 layout_mode = 3
@@ -13,6 +53,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("1_qloij")
 script = ExtResource("1_lobby")
 NameEntry = NodePath("OfflinePanel/VBox/NameEntry")
 ClassDropdown = NodePath("OfflinePanel/VBox/ClassDropdown")
@@ -27,24 +68,38 @@ OfflinePanel = NodePath("OfflinePanel")
 OnlinePanel = NodePath("OnlinePanel")
 
 [node name="Background" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_void")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.07, 0.07, 0.12, 1)
+
+[node name="VoidParticles" type="GPUParticles2D" parent="."]
+position = Vector2(578, 247)
+amount = 500
+lifetime = 84.88000000000001
+speed_scale = 20.13
+explosiveness = 0.09
+randomness = 1.0
+visibility_rect = Rect2(-600, -360, 1200, 720)
+process_material = SubResource("ParticleProcessMaterial_void")
 
 [node name="TitleLabel" type="Label" parent="."]
+z_index = 2
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
 offset_left = -300.0
-offset_top = 30.0
+offset_top = 16.0
 offset_right = 300.0
-offset_bottom = 80.0
+offset_bottom = 66.0
 grow_horizontal = 2
+scale = Vector2(1, 1.0399998)
+theme_override_colors/font_outline_color = Color(1, 0, 0, 1)
+theme_override_constants/outline_size = 2
 text = "CHOOSE YOUR CHARACTER"
 horizontal_alignment = 1
 
@@ -59,11 +114,16 @@ grow_vertical = 2
 [node name="VBox" type="VBoxContainer" parent="OfflinePanel"]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.03
+anchor_left = 0.007
 anchor_top = 0.1
-anchor_right = 0.45
-anchor_bottom = 0.85
-theme_override_constants/separation = 18
+anchor_right = 0.5
+anchor_bottom = 0.97200006
+offset_left = -1.0640001
+offset_top = -38.800003
+offset_right = 16.30365
+offset_bottom = 43.143982
+scale = Vector2(0.94274634, 0.9234492)
+theme_override_constants/separation = 30
 
 [node name="NameLabel" type="Label" parent="OfflinePanel/VBox"]
 layout_mode = 2
@@ -74,9 +134,6 @@ custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 placeholder_text = "Enter your name…"
 
-[node name="Sep1" type="HSeparator" parent="OfflinePanel/VBox"]
-layout_mode = 2
-
 [node name="ClassLabel" type="Label" parent="OfflinePanel/VBox"]
 layout_mode = 2
 text = "Choose Class"
@@ -85,18 +142,12 @@ text = "Choose Class"
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 
-[node name="Sep2" type="HSeparator" parent="OfflinePanel/VBox"]
-layout_mode = 2
-
 [node name="ItemLabel" type="Label" parent="OfflinePanel/VBox"]
 layout_mode = 2
 text = "Starting Relic"
 
 [node name="ItemDropdown" type="OptionButton" parent="OfflinePanel/VBox"]
 custom_minimum_size = Vector2(0, 40)
-layout_mode = 2
-
-[node name="Sep3" type="HSeparator" parent="OfflinePanel/VBox"]
 layout_mode = 2
 
 [node name="NameColorLabel" type="Label" parent="OfflinePanel/VBox"]
@@ -108,6 +159,27 @@ text = "Player"
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 text = "Connect"
+flat = true
+script = ExtResource("4_ug2ni")
+TweenDuration = 1.0
+
+[node name="Controls" type="Button" parent="OfflinePanel/VBox"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "Controls
+"
+flat = true
+script = ExtResource("3_sybf7")
+TweenDuration = 1.0
+
+[node name="About" type="Button" parent="OfflinePanel/VBox"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "About
+"
+flat = true
+script = ExtResource("4_sybf7")
+TweenDuration = 1.0
 
 [node name="CharacterPreviewArea" type="Control" parent="OfflinePanel"]
 z_index = 1
@@ -118,22 +190,31 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 
 [node name="PreviewBG" type="ColorRect" parent="OfflinePanel/CharacterPreviewArea"]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = -2.0
+offset_top = -58.800003
+offset_right = -2.0
+offset_bottom = -113.80841
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.1, 0.1, 0.18, 1)
+scale = Vector2(1, 1.1889626)
+color = Color(0, 0, 0, 1)
 
 [node name="PreviewLabel" type="Label" parent="OfflinePanel/CharacterPreviewArea"]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_top = 10.0
-offset_bottom = 40.0
+offset_left = -1.0
+offset_top = 7.199997
+offset_right = -1.0
+offset_bottom = 41.199997
 grow_horizontal = 2
-text = "Character Preview"
+theme_override_font_sizes/font_size = 29
+text = "Your Character"
 horizontal_alignment = 1
 
 [node name="CowboyPreview" type="SubViewportContainer" parent="OfflinePanel/CharacterPreviewArea"]
@@ -202,6 +283,39 @@ anchor_bottom = 1.0
 bbcode_enabled = true
 text = "[center][b]Stats[/b][/center]"
 
+[node name="Sep1" type="ColorRect" parent="OfflinePanel"]
+material = SubResource("ShaderMaterial_ug2ni")
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 0
+offset_left = 8.000001
+offset_top = 41.0
+offset_right = 548.0
+offset_bottom = 71.0
+scale = Vector2(0.23879124, 1)
+size_flags_vertical = 3
+
+[node name="Sep2" type="ColorRect" parent="OfflinePanel"]
+material = SubResource("ShaderMaterial_ug2ni")
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 0
+offset_left = 9.000001
+offset_top = 157.0
+offset_right = 549.0
+offset_bottom = 187.0
+scale = Vector2(0.23879124, 1)
+size_flags_vertical = 3
+
+[node name="Sep3" type="ColorRect" parent="OfflinePanel"]
+material = SubResource("ShaderMaterial_ug2ni")
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 0
+offset_left = 9.0
+offset_top = 274.0
+offset_right = 549.0
+offset_bottom = 304.0
+scale = Vector2(0.23879124, 1)
+size_flags_vertical = 3
+
 [node name="OnlinePanel" type="Control" parent="."]
 visible = false
 layout_mode = 1
@@ -240,10 +354,10 @@ text = "Disconnect"
 
 [node name="CthuluBackground" type="SubViewportContainer" parent="."]
 layout_mode = 0
-offset_left = 53.0
-offset_top = -49.0
-offset_right = 1187.0
-offset_bottom = 588.0
+offset_left = 138.0
+offset_top = -67.0
+offset_right = 1272.0
+offset_bottom = 570.0
 mouse_filter = 2
 stretch = true
 
