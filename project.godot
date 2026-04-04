@@ -23,7 +23,7 @@ folder_colors={
 "res://Assets/": "purple",
 "res://ControlsScene/": "gray",
 "res://DevelopersScene/": "teal",
-"res://Enemies/": "pink",
+"res://Enemies/": "red",
 "res://MainGame/": "orange",
 "res://MainMenu/": "red",
 "res://NetworkCore/": "blue",
