@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 public partial class Player : CharacterBody3D
@@ -35,6 +36,8 @@ public partial class Player : CharacterBody3D
     public int hp;
 
     public int maxHp;
+
+    public List<Bullet> Buls = new List<Bullet>();
 
     public override void _Ready()
     {
