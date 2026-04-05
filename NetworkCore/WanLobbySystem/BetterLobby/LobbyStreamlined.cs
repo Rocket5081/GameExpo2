@@ -68,7 +68,6 @@ public partial class LobbyStreamlined : Node
 			{
 				GD.Print("Connecting game server to local master.");
 				LobbyServerIP = "127.0.0.1";
-				// Game servers connect to localhost which is always ready — use sync version
 				JoinLobbyServer();
 			}
 		}
@@ -109,10 +108,9 @@ public partial class LobbyStreamlined : Node
 		}
 	}
 
-	// ── IP detection + async lobby connection for regular clients ──────────
 	public async Task CheckIPAddresses()
 	{
-		// Wait for MASTER instance to fully start before attempting connection
+		// Wait for MASTER instance to fully start
 		GD.Print("[LobbyStreamlined] Waiting 2s for master server to start...");
 		await ToSignal(GetTree().CreateTimer(2.0f), SceneTreeTimer.SignalName.Timeout);
 
@@ -158,7 +156,6 @@ public partial class LobbyStreamlined : Node
 			}
 		}
 
-		// Use async version that waits for full ENet handshake
 		if (await JoinLobbyServerAsync() != Error.Ok)
 		{
 			LobbyServerIP = "127.0.0.1";
@@ -166,7 +163,6 @@ public partial class LobbyStreamlined : Node
 		}
 	}
 
-	// ── Async lobby connect — waits for full ENet handshake ───────────────
 	private async Task<Error> JoinLobbyServerAsync()
 	{
 		GD.Print($"LOBBY Attempting to connect to {LobbyServerIP}:{PortMinimum}");
@@ -180,7 +176,6 @@ public partial class LobbyStreamlined : Node
 			return error;
 		}
 
-		// Wait for actual ENet handshake to complete (up to 5 seconds)
 		float waited = 0f;
 		while (AgentPeer.GetConnectionStatus() != MultiplayerPeer.ConnectionStatus.Connected && waited < 5f)
 		{
@@ -199,7 +194,6 @@ public partial class LobbyStreamlined : Node
 		return Error.Ok;
 	}
 
-	// ── Sync version — only used for game servers connecting to localhost ──
 	private Error JoinLobbyServer()
 	{
 		GD.Print($"LOBBY Attempting to connect to {LobbyServerIP}:{PortMinimum}");
@@ -230,7 +224,6 @@ public partial class LobbyStreamlined : Node
 		return Error.Ok;
 	}
 
-	// ── Create Game — waits for connection if not ready yet ───────────────
 	public async void CreatNewGameServer()
 	{
 		if (GameNameBox.Text.Length < 2)
@@ -245,7 +238,6 @@ public partial class LobbyStreamlined : Node
 			return;
 		}
 
-		// Wait up to 5 seconds for ENet handshake to be fully ready
 		float waited = 0f;
 		while ((AgentAPI.MultiplayerPeer == null ||
 				AgentAPI.MultiplayerPeer.GetConnectionStatus() != MultiplayerPeer.ConnectionStatus.Connected)
@@ -284,27 +276,40 @@ public partial class LobbyStreamlined : Node
 	{
 		base._Process(delta);
 		AgentAPI.Poll();
+
+		// Guard: stop processing if node is no longer in the tree
+		if (!IsInsideTree()) return;
+		if (GenericCore.Instance == null) return;
+		if (GetChildCount() == 0) return;
+
+		Node child0 = GetChild(0);
+		if (child0 == null) return;
+
 		if (!IsWanLobbyServer)
-			UpdateVBoxChildren((VBoxContainer)GetNode(AgentSpawner.GetPath() + "/" + AgentSpawner.SpawnPath));
+		{
+			Node spawnerNode = GetNodeOrNull(AgentSpawner.GetPath() + "/" + AgentSpawner.SpawnPath);
+			if (spawnerNode is VBoxContainer vbox)
+				UpdateVBoxChildren(vbox);
+		}
 
 		if (GenericCore.Instance.IsGenericCoreConnected || IsWanLobbyServer)
 		{
-			((Control)GetChild(0)).Visible = false;
+			if (child0 is Control c0) c0.Visible = false;
 			foreach (Node n in GenericCore.Instance.GetChildren())
 			{
-				if (n is CanvasItem canvasItem) canvasItem.Visible = true;
-				else if (n is Node3D node3D) node3D.Visible = true;
-				else if (n is CanvasLayer canvasLayer) canvasLayer.Visible = true;
+				if (n is CanvasItem ci) ci.Visible = true;
+				else if (n is Node3D n3) n3.Visible = true;
+				else if (n is CanvasLayer cl) cl.Visible = true;
 			}
 		}
 		else
 		{
-			((Control)GetChild(0)).Visible = true;
+			if (child0 is Control c0) c0.Visible = true;
 			foreach (Node n in GenericCore.Instance.GetChildren())
 			{
-				if (n is CanvasItem canvasItem) canvasItem.Visible = true;
-				else if (n is Node3D node3D) node3D.Visible = true;
-				else if (n is CanvasLayer canvasLayer) canvasLayer.Visible = true;
+				if (n is CanvasItem ci) ci.Visible = true;
+				else if (n is Node3D n3) n3.Visible = true;
+				else if (n is CanvasLayer cl) cl.Visible = true;
 			}
 		}
 	}
