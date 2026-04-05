@@ -6,19 +6,20 @@ using System.Net.Http;
 public partial class DpsPlayer : Player
 {
 
-    [Export] public PackedScene projectileScene;
+	[Export] public PackedScene projectileScene;
 
-    private int burstCount = 3;
-    private float burstDelay = 0.1f;
+	private int burstCount = 3;
+	private float burstDelay = 0.1f;
 
-    public override void _Ready()
-    {
-        maxHp = 150;
-        speed = 20;
-        hp = maxHp;
-        base._Ready();
-    }
+	public override void _Ready()
+	{
+		maxHp = 150;
+		speed = 20;
+		hp = maxHp;
+		base._Ready();
+	}
 
+<<<<<<< Updated upstream
     public override void _Process(double delta)
     {
         RpcId(1, "Fire");
@@ -36,14 +37,26 @@ public partial class DpsPlayer : Player
             if(Buls.Count <= 0)
             {
                 Vector3 spawnPos = GlobalPosition + (Transform.Basis.X * 1.5f) + new Vector3(0, 1f, 0);
+=======
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public override void Fire()
+	{
+		if (GenericCore.Instance.IsServer)
+		{
+			canShoot = false;
+			timer = 0.5f;
 
-            var t = GenericCore.Instance.MainNetworkCore.NetCreateObject(
-                1,
-                spawnPos,
-                Transform.Basis.GetRotationQuaternion(),
-                1
-            );
+			Vector3 spawnPos = GlobalPosition + (Transform.Basis.X * 1.5f) + new Vector3(0, 1f, 0);
+>>>>>>> Stashed changes
 
+			var t = GenericCore.Instance.MainNetworkCore.NetCreateObject(
+				1,
+				spawnPos,
+				Transform.Basis.GetRotationQuaternion(),
+				1
+			);
+
+<<<<<<< Updated upstream
             ((RigidBody3D)t).LinearVelocity =Transform.Basis.X * 20f;
             Buls.Add((Bullet)t);
             }
@@ -62,4 +75,9 @@ public partial class DpsPlayer : Player
             
         }
    }
+=======
+			((RigidBody3D)t).LinearVelocity = Transform.Basis.X * 40f;
+		}
+	}
+>>>>>>> Stashed changes
 }

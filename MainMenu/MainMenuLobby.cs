@@ -2,15 +2,13 @@ using Godot;
 using System;
 using System.Threading.Tasks;
 
-
 public partial class MainMenuLobby : Control
 {
-
 	[Export] public LineEdit NameEntry;
 	[Export] public OptionButton ClassDropdown;
 	[Export] public OptionButton ItemDropdown;
-	[Export] public Label NameColorLabel;       
-	[Export] public Control CharacterPreviewArea; 
+	[Export] public Label NameColorLabel;
+	[Export] public Control CharacterPreviewArea;
 	[Export] public SubViewportContainer CowboyPreview;
 	[Export] public SubViewportContainer PiratePreview;
 	[Export] public SubViewportContainer PriestPreview;
@@ -18,20 +16,17 @@ public partial class MainMenuLobby : Control
 	[Export] public Control OfflinePanel;
 	[Export] public Control OnlinePanel;
 
-	
-	public string PlayerName   = "Player";
-	public int    ClassChoice  = 0;   // 0=Cowboy(DPS)  1=Pirate(Tank)  2=Priest(Support)
-	public int    ItemChoice   = 0;   // 0=Relic of Health  1=Relic of Cooldown
-	public int    LastPort     = 0;
-	public int    HP           = 100;
-	public int    Score        = 0;
+	public string PlayerName  = "Player";
+	public int    ClassChoice = 0;   // 0=Cowboy(DPS)  1=Pirate(Tank)  2=Priest(Support)
+	public int    ItemChoice  = 0;   // 0=Relic of Health  1=Relic of Cooldown
+	public int    LastPort    = 0;
+	public int    HP          = 100;
+	public int    Score       = 0;
 
-	// Class colours
-	private static readonly Color ColorCowboy = new Color("ff4444"); 
-	private static readonly Color ColorPirate = new Color("4488ff");  
-	private static readonly Color ColorPriest = new Color("44cc66");  
+	private static readonly Color ColorCowboy = new Color("ff4444");
+	private static readonly Color ColorPirate = new Color("4488ff");
+	private static readonly Color ColorPriest = new Color("44cc66");
 
- 
 	public override void _Ready()
 	{
 		// Populate class dropdown
@@ -41,19 +36,19 @@ public partial class MainMenuLobby : Control
 		ClassDropdown.AddItem("Priest  (Support)");
 		ClassDropdown.Selected = 0;
 
-		//item dropdown
+		// Populate item/relic dropdown
 		ItemDropdown.Clear();
 		ItemDropdown.AddItem("Relic of Health");
 		ItemDropdown.AddItem("Relic of Cooldown");
 		ItemDropdown.Selected = 0;
 
 		// Connect signals
-		NameEntry.TextChanged       += OnNameChanged;
-		ClassDropdown.ItemSelected  += OnClassSelected;
-		ItemDropdown.ItemSelected   += OnItemSelected;
-		ConnectButton.Pressed       += OnConnectPressed;
+		NameEntry.TextChanged      += OnNameChanged;
+		ClassDropdown.ItemSelected += OnClassSelected;
+		ItemDropdown.ItemSelected  += OnItemSelected;
+		ConnectButton.Pressed      += OnConnectPressed;
 
-		// Start with the offline panel visible
+		// Start with offline panel visible
 		OfflinePanel.Visible = true;
 		OnlinePanel.Visible  = false;
 
@@ -61,21 +56,20 @@ public partial class MainMenuLobby : Control
 		RefreshClassDisplay(0);
 	}
 
-	//  Name 
+	
 	private void OnNameChanged(string newText)
 	{
 		PlayerName = newText.Length > 0 ? newText : "Player";
 		RefreshNameLabel();
 	}
 
-	//  Class 
+	
 	private void OnClassSelected(long index)
 	{
 		ClassChoice = (int)index;
 		RefreshClassDisplay(ClassChoice);
 	}
 
-	// Called when the mouse hovers over each class button (hook up in scene)
 	public void OnHoverCowboy() => ShowPreview(0);
 	public void OnHoverPirate() => ShowPreview(1);
 	public void OnHoverPriest() => ShowPreview(2);
@@ -111,14 +105,13 @@ public partial class MainMenuLobby : Control
 		};
 	}
 
-	//  Item 
 	private void OnItemSelected(long index)
 	{
 		ItemChoice = (int)index;
-		GD.Print($"[MainMenuLobby] Item selected: {ItemChoice}");
+		GD.Print($"[MainMenuLobby] Relic selected: {ItemChoice}");
 	}
 
-	//  Connect 
+	
 	private void OnConnectPressed()
 	{
 		_ = TaskConnect();
@@ -135,6 +128,11 @@ public partial class MainMenuLobby : Control
 		{
 			OfflinePanel.Visible = false;
 			OnlinePanel.Visible  = true;
+
+			// Tell the server this player's class and relic choice
+			// RpcId(1, ...) sends only to the server (peer ID 1)
+			RpcId(1, MethodName.RegisterPlayerData, ClassChoice, ItemChoice);
+			GD.Print($"[MainMenuLobby] Sent RegisterPlayerData — Class:{ClassChoice} Relic:{ItemChoice}");
 		}
 		else
 		{
@@ -144,25 +142,37 @@ public partial class MainMenuLobby : Control
 		}
 	}
 
-	// ── Disconnect (call this from the Online panel's disconnect button) ──
+	
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	private void RegisterPlayerData(int classChoice, int relicChoice)
+	{
+		// Only the server should process this
+		if (!GenericCore.Instance.IsServer) return;
+
+		int senderId = Multiplayer.GetRemoteSenderId();
+		GD.Print($"[MainMenuLobby] Server received data from peer {senderId} — Class:{classChoice} Relic:{relicChoice}");
+
+		// Hand off to GameStarter which tracks readiness and launches the game
+		GameStarter.Instance.RegisterPlayer(senderId, classChoice, relicChoice);
+	}
+
+	
 	public void Disconnect()
 	{
 		GenericCore.Instance.DisconnectFromGame();
-		OfflinePanel.Visible = true;
-		OnlinePanel.Visible  = false;
+		OfflinePanel.Visible   = true;
+		OnlinePanel.Visible    = false;
 		ConnectButton.Disabled = false;
-		ConnectButton.Text = "Connect";
+		ConnectButton.Text     = "Connect";
 
-		// Reset port so next join starts fresh
 		LastPort = 0;
 		GenericCore.Instance.SetPort("7000");
 
-		// Reset game state
 		HP    = 100;
 		Score = 0;
 	}
 
-	// Server-mode: hide the whole menu 
+	
 	public override void _Process(double delta)
 	{
 		base._Process(delta);
