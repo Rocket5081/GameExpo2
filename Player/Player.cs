@@ -39,6 +39,8 @@ public partial class Player : CharacterBody3D
 
     public List<Bullet> Buls = new List<Bullet>();
 
+    public int bulCount = 0;
+
     public override void _Ready()
     {
         base._Ready();
