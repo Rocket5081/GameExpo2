@@ -10,7 +10,7 @@ public partial class Bullet : RigidBody3D
 
     public override void _Ready()
     {
-        
+        Vector3 forward = -Transform.Basis.X;
     }
 
     public override void _Process(double delta)

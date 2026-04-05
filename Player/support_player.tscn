@@ -1,6 +1,7 @@
-[gd_scene load_steps=7 format=3 uid="uid://bqn4egd1x7c21"]
+[gd_scene load_steps=8 format=3 uid="uid://bqn4egd1x7c21"]
 
 [ext_resource type="Script" uid="uid://yo2i7m3b6pph" path="res://NetworkCore/NetID.cs" id="1_acfcq"]
+[ext_resource type="Script" uid="uid://c2xotdccp4f3r" path="res://Player/SupportPlayer.cs" id="1_q1xqf"]
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_ta8ye"]
 
@@ -25,7 +26,8 @@ properties/2/path = NodePath("MultiplayerSynchronizer:OwnerId")
 properties/2/spawn = true
 properties/2/replication_mode = 1
 
-[node name="Support_Player" type="CharacterBody3D"]
+[node name="Support_Player" type="CharacterBody3D" groups=["Players"]]
+script = ExtResource("1_q1xqf")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("CylinderMesh_ta8ye")
@@ -34,7 +36,7 @@ mesh = SubResource("CylinderMesh_ta8ye")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.28425622, 0.45988727, 0)
 mesh = SubResource("BoxMesh_q1xqf")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="." groups=["Players"]]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("BoxShape3D_km5gb")
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]

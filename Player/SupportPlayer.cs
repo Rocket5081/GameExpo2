@@ -17,6 +17,20 @@ public partial class SupportPlayer : Player
     [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     public override void Fire()
     {
-        
+        if (GenericCore.Instance.IsServer)
+        {
+
+            //sets max amount of created bullets, before teleporting old bullets back.
+            if(Buls.Count < 100)
+            {
+				SpawnBullet(1,0);
+            }
+            //shoots old bullets instead of creating new ones
+            else
+            {
+                ShootBullet(1,0);
+            }
+            
+        }
     }
 }

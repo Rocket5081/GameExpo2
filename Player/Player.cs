@@ -204,4 +204,40 @@ public partial class Player : CharacterBody3D
             SyncedVelocity = new Vector3(horizontal.X, currentY, horizontal.Z);
         }
     }
+
+    //This function can definetly be optimized, I just can't do that at 1am
+	public async void SpawnBullet(int count, float cooldown)
+	{
+		Vector3 spawnPos = GlobalPosition + (Transform.Basis.X * 1.5f) + new Vector3(0, 1f, 0);
+        //creates a new bullet, shoots it, and adds it to the Buls array in Player.cs, then waits .1 seconds to do it 2 more times
+        for(int i=0; i<count; i++)
+        {
+            var t1 = GenericCore.Instance.MainNetworkCore.NetCreateObject(
+				1,
+				spawnPos,
+				Transform.Basis.GetRotationQuaternion(),
+				1
+			);
+            ((RigidBody3D)t1).LinearVelocity =Transform.Basis.X * 150f;
+			Buls.Add((Bullet)t1);
+			await ToSignal(GetTree().CreateTimer(cooldown), SceneTreeTimer.SignalName.Timeout);
+        }
+	}
+
+	//This function can definetly be optimized, I just can't do that at 1am
+	public async void ShootBullet(int count, float cooldown)
+	{
+        //shoots old bullets
+        for(int i=0; i<count; i++)
+        {
+        Buls[bulCount].Show();
+        Buls[bulCount].CollisionLayer = 1;
+		Buls[bulCount].CollisionMask = 1;
+        Buls[bulCount].GlobalPosition = GlobalPosition + (Transform.Basis.X * 1.5f) + new Vector3(0, 1f, 0);
+        Buls[bulCount].LinearVelocity = Transform.Basis.X * 150f;
+		bulCount++;
+		if(bulCount >= Buls.Count){ bulCount = 0; }
+		await ToSignal(GetTree().CreateTimer(cooldown), SceneTreeTimer.SignalName.Timeout);
+        }
+	}
 }
