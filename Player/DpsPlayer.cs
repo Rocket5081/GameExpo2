@@ -18,10 +18,10 @@ public partial class DpsPlayer : Player
 
 <<<<<<< Updated upstream
 
-    public override void _Process(double delta)
-    {
-        RpcId(1, "Fire");
-    }
+	public override void _Process(double delta)
+	{
+		RpcId(1, "Fire");
+	}
 =======
 	public override void _Process(double delta)
 	{
@@ -36,27 +36,27 @@ public partial class DpsPlayer : Player
 	}
 
 <<<<<<< Updated upstream
-    [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    public override void Fire()
-    {
-        if (GenericCore.Instance.IsServer)
-        {
-            canShoot = false;
-            timer = 0.5f;
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public override void Fire()
+	{
+		if (GenericCore.Instance.IsServer)
+		{
+			canShoot = false;
+			timer = 0.5f;
 
-            //sets max amount of created bullets, before teleporting old bullets back.
-            if(Buls.Count < 9)
-            {
-                
+			//sets max amount of created bullets, before teleporting old bullets back.
+			if(Buls.Count < 9)
+			{
+				
 				SpawnBullet();
-            }
-            //shoots old bullets instead of creating new ones
-            else
-            {
-                ShootBullet();
-            }
-            
-        }
+			}
+			//shoots old bullets instead of creating new ones
+			else
+			{
+				ShootBullet();
+			}
+			
+		}
    }
 
    //This function can definetly be optimized, I just can't do that at 1am
@@ -113,28 +113,28 @@ public partial class DpsPlayer : Player
 	//This function can definetly be optimized, I just can't do that at 1am
 	public async void ShootBullet()
 	{
-        //shoots old bullets
-        Buls[bulCount].Show();
-        Buls[bulCount].CollisionLayer = 1;
+		//shoots old bullets
+		Buls[bulCount].Show();
+		Buls[bulCount].CollisionLayer = 1;
 		Buls[bulCount].CollisionMask = 1;
-        Buls[bulCount].GlobalPosition = GlobalPosition + (Transform.Basis.X * 1.5f) + new Vector3(0, 1f, 0);
-        Buls[bulCount].LinearVelocity = Transform.Basis.X * 20f;
-		bulCount++;
-		if(bulCount >= Buls.Count){ bulCount = 0; }
-		await ToSignal(GetTree().CreateTimer(0.1f), SceneTreeTimer.SignalName.Timeout);
-        Buls[bulCount].Show();
-        Buls[bulCount].CollisionLayer = 1;
-		Buls[bulCount].CollisionMask = 1;
-        Buls[bulCount].GlobalPosition = GlobalPosition + (Transform.Basis.X * 1.5f) + new Vector3(0, 1f, 0);
-        Buls[bulCount].LinearVelocity = Transform.Basis.X * 20f;
+		Buls[bulCount].GlobalPosition = GlobalPosition + (Transform.Basis.X * 1.5f) + new Vector3(0, 1f, 0);
+		Buls[bulCount].LinearVelocity = Transform.Basis.X * 20f;
 		bulCount++;
 		if(bulCount >= Buls.Count){ bulCount = 0; }
 		await ToSignal(GetTree().CreateTimer(0.1f), SceneTreeTimer.SignalName.Timeout);
 		Buls[bulCount].Show();
-        Buls[bulCount].CollisionLayer = 1;
+		Buls[bulCount].CollisionLayer = 1;
 		Buls[bulCount].CollisionMask = 1;
-        Buls[bulCount].GlobalPosition = GlobalPosition + (Transform.Basis.X * 1.5f) + new Vector3(0, 1f, 0);
-        Buls[bulCount].LinearVelocity = Transform.Basis.X * 20f;
+		Buls[bulCount].GlobalPosition = GlobalPosition + (Transform.Basis.X * 1.5f) + new Vector3(0, 1f, 0);
+		Buls[bulCount].LinearVelocity = Transform.Basis.X * 20f;
+		bulCount++;
+		if(bulCount >= Buls.Count){ bulCount = 0; }
+		await ToSignal(GetTree().CreateTimer(0.1f), SceneTreeTimer.SignalName.Timeout);
+		Buls[bulCount].Show();
+		Buls[bulCount].CollisionLayer = 1;
+		Buls[bulCount].CollisionMask = 1;
+		Buls[bulCount].GlobalPosition = GlobalPosition + (Transform.Basis.X * 1.5f) + new Vector3(0, 1f, 0);
+		Buls[bulCount].LinearVelocity = Transform.Basis.X * 20f;
 		bulCount++;
 		if(bulCount >= Buls.Count){ bulCount = 0; }
 	}

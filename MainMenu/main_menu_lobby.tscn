@@ -7,7 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://hyeotxo58imo" path="res://MainMenu/pirate_preview.tscn" id="3_g6puw"]
 [ext_resource type="Script" uid="uid://rlcy66epeniw" path="res://MainMenu/Controls.cs" id="3_sybf7"]
 [ext_resource type="PackedScene" uid="uid://bg6bx5jr3jygn" path="res://MainMenu/priest_preview.tscn" id="4_bwg8i"]
-[ext_resource type="Material" uid="uid://bf80snneu4sbx" path="res://VoidParticles.tres" id="4_e8h11"]
+[ext_resource type="Material" uid="uid://bf80snneu4sbx" path="res://MainGame/VoidParticles.tres" id="4_e8h11"]
 [ext_resource type="Shader" uid="uid://cdd37dhr13xxy" path="res://Assets/eldritch_separator.gdshader" id="4_fvl13"]
 [ext_resource type="Script" uid="uid://dtu02dnn3cgjc" path="res://MainMenu/About.cs" id="4_sybf7"]
 [ext_resource type="Script" uid="uid://buk05j0bwtce2" path="res://MainMenu/ConnectButton.cs" id="4_ug2ni"]
