@@ -53,7 +53,6 @@ public partial class TankPlayer : Player
         }
 	}
 
-	//This function can definetly be optimized, I just can't do that at 1am
 	public new async void ShootBullet(int count, float cooldown)
 	{
         //shoots old bullets

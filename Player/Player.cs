@@ -205,7 +205,6 @@ public partial class Player : CharacterBody3D
         }
     }
 
-    //This function can definetly be optimized, I just can't do that at 1am
 	public async void SpawnBullet(int count, float cooldown)
 	{
 		Vector3 spawnPos = GlobalPosition + (Transform.Basis.X * 1.5f) + new Vector3(0, 1f, 0);
@@ -224,7 +223,6 @@ public partial class Player : CharacterBody3D
         }
 	}
 
-	//This function can definetly be optimized, I just can't do that at 1am
 	public async void ShootBullet(int count, float cooldown)
 	{
         //shoots old bullets
