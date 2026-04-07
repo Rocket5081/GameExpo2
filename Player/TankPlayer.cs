@@ -21,6 +21,9 @@ public partial class TankPlayer : Player
     [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
     public override void Fire()
     {
+        canShoot = false;
+		timer = 0.5f;
+
          //sets max amount of created bullets, before teleporting old bullets back.
             if(Buls.Count < 12)
             {
