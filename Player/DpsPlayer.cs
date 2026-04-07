@@ -16,8 +16,8 @@ public partial class DpsPlayer : Player
 		base._Ready();
 	}
 
-    public override void _Process(double delta)
-    {
+	public override void _Process(double delta)
+	{
 		// Only the local player should request to fire
 		if (myId.IsLocal && canShoot)
 		{
@@ -49,5 +49,3 @@ public partial class DpsPlayer : Player
 		}
    }
 }
-
-

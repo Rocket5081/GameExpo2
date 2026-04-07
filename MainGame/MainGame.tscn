@@ -39,7 +39,7 @@ material = SubResource("ShaderMaterial_5y8m1")
 subdivide_width = 64
 subdivide_depth = 64
 
-[node name="Node3D" type="Node3D"]
+[node name="MainGame" type="Node3D"]
 
 [node name="Sketchfab_Scene" parent="." instance=ExtResource("1_yfhen")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -198.83478, 284.88364, -915.4341)
