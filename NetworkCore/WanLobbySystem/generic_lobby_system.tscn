@@ -93,8 +93,9 @@ spawn_path = NodePath("..")
 script = ExtResource("2_nacce")
 SpawnInexZeroOnConnect = true
 
-[node name="GameRoot" type="Node" parent="."]
+[node name="GameRoot" type="Node" parent="." node_paths=PackedStringArray("MainNetworkCore")]
 script = ExtResource("3_p6o7m")
+MainNetworkCore = NodePath("../GenericLobbySystem/HBoxContainer/ColorRect2/ActiveGames/ActiveGames/MultiplayerSpawner")
 _portMaximum = 7010
 _portMinimum = 7000
 _localPort = 7000

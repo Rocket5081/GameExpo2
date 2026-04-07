@@ -34,7 +34,7 @@ shader_parameter/line_color = Color(0.54901963, 0, 0, 1)
 shader_parameter/drip_color = Color(0.34901962, 0, 0, 1)
 shader_parameter/glow_color = Color(0.8, 0, 0.050980393, 1)
 
-[node name="MainMenuLobby" type="Control" node_paths=PackedStringArray("NameEntry", "ClassDropdown", "ItemDropdown", "NameColorLabel", "CharacterPreviewArea", "CowboyPreview", "PiratePreview", "PriestPreview", "ConnectButton", "OfflinePanel", "OnlinePanel")]
+[node name="MainMenuLobby" type="Control" node_paths=PackedStringArray("NameEntry", "ClassDropdown", "ItemDropdown", "NameColorLabel", "CharacterPreviewArea", "CowboyPreview", "PiratePreview", "PriestPreview", "ConnectButton", "OfflinePanel", "OnlinePanel", "PlayerCountLabel")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -54,6 +54,7 @@ PriestPreview = NodePath("OfflinePanel/CharacterPreviewArea/PriestPreview")
 ConnectButton = NodePath("OfflinePanel/VBox/ConnectButton")
 OfflinePanel = NodePath("OfflinePanel")
 OnlinePanel = NodePath("OnlinePanel")
+PlayerCountLabel = NodePath("OnlinePanel/PlayerCountLabel")
 
 [node name="Background" type="ColorRect" parent="."]
 material = SubResource("ShaderMaterial_void")
@@ -318,7 +319,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="ConnectedLabel" type="Label" parent="OnlinePanel"]
+[node name="PlayerCountLabel" type="Label" parent="OnlinePanel"]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.5
@@ -329,7 +330,7 @@ offset_left = -200.0
 offset_top = -30.0
 offset_right = 200.0
 offset_bottom = 30.0
-text = "Connected! Waiting for players…"
+text = "Waiting for Players..."
 horizontal_alignment = 1
 
 [node name="DisconnectButton" type="Button" parent="OnlinePanel"]

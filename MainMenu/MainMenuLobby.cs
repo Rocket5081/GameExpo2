@@ -1,5 +1,6 @@
 using Godot;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 public partial class MainMenuLobby : Control
 {
@@ -14,10 +15,11 @@ public partial class MainMenuLobby : Control
 	[Export] public Button ConnectButton;
 	[Export] public Control OfflinePanel;
 	[Export] public Control OnlinePanel;
+	[Export] public Label PlayerCountLabel;
 
 	public string PlayerName  = "Player";
-	public int    ClassChoice = 0;   // 0=Cowboy(DPS)  1=Pirate(Tank)  2=Priest(Support)
-	public int    ItemChoice  = 0;   // 0=Relic of Health  1=Relic of Cooldown
+	public int    ClassChoice = 0;   // 0=DPS  1=Tank  2=Support
+	public int    ItemChoice  = 0;
 	public int    LastPort    = 0;
 	public int    HP          = 100;
 	public int    Score       = 0;
@@ -26,14 +28,13 @@ public partial class MainMenuLobby : Control
 	private static readonly Color ColorPirate = new Color("4488ff");
 	private static readonly Color ColorPriest = new Color("44cc66");
 
-	// Tracks which spawn slot the next connecting player gets
-	private static int _spawnCounter = 0;
+	private const int RequiredPlayers = 2;
 
-	// ── Ready ────────────────────────────────────────────────────────────────
+	private static readonly Dictionary<int, int> _readyPlayers = new();
 
 	public override void _Ready()
 	{
-		_spawnCounter = 0;
+		_readyPlayers.Clear();
 
 		ClassDropdown.Clear();
 		ClassDropdown.AddItem("Cowboy  (DPS)");
@@ -55,9 +56,20 @@ public partial class MainMenuLobby : Control
 		OnlinePanel.Visible  = false;
 
 		RefreshClassDisplay(0);
+
+		if (PlayerCountLabel != null)
+			PlayerCountLabel.Text = $"Players: 0 / {RequiredPlayers}";
 	}
 
-	// ── Name / Class / Item ──────────────────────────────────────────────────
+	public override void _ExitTree()
+	{
+		if (NameEntry != null)     NameEntry.TextChanged      -= OnNameChanged;
+		if (ClassDropdown != null) ClassDropdown.ItemSelected -= OnClassSelected;
+		if (ItemDropdown != null)  ItemDropdown.ItemSelected  -= OnItemSelected;
+		if (ConnectButton != null) ConnectButton.Pressed      -= OnConnectPressed;
+	}
+
+	// ── UI ────────────────────────────────────────────────────────────────────
 
 	private void OnNameChanged(string newText)
 	{
@@ -74,7 +86,6 @@ public partial class MainMenuLobby : Control
 	private void OnItemSelected(long index)
 	{
 		ItemChoice = (int)index;
-		GD.Print($"[MainMenuLobby] Relic selected: {ItemChoice}");
 	}
 
 	public void OnHoverCowboy() => ShowPreview(0);
@@ -112,101 +123,141 @@ public partial class MainMenuLobby : Control
 		};
 	}
 
-	// ── Connect button ───────────────────────────────────────────────────────
+	// ── Connect ───────────────────────────────────────────────────────────────
 
 	private void OnConnectPressed()
 	{
 		if (!GenericCore.Instance.IsGenericCoreConnected)
 		{
-			GD.PrintErr("[MainMenuLobby] Not connected to a game server yet! Join a game from the lobby first.");
+			GD.PrintErr("[MainMenuLobby] Not connected yet.");
 			return;
 		}
 
 		ConnectButton.Disabled = true;
-		ConnectButton.Text = "Joining…";
+		ConnectButton.Text     = "Waiting for players...";
 
-		// Tell the server to spawn us with our chosen class
-		RpcId(1, MethodName.RequestSpawn, ClassChoice);
-		GD.Print($"[MainMenuLobby] Requesting spawn — Class:{ClassChoice}");
+		if (GenericCore.Instance.IsServer)
+			ServerRegisterPlayer(1, ClassChoice);
+		else
+			RpcId(1, MethodName.ClientSendReady, ClassChoice);
 	}
-
-	// ── Server: receives spawn request from a client ─────────────────────────
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-	private void RequestSpawn(int classChoice)
+	private void ClientSendReady(int classChoice)
 	{
 		if (!GenericCore.Instance.IsServer) return;
-
-		int peerId    = Multiplayer.GetRemoteSenderId();
-		int spawnSlot = _spawnCounter;
-		_spawnCounter++;
-
-		GD.Print($"[MainMenuLobby] Server: spawning peer {peerId} at slot {spawnSlot} with class {classChoice}");
-
-		// Tell ALL clients to load MainGame — server does NOT change scene
-		Rpc(MethodName.LoadMainGameOnClient);
-
-		// Server spawns the player after a short delay to let clients load
-		_ = SpawnAfterDelay(peerId, classChoice, spawnSlot);
+		ServerRegisterPlayer(Multiplayer.GetRemoteSenderId(), classChoice);
 	}
 
-	// ── Client: load the MainGame scene ──────────────────────────────────────
-
-	[Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-	private void LoadMainGameOnClient()
+	private void ServerRegisterPlayer(long peerId, int classChoice)
 	{
-		// Only clients run this — server never changes scene
-		if (GenericCore.Instance.IsServer) return;
+		_readyPlayers[(int)peerId] = classChoice;
 
-		GD.Print("[MainMenuLobby] Client loading MainGame scene...");
-		GetTree().ChangeSceneToFile("res://MainGame/MainGame.tscn");
-	}
+		GD.Print($"[MainMenuLobby] Registered peer {peerId} class={classChoice} ({_readyPlayers.Count}/{RequiredPlayers})");
+		GD.Print($"[MainMenuLobby] _readyPlayers keys: {string.Join(", ", _readyPlayers.Keys)}");
 
-	// ── Server: load MainGame additively (once) then spawn the player ─────────
+		Rpc(MethodName.UpdateCountLabel, _readyPlayers.Count, RequiredPlayers);
 
-	private async Task SpawnAfterDelay(int peerId, int classChoice, int spawnSlot)
-	{
-		// Load MainGame additively on the server if it hasn't been loaded yet
-		if (GetTree().Root.FindChild("PlayerSpawns", true, false) == null)
+		if (_readyPlayers.Count >= RequiredPlayers)
 		{
-			GD.Print("[MainMenuLobby] Server loading MainGame additively...");
-			var mainGameScene    = GD.Load<PackedScene>("res://MainGame/MainGame.tscn");
-			var mainGameInstance = mainGameScene.Instantiate();
-			GetTree().Root.AddChild(mainGameInstance);
+			GD.Print("[MainMenuLobby] FIRING StartGame RPC now!");
+			Rpc(MethodName.StartGame);
 		}
+		else
+		{
+			GD.Print($"[MainMenuLobby] Not enough players yet: {_readyPlayers.Count} / {RequiredPlayers}");
+		}
+	}
 
-		// Give clients time to finish loading their scene before we spawn
+	// ── StartGame RPC ─────────────────────────────────────────────────────────
+	// Fires on ALL peers including server (CallLocal = true)
+	// Hides the menu — MainGame is already in the scene tree under GameRoot
+	// so no scene loading needed at all
+
+	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true,
+		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	private void StartGame()
+	{
+		GD.Print($"[MainMenuLobby] StartGame fired on peer {Multiplayer.GetUniqueId()}");
+
+		// Hide this menu — MainGame is already visible underneath
+		Hide();
+
+		// Make sure the camera in MainGame is active
+		var camera = GetTree().Root.FindChild("Camera3D", true, false) as Camera3D;
+		if (camera != null)
+			camera.MakeCurrent();
+		else
+			GD.PrintErr("[MainMenuLobby] Camera3D not found!");
+
+		// Only server spawns characters
+		if (GenericCore.Instance.IsServer)
+			ServerSpawnWithDelay();
+	}
+
+	// ── Spawn ─────────────────────────────────────────────────────────────────
+
+	private async void ServerSpawnWithDelay()
+	{
+		// Wait 2 seconds for all clients to have processed StartGame
 		await ToSignal(GetTree().CreateTimer(2.0f), SceneTreeTimer.SignalName.Timeout);
+		await ServerSpawnCharacters();
+	}
 
-		string[] classPrefabs =
-		{
-			"res://Player/dps_player.tscn",     // 0 = Cowboy / DPS
-			"res://Player/tank_player.tscn",    // 1 = Pirate / Tank
-			"res://Player/support_player.tscn"  // 2 = Priest / Support
-		};
+	private async Task ServerSpawnCharacters()
+	{
+		string[] spawnPointNames = { "SpawnPoints0", "SpawnPoints1", "SpawnPoints2", "SpawnPoints3" };
 
-		Node spawnRoot = GetTree().Root.FindChild("PlayerSpawns", true, false);
-		if (spawnRoot == null)
+		// Find the NetworkCore (MultiplayerSpawner) that has the player scenes
+		// Index 0=dps_player, 1=tank_player, 2=support_player in its Spawnable Scenes list
+		var characterSpawner = GetTree().Root.FindChild("MultiplayerSpawner", true, false) as NetworkCore;
+		if (characterSpawner == null)
 		{
-			GD.PrintErr("[MainMenuLobby] FATAL: PlayerSpawns still not found after loading MainGame!");
+			GD.PrintErr("[MainMenuLobby] FATAL: NetworkCore MultiplayerSpawner not found!");
 			return;
 		}
 
-		// Clamp so we never go out of bounds if somehow more than 4 players join
-		int clampedSlot   = Mathf.Clamp(spawnSlot, 0, spawnRoot.GetChildCount() - 1);
-		Node3D spawnPoint = spawnRoot.GetChild<Node3D>(clampedSlot);
+		GD.Print($"[MainMenuLobby] Spawning {_readyPlayers.Count} players...");
 
-		var scene  = GD.Load<PackedScene>(classPrefabs[classChoice]);
-		var player = scene.Instantiate<Node3D>();
+		int i = 0;
+		foreach (var kvp in _readyPlayers)
+		{
+			int peerId      = kvp.Key;
+			int classChoice = kvp.Value;
 
-		// Give authority to the peer who pressed Connect
-		player.SetMultiplayerAuthority(peerId);
-		player.GlobalPosition = spawnPoint.GlobalPosition;
+			var marker  = GetTree().Root.FindChild(spawnPointNames[i], true, false) as Node3D;
+			Vector3 pos = marker != null ? marker.GlobalPosition : new Vector3(i * 3f, 0, 0);
 
-		// Add to PlayerSpawns — MultiplayerSpawner replicates this to all clients
-		spawnRoot.AddChild(player, true);
+			if (marker == null)
+				GD.PrintErr($"[MainMenuLobby] Spawn point {spawnPointNames[i]} not found, using fallback position");
 
-		GD.Print($"[MainMenuLobby] Spawned peer {peerId} (class {classChoice}) at SpawnPoints{clampedSlot}");
+			GD.Print($"[MainMenuLobby] Spawning peer {peerId} class={classChoice} at {pos}");
+
+			// NetCreateObject handles everything:
+			// - Picks the right player scene by classChoice index
+			// - Adds it under the spawner's spawn path (PlayerSpawns)
+			// - Replicates to all clients via MultiplayerSpawner
+			// - Calls netId.Rpc("Initialize", peerId) so OwnerId syncs to all clients
+			characterSpawner.NetCreateObject(classChoice, pos, Quaternion.Identity, peerId);
+
+			await ToSignal(GetTree().CreateTimer(0.5f), SceneTreeTimer.SignalName.Timeout);
+			i++;
+		}
+
+		_readyPlayers.Clear();
+		GD.Print("[MainMenuLobby] All players spawned!");
+	}
+
+	// ── Counter label RPC ─────────────────────────────────────────────────────
+
+	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true,
+		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	private void UpdateCountLabel(int current, int required)
+	{
+		if (PlayerCountLabel != null)
+			PlayerCountLabel.Text = $"Players: {current} / {required}";
+		if (ConnectButton != null)
+			ConnectButton.Text = $"Waiting... {current}/{required}";
 	}
 
 	// ── Disconnect ────────────────────────────────────────────────────────────
@@ -218,23 +269,9 @@ public partial class MainMenuLobby : Control
 		OnlinePanel.Visible    = false;
 		ConnectButton.Disabled = false;
 		ConnectButton.Text     = "Connect";
-
 		LastPort = 0;
 		GenericCore.Instance.SetPort("7000");
-
 		HP    = 100;
 		Score = 0;
-	}
-
-	// ── Process ───────────────────────────────────────────────────────────────
-
-	public override void _Process(double delta)
-	{
-		base._Process(delta);
-		if (GenericCore.Instance != null && GenericCore.Instance.IsServer)
-		{
-			OfflinePanel.Visible = false;
-			OnlinePanel.Visible  = false;
-		}
 	}
 }
