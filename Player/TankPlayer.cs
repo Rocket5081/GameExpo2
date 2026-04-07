@@ -22,14 +22,14 @@ public partial class TankPlayer : Player
     public override void Fire()
     {
          //sets max amount of created bullets, before teleporting old bullets back.
-            if(Buls.Count < 100)
+            if(Buls.Count < 12)
             {
-				SpawnBullet(1,0);
+				SpawnBullet(3,0);
             }
             //shoots old bullets instead of creating new ones
             else
             {
-                ShootBullet(1,0);
+                ShootBullet(3,0);
             }
             
     }
@@ -46,8 +46,25 @@ public partial class TankPlayer : Player
 				Transform.Basis.GetRotationQuaternion(),
 				1
 			);
-            Vector3 spin = spawnPos.Rotated(spawnPos,(float)Math.PI);
-            ((RigidBody3D)t1).LinearVelocity = spin * 150f;
+			if (i == 0)
+			{
+				((RigidBody3D)t1).GlobalPosition = GlobalPosition + (Transform.Basis.X * 1.5f) + new Vector3(0, 1f, -.5f);
+				((RigidBody3D)t1).RotateY(.7853982f);
+				((RigidBody3D)t1).LinearVelocity = ((RigidBody3D)t1).Transform.Basis.X * 10f;
+			}
+            else if (i == 1)
+			{
+				((RigidBody3D)t1).Rotation = Rotation;
+				((RigidBody3D)t1).GlobalPosition = GlobalPosition + (Transform.Basis.X * 1.5f) + new Vector3(0, 1f, 0);
+				((RigidBody3D)t1).LinearVelocity = Transform.Basis.X * 10f;
+			}
+			else if(i == 2)
+			{
+				((RigidBody3D)t1).GlobalPosition = GlobalPosition + (Transform.Basis.X * 1.5f) + new Vector3(0, 1f, .5f);
+				((RigidBody3D)t1).RotateY(-.7853982f);
+				((RigidBody3D)t1).LinearVelocity = ((RigidBody3D)t1).Transform.Basis.X * 10f;
+			}
+            
 			Buls.Add((Bullet)t1);
 			await ToSignal(GetTree().CreateTimer(cooldown), SceneTreeTimer.SignalName.Timeout);
         }
@@ -61,8 +78,27 @@ public partial class TankPlayer : Player
         Buls[bulCount].Show();
         Buls[bulCount].CollisionLayer = 1;
 		Buls[bulCount].CollisionMask = 1;
-        Buls[bulCount].GlobalPosition = GlobalPosition + (Transform.Basis.X * 1.5f) + new Vector3(0, 1f, 0);
-        Buls[bulCount].LinearVelocity = Transform.Basis.X * 150f;
+        
+        if (i == 0)
+			{
+				Buls[bulCount].Rotation = Rotation;
+				Buls[bulCount].GlobalPosition = GlobalPosition + (Transform.Basis.X * 1.5f) + new Vector3(0, 1f, -.5f);
+				Buls[bulCount].RotateY(.7853982f);
+				Buls[bulCount].LinearVelocity = Buls[bulCount].Transform.Basis.X * 10f;
+			}
+            else if (i == 1)
+			{
+				Buls[bulCount].Rotation = Rotation;
+				Buls[bulCount].GlobalPosition = GlobalPosition + (Transform.Basis.X * 1.5f) + new Vector3(0, 1f, 0);
+				Buls[bulCount].LinearVelocity = Transform.Basis.X * 10f;
+			}
+			else if(i == 2)
+			{
+				Buls[bulCount].Rotation = Rotation;
+				Buls[bulCount].GlobalPosition = GlobalPosition + (Transform.Basis.X * 1.5f) + new Vector3(0, 1f, .5f);
+				Buls[bulCount].RotateY(-.7853982f);
+				Buls[bulCount].LinearVelocity = Buls[bulCount].Transform.Basis.X * 10f;
+			}
 		bulCount++;
 		if(bulCount >= Buls.Count){ bulCount = 0; }
 		await ToSignal(GetTree().CreateTimer(cooldown), SceneTreeTimer.SignalName.Timeout);
