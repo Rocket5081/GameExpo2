@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://dkloqt2lomuxg"]
+[gd_scene load_steps=15 format=3 uid="uid://dkloqt2lomuxg"]
 
 [ext_resource type="Material" uid="uid://bf80snneu4sbx" path="res://MainGame/VoidParticles.tres" id="1_6bbl1"]
 [ext_resource type="PackedScene" uid="uid://dasl4cwcqllbs" path="res://Assets/head_of_cthulhu (1).glb" id="1_yfhen"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://bkllvy4oqjbnc" path="res://MainGame/VoidWorldEnvironment (1).tscn" id="4_yfhen"]
 [ext_resource type="Script" uid="uid://bgc8brkraduc8" path="res://Player/PlayerCamera.cs" id="5_5y8m1"]
 [ext_resource type="Shader" uid="uid://bt1gpg2wo4k78" path="res://MainGame/water.gdshader" id="5_nuski"]
+[ext_resource type="Script" uid="uid://b2fb80xs807f4" path="res://NetworkCore/NetworkCore.cs" id="6_8e541"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ry3at"]
 albedo_color = Color(0, 0, 0, 1)
@@ -107,9 +108,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26.333633, 0, 0)
 [node name="SpawnPoints3" type="Node3D" parent="PlayerSpawns"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 87.673325, 0, 0)
 
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
+[node name="PlayerSpawner" type="MultiplayerSpawner" parent="."]
 _spawnable_scenes = PackedStringArray("uid://bfxq16gxvblha", "uid://crynxmhfqxpn2", "uid://bqn4egd1x7c21")
 spawn_path = NodePath("../PlayerSpawns")
+script = ExtResource("6_8e541")
 
 [node name="Water" type="MeshInstance3D" parent="."]
 transform = Transform3D(155.82524, 0, 0, 0, 159.68057, 0, 0, 0, 177.95862, 0, -1.1792154, 0)

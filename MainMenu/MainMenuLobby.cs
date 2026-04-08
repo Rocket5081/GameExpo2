@@ -210,7 +210,7 @@ public partial class MainMenuLobby : Control
 
 		// Find the NetworkCore (MultiplayerSpawner) that has the player scenes
 		// Index 0=dps_player, 1=tank_player, 2=support_player in its Spawnable Scenes list
-		var characterSpawner = GetTree().Root.FindChild("MultiplayerSpawner", true, false) as NetworkCore;
+		var characterSpawner = GetTree().Root.FindChild("PlayerSpawner", true, false) as NetworkCore;
 		if (characterSpawner == null)
 		{
 			GD.PrintErr("[MainMenuLobby] FATAL: NetworkCore MultiplayerSpawner not found!");
