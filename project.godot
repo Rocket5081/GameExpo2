@@ -29,7 +29,8 @@ folder_colors={
 "res://MainMenu/": "red",
 "res://NetworkCore/": "blue",
 "res://Player/": "yellow",
-"res://Sounds/": "pink"
+"res://Sounds/": "pink",
+"res://Upgrades/": "green"
 }
 
 [global_group]

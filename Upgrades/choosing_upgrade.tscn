@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://267diy0sdldd"]
+
+[ext_resource type="Script" uid="uid://b5u7xa4ita8x6" path="res://Upgrades/ChoosingUpgrade.cs" id="1_vr7ae"]
+
+[node name="ChoosingUpgrade" type="MenuButton"]
+offset_right = 8.0
+offset_bottom = 8.0
+script = ExtResource("1_vr7ae")
