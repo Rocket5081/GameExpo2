@@ -18,7 +18,7 @@ public partial class MainMenuLobby : Control
 	[Export] public Label PlayerCountLabel;
 
 	public string PlayerName  = "Player";
-	public int    ClassChoice = 0;   // 0=DPS  1=Tank  2=Support
+	public int    ClassChoice = 0;
 	public int    ItemChoice  = 0;
 	public int    LastPort    = 0;
 	public int    HP          = 100;
@@ -30,7 +30,7 @@ public partial class MainMenuLobby : Control
 
 	private const int RequiredPlayers = 2;
 
-	private static readonly Dictionary<int, int> _readyPlayers = new();
+	private readonly Dictionary<int, int> _readyPlayers = new();
 
 	public override void _Ready()
 	{
@@ -136,6 +136,9 @@ public partial class MainMenuLobby : Control
 		ConnectButton.Disabled = true;
 		ConnectButton.Text     = "Waiting for players...";
 
+		OfflinePanel.Visible = false;
+		OnlinePanel.Visible  = true;
+
 		if (GenericCore.Instance.IsServer)
 			ServerRegisterPlayer(1, ClassChoice);
 		else
@@ -149,7 +152,7 @@ public partial class MainMenuLobby : Control
 		ServerRegisterPlayer(Multiplayer.GetRemoteSenderId(), classChoice);
 	}
 
-	private void ServerRegisterPlayer(long peerId, int classChoice)
+	private async void ServerRegisterPlayer(long peerId, int classChoice)
 	{
 		_readyPlayers[(int)peerId] = classChoice;
 
@@ -161,6 +164,10 @@ public partial class MainMenuLobby : Control
 		if (_readyPlayers.Count >= RequiredPlayers)
 		{
 			GD.Print("[MainMenuLobby] FIRING StartGame RPC now!");
+
+			// Wait one frame so all peers finish processing before StartGame fires
+			await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+
 			Rpc(MethodName.StartGame);
 		}
 		else
@@ -170,9 +177,6 @@ public partial class MainMenuLobby : Control
 	}
 
 	// ── StartGame RPC ─────────────────────────────────────────────────────────
-	// Fires on ALL peers including server (CallLocal = true)
-	// Hides the menu — MainGame is already in the scene tree under GameRoot
-	// so no scene loading needed at all
 
 	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true,
 		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
@@ -180,17 +184,16 @@ public partial class MainMenuLobby : Control
 	{
 		GD.Print($"[MainMenuLobby] StartGame fired on peer {Multiplayer.GetUniqueId()}");
 
-		// Hide this menu — MainGame is already visible underneath
-		Hide();
+		// Hide on ALL peers including server
+		Visible = false;
+		GD.Print($"[MainMenuLobby] Visible set to false on peer {Multiplayer.GetUniqueId()}");
 
-		// Make sure the camera in MainGame is active
 		var camera = GetTree().Root.FindChild("Camera3D", true, false) as Camera3D;
 		if (camera != null)
 			camera.MakeCurrent();
 		else
 			GD.PrintErr("[MainMenuLobby] Camera3D not found!");
 
-		// Only server spawns characters
 		if (GenericCore.Instance.IsServer)
 			ServerSpawnWithDelay();
 	}
@@ -199,7 +202,6 @@ public partial class MainMenuLobby : Control
 
 	private async void ServerSpawnWithDelay()
 	{
-		// Wait 2 seconds for all clients to have processed StartGame
 		await ToSignal(GetTree().CreateTimer(2.0f), SceneTreeTimer.SignalName.Timeout);
 		await ServerSpawnCharacters();
 	}
@@ -208,8 +210,6 @@ public partial class MainMenuLobby : Control
 	{
 		string[] spawnPointNames = { "SpawnPoints0", "SpawnPoints1", "SpawnPoints2", "SpawnPoints3" };
 
-		// Find the NetworkCore (MultiplayerSpawner) that has the player scenes
-		// Index 0=dps_player, 1=tank_player, 2=support_player in its Spawnable Scenes list
 		var characterSpawner = GetTree().Root.FindChild("PlayerSpawner", true, false) as NetworkCore;
 		if (characterSpawner == null)
 		{
@@ -229,15 +229,10 @@ public partial class MainMenuLobby : Control
 			Vector3 pos = marker != null ? marker.GlobalPosition : new Vector3(i * 3f, 0, 0);
 
 			if (marker == null)
-				GD.PrintErr($"[MainMenuLobby] Spawn point {spawnPointNames[i]} not found, using fallback position");
+				GD.PrintErr($"[MainMenuLobby] Spawn point {spawnPointNames[i]} not found, using fallback");
 
 			GD.Print($"[MainMenuLobby] Spawning peer {peerId} class={classChoice} at {pos}");
 
-			// NetCreateObject handles everything:
-			// - Picks the right player scene by classChoice index
-			// - Adds it under the spawner's spawn path (PlayerSpawns)
-			// - Replicates to all clients via MultiplayerSpawner
-			// - Calls netId.Rpc("Initialize", peerId) so OwnerId syncs to all clients
 			characterSpawner.NetCreateObject(classChoice, pos, Quaternion.Identity, peerId);
 
 			await ToSignal(GetTree().CreateTimer(0.5f), SceneTreeTimer.SignalName.Timeout);

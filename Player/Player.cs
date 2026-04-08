@@ -32,14 +32,36 @@ public partial class Player : CharacterBody3D
 	public List<Bullet> Buls     = new List<Bullet>();
 	public int          bulCount = 0;
 
-	public override void _Ready()
-	{
-		base._Ready();
-		AddToGroup("Players");
+	private bool _menuHidden = false;
 
-		if (myId.IsLocal)
-			Input.MouseMode = Input.MouseModeEnum.Captured;
+	public override void _Ready()
+{
+	base._Ready();
+	AddToGroup("Players");
+
+	if (myId.IsLocal)
+	{
+		Input.MouseMode = Input.MouseModeEnum.Captured;
 	}
+}
+
+private void HideMenuOnConnect()
+{
+	var mainMenu = GetTree().Root.GetNodeOrNull("GameRoot/MainMenu");
+	if (mainMenu == null)
+	{
+		GD.PrintErr("[Player] MainMenu NOT FOUND at GameRoot/MainMenu");
+		return;
+	}
+
+	GD.Print("[Player] Found: " + mainMenu.GetType().Name);
+
+	if (mainMenu is CanvasItem ci)
+	{
+		ci.Visible = false;
+		GD.Print("[Player] MainMenu hidden from Player.");
+	}
+}
 
 	public override void _Input(InputEvent @event)
 	{
@@ -123,14 +145,12 @@ public partial class Player : CharacterBody3D
 	{
 		if (myAnimation == null) return;
 		if (myAnimation.CurrentAnimation == "Attack" && myAnimation.IsPlaying()) return;
-		// Hook up animations here when ready
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true,
 		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void PlayAttackAnimation()
 	{
-		// Hook up animations here when ready
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false,
@@ -149,7 +169,6 @@ public partial class Player : CharacterBody3D
 		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public virtual void Fire()
 	{
-		// Overridden in DpsPlayer, TankPlayer, SupportPlayer
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false,
