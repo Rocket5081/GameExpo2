@@ -1,7 +1,8 @@
-[gd_scene load_steps=8 format=3 uid="uid://bfxq16gxvblha"]
+[gd_scene load_steps=9 format=3 uid="uid://bfxq16gxvblha"]
 
 [ext_resource type="Script" uid="uid://yo2i7m3b6pph" path="res://NetworkCore/NetID.cs" id="1_7ks6i"]
 [ext_resource type="Script" uid="uid://fy4vxbxhv0ql" path="res://Player/DpsPlayer.cs" id="1_k2htt"]
+[ext_resource type="PackedScene" uid="uid://bntb5k0e3r13f" path="res://Upgrades/upgrades.tscn" id="3_wsqot"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_k2htt"]
 
@@ -64,3 +65,5 @@ shape = SubResource("BoxShape3D_wsqot")
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_4xhhv")
 script = ExtResource("1_7ks6i")
+
+[node name="Upgrades" parent="." instance=ExtResource("3_wsqot")]

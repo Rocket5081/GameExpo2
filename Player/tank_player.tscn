@@ -1,7 +1,8 @@
-[gd_scene load_steps=8 format=3 uid="uid://crynxmhfqxpn2"]
+[gd_scene load_steps=9 format=3 uid="uid://crynxmhfqxpn2"]
 
 [ext_resource type="Script" uid="uid://lo1q22j2v18t" path="res://Player/TankPlayer.cs" id="1_pm5gu"]
 [ext_resource type="Script" uid="uid://yo2i7m3b6pph" path="res://NetworkCore/NetID.cs" id="2_bwhdg"]
+[ext_resource type="PackedScene" uid="uid://bntb5k0e3r13f" path="res://Upgrades/upgrades.tscn" id="3_bwhdg"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_hb0vx"]
 size = Vector3(0.8, 2, 0.8)
@@ -66,3 +67,5 @@ shape = SubResource("BoxShape3D_nxeor")
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_a30e7")
 script = ExtResource("2_bwhdg")
+
+[node name="Upgrades" parent="." instance=ExtResource("3_bwhdg")]

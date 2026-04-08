@@ -4,7 +4,7 @@ using System;
 public partial class Options : Control
 {
 
-    GridContainer grid;
+	GridContainer grid;
 
 	private string[] RolledOptions = new string[3];
 
@@ -13,19 +13,20 @@ public partial class Options : Control
 	string randomOpt;
 	public string chosenOpt;
 
-    public override void _Ready()
-    {
+	public override void _Ready()
+	{
 		random.Randomize();
-        grid = GetNode<GridContainer>("GridContainer");
+		grid = GetNode<GridContainer>("GridContainer");
 		add();
-		clear();
-    }
+		//clear();
+	}
 
 
-    public void add()
-    {
-        for(int i=0; i<3; i++)
-        {
+	public void add()
+	{
+		for(int i=0; i<3; i++)
+		{
+			
 			int rand = random.RandiRange(0,14);
 			randomOpt = GetParent<Upgrades>().options[rand];
 			while(randomOpt == "empty")
@@ -35,37 +36,38 @@ public partial class Options : Control
 			}
 			GetParent<Upgrades>().options[rand] = "empty";
 			RolledOptions[i] = randomOpt;
+			
 			string button = "res://Upgrades/choosing_upgrade.tscn";
 			PackedScene packedscene = GD.Load<PackedScene>(button);
 			ChoosingUpgrade Opt = packedscene.Instantiate<ChoosingUpgrade>();
 			if(randomOpt == "AC1")
 			{
-				Opt.Text = "Ability Cooldown \n\tLevel 1 \nReduces \n\t\tCooldown 5%";
+				Opt.Text = "Ability Cooldown \n\tLevel 1 \nReduces \n\t\tCooldown -2s";
 				Opt.opt = randomOpt;
 			}
 			else if(randomOpt == "AC2")
 			{
-				Opt.Text = "Ability Cooldown \n\tLevel 1 \nReduces \n\t\tCooldown 10%";
+				Opt.Text = "Ability Cooldown \n\tLevel 1 \nReduces \n\t\tCooldown -5s";
 				Opt.opt = randomOpt;
 			}
 			else if(randomOpt == "AC3")
 			{
-				Opt.Text = "Ability Cooldown \n\tLevel 1 \nReduces \n\t\tCooldown 20%";
+				Opt.Text = "Ability Cooldown \n\tLevel 1 \nReduces \n\t\tCooldown -10s";
 				Opt.opt = randomOpt;
 			}
 			else if(randomOpt == "PC1")
 			{
-				Opt.Text = "Projectile Cooldown \n\tLevel 1 \nReduces \n\t\tCooldown 5%";
+				Opt.Text = "Projectile Cooldown \n\tLevel 1 \nReduces \n\t\tCooldown -2s";
 				Opt.opt = randomOpt;
 			}
 			else if(randomOpt == "PC2")
 			{
-				Opt.Text = "Projectile Cooldown \n\tLevel 1 \nReduces \n\t\tCooldown 10%";
+				Opt.Text = "Projectile Cooldown \n\tLevel 1 \nReduces \n\t\tCooldown -5s";
 				Opt.opt = randomOpt;
 			}
 			else if(randomOpt == "PC3")
 			{
-				Opt.Text = "Projectile Cooldown \n\tLevel 1 \nReduces \n\t\tCooldown 20%";
+				Opt.Text = "Projectile Cooldown \n\tLevel 1 \nReduces \n\t\tCooldown -10s";
 				Opt.opt = randomOpt;
 			}
 			else if(randomOpt == "MH1")
@@ -118,20 +120,20 @@ public partial class Options : Control
 				Opt.Text = "";
 				Opt.opt = "";
 			}
-            grid.AddChild(Opt);
-        }
-    }
+			grid.AddChild(Opt);
+		}
+	}
 
-    public void clear()
-    {
-        int count = grid.GetChildCount();
-        for(int i=0; i<count; i++)
-        {
-            grid.GetChild(0).Free();
-        }
+	public void clear()
+	{
+		int count = grid.GetChildCount();
+		for(int i=0; i<count; i++)
+		{
+			grid.GetChild(0).Free();
+		}
 		for(int i=0; i<3; i++)
 		{
-			for(int j=0; i<GetParent<Upgrades>().options.Length; i++)
+			for(int j=0; j<GetParent<Upgrades>().options.Length; j++)
 			{
 				if(GetParent<Upgrades>().options[j] == "empty")
 				{
@@ -140,5 +142,5 @@ public partial class Options : Control
 			}
 			RolledOptions[i] = "empty";
 		}
-        }
+		}
 }
