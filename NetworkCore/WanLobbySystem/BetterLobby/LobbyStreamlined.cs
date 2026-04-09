@@ -302,34 +302,11 @@ public partial class LobbyStreamlined : Node
 				UpdateVBoxChildren(vbox);
 		}
 
-		if (GenericCore.Instance.IsGenericCoreConnected || IsWanLobbyServer)
-		{
-			((Control)GetChild(0)).Visible = false;
-			if (child0 is Control c0) c0.Visible = false;
-			foreach (Node n in GenericCore.Instance.GetChildren())
-			{
-				if (n is CanvasItem canvasItem) canvasItem.Visible = true;
-				else if (n is Node3D node3D) node3D.Visible = true;
-				else if (n is CanvasLayer canvasLayer) canvasLayer.Visible = true;
-				if (n is CanvasItem ci) ci.Visible = true;
-				else if (n is Node3D n3) n3.Visible = true;
-				else if (n is CanvasLayer cl) cl.Visible = true;
-			}
-		}
-		else
-		{
-			((Control)GetChild(0)).Visible = true;
-			if (child0 is Control c0) c0.Visible = true;
-			foreach (Node n in GenericCore.Instance.GetChildren())
-			{
-				if (n is CanvasItem canvasItem) canvasItem.Visible = true;
-				else if (n is Node3D node3D) node3D.Visible = true;
-				else if (n is CanvasLayer canvasLayer) canvasLayer.Visible = true;
-				if (n is CanvasItem ci) ci.Visible = true;
-				else if (n is Node3D n3) n3.Visible = true;
-				else if (n is CanvasLayer cl) cl.Visible = true;
-			}
-		}
+		// Only toggle the lobby list UI — never override GameRoot children visibility.
+		// StartGame() in MainMenuLobby handles the 2D→3D switch itself.
+		bool lobbyVisible = !(GenericCore.Instance.IsGenericCoreConnected || IsWanLobbyServer);
+		((Control)GetChild(0)).Visible = lobbyVisible;
+		if (child0 is Control c0) c0.Visible = lobbyVisible;
 	}
 
 	private void UpdateVBoxChildren(VBoxContainer vbox)

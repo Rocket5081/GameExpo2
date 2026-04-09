@@ -1,0 +1,41 @@
+[gd_scene load_steps=3 format=3 uid="uid://c4hud0main001"]
+
+[ext_resource type="Script" path="res://MainGame/HUD.cs" id="1_hud"]
+[ext_resource type="Script" path="res://Player/Reticle.cs" id="2_reticle"]
+
+[node name="HUD" type="CanvasLayer"]
+layer = 10
+script = ExtResource("1_hud")
+
+[node name="DpsReticle" type="Control" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+visible = false
+script = ExtResource("2_reticle")
+reticle_style = 0
+
+[node name="TankReticle" type="Control" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+visible = false
+script = ExtResource("2_reticle")
+reticle_style = 1
+
+[node name="SupportReticle" type="Control" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+visible = false
+script = ExtResource("2_reticle")
+reticle_style = 2

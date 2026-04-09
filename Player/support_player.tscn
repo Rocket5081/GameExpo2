@@ -1,7 +1,8 @@
-[gd_scene load_steps=8 format=3 uid="uid://bqn4egd1x7c21"]
+[gd_scene load_steps=9 format=3 uid="uid://bqn4egd1x7c21"]
 
 [ext_resource type="Script" uid="uid://yo2i7m3b6pph" path="res://NetworkCore/NetID.cs" id="1_acfcq"]
 [ext_resource type="Script" uid="uid://c2xotdccp4f3r" path="res://Player/SupportPlayer.cs" id="1_q1xqf"]
+[ext_resource type="Script" path="res://Player/Reticle.cs" id="3_reticle"]
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_ta8ye"]
 
@@ -25,9 +26,39 @@ properties/1/replication_mode = 1
 properties/2/path = NodePath("MultiplayerSynchronizer:OwnerId")
 properties/2/spawn = true
 properties/2/replication_mode = 1
+properties/3/path = NodePath(".:SyncedVelocity")
+properties/3/spawn = true
+properties/3/replication_mode = 2
+properties/4/path = NodePath(".:canShoot")
+properties/4/spawn = true
+properties/4/replication_mode = 2
+properties/5/path = NodePath(".:canJump")
+properties/5/spawn = true
+properties/5/replication_mode = 2
+properties/6/path = NodePath(".:SyncedIsOnFloor")
+properties/6/spawn = true
+properties/6/replication_mode = 2
+properties/7/path = NodePath(".:SyncedIsJumping")
+properties/7/spawn = true
+properties/7/replication_mode = 2
+properties/8/path = NodePath(".:position")
+properties/8/spawn = true
+properties/8/replication_mode = 2
+properties/9/path = NodePath(".:rotation")
+properties/9/spawn = true
+properties/9/replication_mode = 2
+properties/10/path = NodePath(".:PlayerDisplayName")
+properties/10/spawn = true
+properties/10/replication_mode = 2
 
-[node name="Support_Player" type="CharacterBody3D" groups=["Players"]]
+[node name="Support_Player" type="CharacterBody3D" node_paths=PackedStringArray("myId", "bullet_spawn", "reticle_layer", "name_label") groups=["Players"]]
+collision_layer = 2
+collision_mask = 1
 script = ExtResource("1_q1xqf")
+myId = NodePath("MultiplayerSynchronizer")
+bullet_spawn = NodePath("BulletSpawn")
+reticle_layer = NodePath("ReticleLayer")
+name_label = NodePath("NameLabel")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("CylinderMesh_ta8ye")
@@ -38,6 +69,30 @@ mesh = SubResource("BoxMesh_q1xqf")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("BoxShape3D_km5gb")
+
+[node name="BulletSpawn" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 1.0, 0)
+
+[node name="ReticleLayer" type="CanvasLayer" parent="."]
+visible = false
+
+[node name="Reticle" type="Control" parent="ReticleLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("3_reticle")
+reticle_style = 2
+
+[node name="NameLabel" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)
+billboard = 1
+no_depth_test = true
+font_size = 28
+outline_size = 8
+text = ""
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_ktfil")

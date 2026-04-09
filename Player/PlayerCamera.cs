@@ -57,12 +57,13 @@ public partial class PlayerCamera : Camera3D
 
     private void FindLocalPlayer()
     {
-        foreach (Player player in GetTree().GetNodesInGroup("players"))
+        foreach (Node node in GetTree().GetNodesInGroup("Players"))
         {
-            if (player.myId.IsLocal)
+            if (node is Player player && player.myId != null && player.myId.IsLocal)
             {
                 localPlayer = player;
-                GD.Print("Camera locked onto local player.");
+                MakeCurrent();  // take over as the active camera
+                GD.Print("Camera locked onto local player: " + player.Name);
                 return;
             }
         }

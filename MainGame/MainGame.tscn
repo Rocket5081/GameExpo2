@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://dkloqt2lomuxg"]
+[gd_scene load_steps=17 format=3 uid="uid://dkloqt2lomuxg"]
 
 [ext_resource type="Material" uid="uid://bf80snneu4sbx" path="res://MainGame/VoidParticles.tres" id="1_6bbl1"]
 [ext_resource type="PackedScene" uid="uid://dasl4cwcqllbs" path="res://Assets/head_of_cthulhu (1).glb" id="1_yfhen"]
@@ -7,14 +7,7 @@
 [ext_resource type="Script" uid="uid://bgc8brkraduc8" path="res://Player/PlayerCamera.cs" id="5_5y8m1"]
 [ext_resource type="Shader" uid="uid://bt1gpg2wo4k78" path="res://MainGame/water.gdshader" id="5_nuski"]
 [ext_resource type="Script" uid="uid://b2fb80xs807f4" path="res://NetworkCore/NetworkCore.cs" id="6_8e541"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ry3at"]
-albedo_color = Color(0, 0, 0, 1)
-
-[sub_resource type="PlaneMesh" id="PlaneMesh_mh0ok"]
-material = SubResource("StandardMaterial3D_ry3at")
-
-[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_3tbxw"]
+[ext_resource type="PackedScene" path="res://MainGame/HUD.tscn" id="7_hud01"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5y8m1"]
 next_pass = ExtResource("1_6bbl1")
@@ -40,20 +33,20 @@ material = SubResource("ShaderMaterial_5y8m1")
 subdivide_width = 64
 subdivide_depth = 64
 
+[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_3tbxw"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ry3at"]
+albedo_color = Color(0, 0, 0, 1)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_mh0ok"]
+material = SubResource("StandardMaterial3D_ry3at")
+
+[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_8e541"]
+
 [node name="MainGame" type="Node3D"]
 
 [node name="Sketchfab_Scene" parent="." instance=ExtResource("1_yfhen")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -198.83478, 284.88364, -915.4341)
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(156.01945, 0, 0, 0, 1, 0, 0, 0, 179.25375, 0, 0, 0)
-mesh = SubResource("PlaneMesh_mh0ok")
-
-[node name="Area3D" type="Area3D" parent="MeshInstance3D"]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="MeshInstance3D/Area3D"]
-transform = Transform3D(-0.1, 0, 0, 0, 0.1, -8.742278e-09, 0, 8.742278e-09, 0.1, 0, 0, 0)
-shape = SubResource("WorldBoundaryShape3D_3tbxw")
 
 [node name="VoidParticles" type="GPUParticles3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 296.86932, -261.2442, -520)
@@ -97,22 +90,42 @@ script = ExtResource("5_5y8m1")
 [node name="PlayerSpawns" type="Node3D" parent="."]
 
 [node name="SpawnPoints0" type="Node3D" parent="PlayerSpawns"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -97.43295, 19.784943, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -97.43295, 9.112011, 0)
 
 [node name="SpawnPoints1" type="Node3D" parent="PlayerSpawns"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.732849, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.732849, 6.702671, 0)
 
 [node name="SpawnPoints2" type="Node3D" parent="PlayerSpawns"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26.333633, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26.333633, 5.0640755, 0)
 
 [node name="SpawnPoints3" type="Node3D" parent="PlayerSpawns"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 87.673325, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 87.673325, 4.001293, 0)
 
 [node name="PlayerSpawner" type="MultiplayerSpawner" parent="."]
-_spawnable_scenes = PackedStringArray("uid://bfxq16gxvblha", "uid://crynxmhfqxpn2", "uid://bqn4egd1x7c21")
+_spawnable_scenes = PackedStringArray("uid://bfxq16gxvblha", "uid://crynxmhfqxpn2", "uid://bqn4egd1x7c21", "uid://58ejfhqucfn5")
 spawn_path = NodePath("../PlayerSpawns")
 script = ExtResource("6_8e541")
 
 [node name="Water" type="MeshInstance3D" parent="."]
 transform = Transform3D(155.82524, 0, 0, 0, 159.68057, 0, 0, 0, 177.95862, 0, -1.1792154, 0)
 mesh = SubResource("PlaneMesh_8e541")
+
+[node name="Ground" type="StaticBody3D" parent="."]
+transform = Transform3D(156.01945, 0, 0, 0, 1, 0, 0, 0, 179.25375, 0, 0, 0)
+
+[node name="Area3D" type="Area3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 1, 0, 0, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground/Area3D"]
+transform = Transform3D(-0.1, 0, 0, 0, 0.1, -1.509958e-08, 0, 1.509958e-08, 0.1, 0, 0, 0)
+shape = SubResource("WorldBoundaryShape3D_3tbxw")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 0.99999994, 0, 0, 0, 1, 0, 0, 0)
+mesh = SubResource("PlaneMesh_mh0ok")
+skeleton = NodePath("../..")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
+shape = SubResource("WorldBoundaryShape3D_8e541")
+
+[node name="HUD" parent="." instance=ExtResource("7_hud01")]

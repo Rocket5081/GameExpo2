@@ -1,7 +1,8 @@
-[gd_scene load_steps=8 format=3 uid="uid://crynxmhfqxpn2"]
+[gd_scene load_steps=9 format=3 uid="uid://crynxmhfqxpn2"]
 
 [ext_resource type="Script" uid="uid://lo1q22j2v18t" path="res://Player/TankPlayer.cs" id="1_pm5gu"]
 [ext_resource type="Script" uid="uid://yo2i7m3b6pph" path="res://NetworkCore/NetID.cs" id="2_bwhdg"]
+[ext_resource type="Script" path="res://Player/Reticle.cs" id="3_reticle"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_hb0vx"]
 size = Vector3(0.8, 2, 0.8)
@@ -47,10 +48,18 @@ properties/8/replication_mode = 2
 properties/9/path = NodePath(".:rotation")
 properties/9/spawn = true
 properties/9/replication_mode = 2
+properties/10/path = NodePath(".:PlayerDisplayName")
+properties/10/spawn = true
+properties/10/replication_mode = 2
 
-[node name="Tank_Player" type="CharacterBody3D" node_paths=PackedStringArray("myId") groups=["Players"]]
+[node name="Tank_Player" type="CharacterBody3D" node_paths=PackedStringArray("myId", "bullet_spawn", "reticle_layer", "name_label") groups=["Players"]]
+collision_layer = 2
+collision_mask = 1
 script = ExtResource("1_pm5gu")
 myId = NodePath("MultiplayerSynchronizer")
+bullet_spawn = NodePath("BulletSpawn")
+reticle_layer = NodePath("ReticleLayer")
+name_label = NodePath("NameLabel")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("BoxMesh_hb0vx")
@@ -62,6 +71,30 @@ skeleton = NodePath("../..")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("BoxShape3D_nxeor")
+
+[node name="BulletSpawn" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 1.0, 0)
+
+[node name="ReticleLayer" type="CanvasLayer" parent="."]
+visible = false
+
+[node name="Reticle" type="Control" parent="ReticleLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("3_reticle")
+reticle_style = 1
+
+[node name="NameLabel" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)
+billboard = 1
+no_depth_test = true
+font_size = 28
+outline_size = 8
+text = ""
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_a30e7")
