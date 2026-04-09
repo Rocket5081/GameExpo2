@@ -10,16 +10,23 @@ public partial class Bullet : RigidBody3D
 
 	public override void _Ready()
 	{
-		Vector3 forward = -Transform.Basis.X;
+		// Bullets live on layer 4, only interact with environment (layer 1).
+		// Players are on layer 2 — they are invisible to bullets.
+		CollisionLayer = 4;
+		CollisionMask  = 1;
+
+		// Clients don't simulate bullet physics — the server is authoritative.
+		// The MultiplayerSynchronizer syncs position + linear_velocity every frame.
+		if (GenericCore.Instance != null && !GenericCore.Instance.IsServer)
+			Freeze = true;
 	}
 
 	public override void _Process(double delta)
 	{
-		if (!myId.IsNetworkReady) return;
+		if (myId == null || !myId.IsNetworkReady) return;
 		if (!GenericCore.Instance.IsServer) return;
 
 		_lifetime += (float)delta;
-
 		if (_lifetime >= MaxLifetime)
 			HideBullet();
 	}
@@ -28,8 +35,13 @@ public partial class Bullet : RigidBody3D
 	{
 		if (!GenericCore.Instance.IsServer) return;
 
-		if (body is Player || body.IsInGroup("boxes"))
+		// Players are on layer 2; bullets are on layer 4 with mask 1 (layer 1 only),
+		// so this callback will never fire for a Player — but guard just in case.
+		if (body is Player) return;
+
+		if (body.IsInGroup("boxes"))
 			HideBullet();
+
 		if (body.IsInGroup("enemy"))
 		{
 			HideBullet();
@@ -39,8 +51,9 @@ public partial class Bullet : RigidBody3D
 
 	private void HideBullet()
 	{
-		this.Hide();
-		this.CollisionLayer = 8;
-		this.CollisionMask = 8;
+		Hide();
+		CollisionLayer = 8;
+		CollisionMask  = 8;
+		_lifetime      = 0f;
 	}
 }

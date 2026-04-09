@@ -228,6 +228,7 @@ size = Vector2i(497, 494)
 render_target_update_mode = 4
 
 [node name="CowboyPreview" parent="OfflinePanel/CharacterPreviewArea/CowboyPreview/SubViewport" instance=ExtResource("2_qg7sa")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.9196396, -825.108, 0)
 
 [node name="PiratePreview" type="SubViewportContainer" parent="OfflinePanel/CharacterPreviewArea"]
 visible = false
@@ -246,6 +247,7 @@ size = Vector2i(345, 437)
 render_target_update_mode = 0
 
 [node name="PiratePreview" parent="OfflinePanel/CharacterPreviewArea/PiratePreview/SubViewport" instance=ExtResource("3_g6puw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.4368033, -825.108, 0)
 
 [node name="PriestPreview" type="SubViewportContainer" parent="OfflinePanel/CharacterPreviewArea"]
 visible = false
@@ -264,6 +266,7 @@ size = Vector2i(345, 437)
 render_target_update_mode = 0
 
 [node name="PriestPreview" parent="OfflinePanel/CharacterPreviewArea/PriestPreview/SubViewport" instance=ExtResource("4_bwg8i")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -825.108, 0)
 
 [node name="StatLabel" type="RichTextLabel" parent="OfflinePanel/CharacterPreviewArea"]
 layout_mode = 1

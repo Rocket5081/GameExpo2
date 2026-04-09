@@ -72,11 +72,10 @@ public partial class NetID : MultiplayerSynchronizer
 		if(GenericCore.Instance.IsServer && OwnerId ==0)
 		{
 			OwnerId = 1;
-			if (GenericCore.Instance.GetServerNetId() == OwnerId)
-			IsLocal = true;  
+			// Server's unique ID is always 1
+			IsLocal = (Multiplayer.GetUniqueId() == 1);
 			SetMultiplayerAuthority(1); // 1 = server
 			IsNetworkReady = true;
-			//IsSynced = true;
 		}
 	   //There is a problem with this ---- There is no way to know if it was created by spawner or 
 	   //Drag and Drop.
@@ -114,7 +113,8 @@ public partial class NetID : MultiplayerSynchronizer
 		OwnerId = peerIdOwner;
 		if (peerIdOwner == 1)
 			IsServer = true;
-		if (GenericCore.Instance.GetServerNetId() == OwnerId)
+		// Use GetUniqueId() — the only reliable way to know if this peer owns this object
+		if (Multiplayer.GetUniqueId() == OwnerId)
 			IsLocal = true;
 	}
 

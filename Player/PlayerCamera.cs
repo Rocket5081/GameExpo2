@@ -55,16 +55,17 @@ public partial class PlayerCamera : Camera3D
 		Rotation = new Vector3(_cameraPitch, localPlayer.Rotation.Y + Mathf.DegToRad(-90), 0);
 	}
 
-	private void FindLocalPlayer()
-	{
-		foreach (Player player in GetTree().GetNodesInGroup("players"))
-		{
-			if (player.myId.IsLocal)
-			{
-				localPlayer = player;
-				GD.Print("Camera locked onto local player.");
-				return;
-			}
-		}
-	}
+    private void FindLocalPlayer()
+    {
+        foreach (Node node in GetTree().GetNodesInGroup("Players"))
+        {
+            if (node is Player player && player.myId != null && player.myId.IsLocal)
+            {
+                localPlayer = player;
+                MakeCurrent();  // take over as the active camera
+                GD.Print("Camera locked onto local player: " + player.Name);
+                return;
+            }
+        }
+    }
 }

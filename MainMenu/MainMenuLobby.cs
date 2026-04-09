@@ -30,7 +30,8 @@ public partial class MainMenuLobby : Control
 
 	private const int RequiredPlayers = 2;
 
-	private readonly Dictionary<int, int> _readyPlayers = new();
+	private readonly Dictionary<int, int>    _readyPlayers     = new();
+	private readonly Dictionary<int, string> _readyPlayerNames = new();
 
 	public override void _Ready()
 	{
@@ -140,21 +141,22 @@ public partial class MainMenuLobby : Control
 		OnlinePanel.Visible  = true;
 
 		if (GenericCore.Instance.IsServer)
-			ServerRegisterPlayer(1, ClassChoice);
+			ServerRegisterPlayer(1, ClassChoice, PlayerName);
 		else
-			RpcId(1, MethodName.ClientSendReady, ClassChoice);
+			RpcId(1, MethodName.ClientSendReady, ClassChoice, PlayerName);
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-	private void ClientSendReady(int classChoice)
+	private void ClientSendReady(int classChoice, string playerName)
 	{
 		if (!GenericCore.Instance.IsServer) return;
-		ServerRegisterPlayer(Multiplayer.GetRemoteSenderId(), classChoice);
+		ServerRegisterPlayer(Multiplayer.GetRemoteSenderId(), classChoice, playerName);
 	}
 
-	private async void ServerRegisterPlayer(long peerId, int classChoice)
+	private async void ServerRegisterPlayer(long peerId, int classChoice, string playerName)
 	{
-		_readyPlayers[(int)peerId] = classChoice;
+		_readyPlayers[(int)peerId]     = classChoice;
+		_readyPlayerNames[(int)peerId] = playerName.Length > 0 ? playerName : "Player";
 
 		GD.Print($"[MainMenuLobby] Registered peer {peerId} class={classChoice} ({_readyPlayers.Count}/{RequiredPlayers})");
 		GD.Print($"[MainMenuLobby] _readyPlayers keys: {string.Join(", ", _readyPlayers.Keys)}");
@@ -178,25 +180,51 @@ public partial class MainMenuLobby : Control
 
 	// ── StartGame RPC ─────────────────────────────────────────────────────────
 
-	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true,
-		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-	private void StartGame()
+private bool _gameStarted = false;
+[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true,
+	 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+private void StartGame()
+{
+	if (_gameStarted) return;
+	_gameStarted = true;
+
+	GD.Print($"[MainMenuLobby] StartGame fired on peer {Multiplayer.GetUniqueId()}");
+
+	// Hide menu panels
+	OfflinePanel.Visible = false;
+	OnlinePanel.Visible  = false;
+	Visible = false;
+
+	// Navigate up: MainMenu → GameRoot → AbsoluteRoot
+	var gameRoot     = GetParent();           // GameRoot (Node)
+	var absoluteRoot = gameRoot.GetParent();  // AbsoluteRoot (Node)
+
+	// Hide the generic lobby CanvasLayer (sibling of GameRoot under AbsoluteRoot)
+	var genericLobby = absoluteRoot.GetNodeOrNull<CanvasLayer>("GenericLobbySystem");
+	if (genericLobby != null)
+		genericLobby.Visible = false;
+	else
+		GD.PrintErr("[MainMenuLobby] GenericLobbySystem not found under AbsoluteRoot!");
+
+	// Show MainGame (sibling of MainMenu under GameRoot) and activate its camera
+	var mainGame = gameRoot.GetNodeOrNull<Node3D>("MainGame");
+	if (mainGame != null)
+		mainGame.Visible = true;
+	else
+		GD.PrintErr("[MainMenuLobby] MainGame not found under GameRoot!");
+
+	var camera = gameRoot.GetNodeOrNull<Camera3D>("MainGame/Camera3D");
+	if (camera != null)
 	{
-		GD.Print($"[MainMenuLobby] StartGame fired on peer {Multiplayer.GetUniqueId()}");
-
-		// Hide on ALL peers including server
-		Visible = false;
-		GD.Print($"[MainMenuLobby] Visible set to false on peer {Multiplayer.GetUniqueId()}");
-
-		var camera = GetTree().Root.FindChild("Camera3D", true, false) as Camera3D;
-		if (camera != null)
-			camera.MakeCurrent();
-		else
-			GD.PrintErr("[MainMenuLobby] Camera3D not found!");
-
-		if (GenericCore.Instance.IsServer)
-			ServerSpawnWithDelay();
+		camera.MakeCurrent();
+		GD.Print("[MainMenuLobby] Camera3D activated.");
 	}
+	else
+		GD.PrintErr("[MainMenuLobby] Camera3D not found at GameRoot/MainGame/Camera3D!");
+
+	if (GenericCore.Instance.IsServer)
+		ServerSpawnWithDelay();
+}
 
 	// ── Spawn ─────────────────────────────────────────────────────────────────
 
@@ -233,13 +261,24 @@ public partial class MainMenuLobby : Control
 
 			GD.Print($"[MainMenuLobby] Spawning peer {peerId} class={classChoice} at {pos}");
 
-			characterSpawner.NetCreateObject(classChoice, pos, Quaternion.Identity, peerId);
+			var spawnedNode = characterSpawner.NetCreateObject(classChoice, pos, Quaternion.Identity, peerId);
+
+			// Set the display name directly on the server-side node.
+			// PlayerDisplayName is in the SceneReplicationConfig (spawn=true, on_change),
+			// so the value propagates to all clients automatically on the next sync tick —
+			// no RPC race condition with the spawn packet.
+			if (spawnedNode is Player spawnedPlayer)
+			{
+				string displayName = _readyPlayerNames.TryGetValue(peerId, out string n) ? n : "Player";
+				spawnedPlayer.PlayerDisplayName = displayName;
+			}
 
 			await ToSignal(GetTree().CreateTimer(0.5f), SceneTreeTimer.SignalName.Timeout);
 			i++;
 		}
 
 		_readyPlayers.Clear();
+		_readyPlayerNames.Clear();
 		GD.Print("[MainMenuLobby] All players spawned!");
 	}
 
