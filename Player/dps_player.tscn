@@ -1,8 +1,9 @@
-[gd_scene load_steps=9 format=3 uid="uid://bfxq16gxvblha"]
+[gd_scene load_steps=10 format=3 uid="uid://bfxq16gxvblha"]
 
 [ext_resource type="Script" uid="uid://yo2i7m3b6pph" path="res://NetworkCore/NetID.cs" id="1_7ks6i"]
 [ext_resource type="Script" uid="uid://fy4vxbxhv0ql" path="res://Player/DpsPlayer.cs" id="1_k2htt"]
-[ext_resource type="Script" path="res://Player/Reticle.cs" id="3_reticle"]
+[ext_resource type="Script" uid="uid://pdqvcyyprvgw" path="res://Player/Reticle.cs" id="3_reticle"]
+[ext_resource type="PackedScene" uid="uid://bntb5k0e3r13f" path="res://Upgrades/upgrades.tscn" id="4_4xhhv"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_k2htt"]
 
@@ -14,7 +15,7 @@ material = SubResource("StandardMaterial3D_7ks6i")
 size = Vector3(0.5, 0.5, 0.7)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_wsqot"]
-size = Vector3(1, 2.4, 1)
+size = Vector3(1, 2, 1)
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_4xhhv"]
 properties/0/path = NodePath("MultiplayerSynchronizer:IsNetworkReady")
@@ -51,29 +52,29 @@ properties/10/path = NodePath(".:PlayerDisplayName")
 properties/10/spawn = true
 properties/10/replication_mode = 2
 
-[node name="DPS_Player" type="CharacterBody3D" node_paths=PackedStringArray("myId", "bullet_spawn", "reticle_layer", "name_label") groups=["Players"]]
+[node name="DPS_Player" type="CharacterBody3D" node_paths=PackedStringArray("myId") groups=["Players"]]
 collision_layer = 2
-collision_mask = 1
 script = ExtResource("1_k2htt")
 myId = NodePath("MultiplayerSynchronizer")
-bullet_spawn = NodePath("BulletSpawn")
-reticle_layer = NodePath("ReticleLayer")
-name_label = NodePath("NameLabel")
 
-[node name="DPS" parent="." instance=ExtResource("2_4xhhv")]
-transform = Transform3D(0.4, 0, 0, 0, 0.4, 0, 0, 0, 0.4, -0.06408548, 0.012673676, 0)
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("CapsuleMesh_k2htt")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="MeshInstance3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.42082286, 0.3404883, 0)
+mesh = SubResource("BoxMesh_k2htt")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2046585, 0)
 shape = SubResource("BoxShape3D_wsqot")
 
 [node name="BulletSpawn" type="Marker3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 1.0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 1, 0)
 
 [node name="ReticleLayer" type="CanvasLayer" parent="."]
 visible = false
 
 [node name="Reticle" type="Control" parent="ReticleLayer"]
+layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -81,7 +82,6 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("3_reticle")
-reticle_style = 0
 
 [node name="NameLabel" type="Label3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)
@@ -89,10 +89,9 @@ billboard = 1
 no_depth_test = true
 font_size = 28
 outline_size = 8
-text = ""
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_4xhhv")
 script = ExtResource("1_7ks6i")
 
-[node name="Upgrades" parent="." instance=ExtResource("3_wsqot")]
+[node name="Upgrades" parent="." instance=ExtResource("4_4xhhv")]

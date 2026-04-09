@@ -39,7 +39,7 @@ public partial class SupportPlayer : Player
 		{
 			Vector3 spawnPos = GlobalPosition + (Transform.Basis.X * 1.5f) + new Vector3(0, 1f, zOffsets[j]);
 			var t1 = GenericCore.Instance.MainNetworkCore?.NetCreateObject(
-				1, spawnPos, Transform.Basis.GetRotationQuaternion(), 1);
+				3, spawnPos, Transform.Basis.GetRotationQuaternion(), 1);
 
 			if (t1 == null) return;
 
@@ -55,6 +55,7 @@ public partial class SupportPlayer : Player
 			await ToSignal(GetTree().CreateTimer(cooldown), SceneTreeTimer.SignalName.Timeout);
 		}
 		await ToSignal(GetTree().CreateTimer(cooldown*count), SceneTreeTimer.SignalName.Timeout);
+		
 		}
 	}
 

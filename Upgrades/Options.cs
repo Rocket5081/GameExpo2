@@ -17,11 +17,10 @@ public partial class Options : Control
 	{
 		random.Randomize();
 		grid = GetNode<GridContainer>("GridContainer");
-		add();
-		//clear();
 	}
 
-
+[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true,
+		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void add()
 	{
 		for(int i=0; i<3; i++)
@@ -120,6 +119,7 @@ public partial class Options : Control
 				Opt.Text = "";
 				Opt.opt = "";
 			}
+			Opt.Pressed += OnOptionPressed;
 			grid.AddChild(Opt);
 		}
 	}
@@ -142,5 +142,13 @@ public partial class Options : Control
 			}
 			RolledOptions[i] = "empty";
 		}
-		}
+	}
+	
+	public void OnOptionPressed(){
+		GetParent<Upgrades>().GetParent<Player>();
+	}
+	
+	public void callAdd(){
+		RpcId(1, "add");
+	}
 }
