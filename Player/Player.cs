@@ -47,6 +47,24 @@ public partial class Player : CharacterBody3D
 		AddToGroup("Players");
 	}
 
+private void HideMenuOnConnect()
+{
+	var mainMenu = GetTree().Root.GetNodeOrNull("GameRoot/MainMenu");
+	if (mainMenu == null)
+	{
+		GD.PrintErr("[Player] MainMenu NOT FOUND at GameRoot/MainMenu");
+		return;
+	}
+
+	GD.Print("[Player] Found: " + mainMenu.GetType().Name);
+
+	if (mainMenu is CanvasItem ci)
+	{
+		ci.Visible = false;
+		GD.Print("[Player] MainMenu hidden from Player.");
+	}
+}
+
 	public override void _Input(InputEvent @event)
 	{
 		if (myId == null || !myId.IsLocal) return;

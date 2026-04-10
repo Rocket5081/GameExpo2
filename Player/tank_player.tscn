@@ -1,8 +1,9 @@
-[gd_scene load_steps=9 format=3 uid="uid://crynxmhfqxpn2"]
+[gd_scene load_steps=10 format=3 uid="uid://crynxmhfqxpn2"]
 
 [ext_resource type="Script" uid="uid://lo1q22j2v18t" path="res://Player/TankPlayer.cs" id="1_pm5gu"]
 [ext_resource type="Script" uid="uid://yo2i7m3b6pph" path="res://NetworkCore/NetID.cs" id="2_bwhdg"]
 [ext_resource type="Script" uid="uid://pdqvcyyprvgw" path="res://Player/Reticle.cs" id="3_reticle"]
+[ext_resource type="PackedScene" uid="uid://bntb5k0e3r13f" path="res://Upgrades/upgrades.tscn" id="4_hb0vx"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_hb0vx"]
 size = Vector3(0.8, 2, 0.8)
@@ -54,6 +55,7 @@ properties/10/replication_mode = 2
 
 [node name="Tank_Player" type="CharacterBody3D" node_paths=PackedStringArray("myId", "BulletSpawn", "ReticleLayer", "NameLabel") groups=["Players"]]
 collision_layer = 2
+collision_mask = 1
 script = ExtResource("1_pm5gu")
 myId = NodePath("MultiplayerSynchronizer")
 BulletSpawn = NodePath("BulletSpawn")
@@ -88,12 +90,15 @@ mouse_filter = 2
 script = ExtResource("3_reticle")
 
 [node name="NameLabel" type="Label3D" parent="."]
-transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 0, 2.5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)
 billboard = 1
 no_depth_test = true
 font_size = 28
 outline_size = 8
+visible = false
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_a30e7")
 script = ExtResource("2_bwhdg")
+
+[node name="Upgrades" parent="." instance=ExtResource("4_hb0vx")]

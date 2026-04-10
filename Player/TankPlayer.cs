@@ -2,11 +2,13 @@ using Godot;
 
 public partial class TankPlayer : Player
 {
+	private int  spreadCount = 3;
 	public override void _Ready()
 	{
 		maxHp = 200;
 		speed = 10;
 		hp    = maxHp;
+		GetNode("Upgrades").GetNode<Options>("Options").add();
 		base._Ready();
 	}
 
@@ -21,9 +23,9 @@ public partial class TankPlayer : Player
 		timer    = 0.5f;
 
 		if (Buls.Count < 12)
-			SpawnBulletSpread(3);
+			SpawnBulletSpread(spreadCount);
 		else
-			ShootBulletSpread(3);
+			ShootBulletSpread(spreadCount);
 	}
 
 	private async void SpawnBulletSpread(int count)

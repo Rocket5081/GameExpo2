@@ -1,0 +1,27 @@
+[gd_scene load_steps=3 format=3 uid="uid://bntb5k0e3r13f"]
+
+[ext_resource type="Script" uid="uid://wqqmwn0jlpmg" path="res://Upgrades/Upgrades.cs" id="1_alr6r"]
+[ext_resource type="Script" uid="uid://b2nonvabsank3" path="res://Upgrades/Options.cs" id="2_ba88x"]
+
+[node name="Upgrades" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_alr6r")
+
+[node name="Options" type="Control" parent="."]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("2_ba88x")
+
+[node name="GridContainer" type="GridContainer" parent="Options"]
+layout_mode = 0
+offset_left = 3.0
+offset_top = 2.0
+offset_right = 1153.0
+offset_bottom = 649.0
+columns = 3

@@ -1,8 +1,9 @@
-[gd_scene load_steps=9 format=3 uid="uid://bqn4egd1x7c21"]
+[gd_scene load_steps=12 format=3 uid="uid://bqn4egd1x7c21"]
 
 [ext_resource type="Script" uid="uid://yo2i7m3b6pph" path="res://NetworkCore/NetID.cs" id="1_acfcq"]
 [ext_resource type="Script" uid="uid://c2xotdccp4f3r" path="res://Player/SupportPlayer.cs" id="1_q1xqf"]
 [ext_resource type="Script" uid="uid://pdqvcyyprvgw" path="res://Player/Reticle.cs" id="3_reticle"]
+[ext_resource type="PackedScene" uid="uid://bntb5k0e3r13f" path="res://Upgrades/upgrades.tscn" id="4_ktfil"]
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_ta8ye"]
 
@@ -15,6 +16,17 @@ size = Vector3(0.5, 0.5, 0.7)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_km5gb"]
 size = Vector3(1, 2, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_laser"]
+emission_enabled = true
+emission = Color(0.2, 1, 0.2, 1)
+emission_energy_multiplier = 4.0
+albedo_color = Color(0.2, 1, 0.2, 1)
+transparency = 0
+
+[sub_resource type="BoxMesh" id="BoxMesh_laser"]
+material = SubResource("StandardMaterial3D_laser")
+size = Vector3(40, 0.3, 0.3)
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_ktfil"]
 properties/0/path = NodePath("MultiplayerSynchronizer:IsNetworkReady")
@@ -51,13 +63,15 @@ properties/10/path = NodePath(".:PlayerDisplayName")
 properties/10/spawn = true
 properties/10/replication_mode = 2
 
-[node name="Support_Player" type="CharacterBody3D" node_paths=PackedStringArray("myId", "BulletSpawn", "ReticleLayer", "NameLabel") groups=["Players"]]
+[node name="Support_Player" type="CharacterBody3D" node_paths=PackedStringArray("myId", "BulletSpawn", "ReticleLayer", "NameLabel", "LaserBeam") groups=["Players"]]
 collision_layer = 2
+collision_mask = 1
 script = ExtResource("1_q1xqf")
 myId = NodePath("MultiplayerSynchronizer")
 BulletSpawn = NodePath("BulletSpawn")
 ReticleLayer = NodePath("ReticleLayer")
 NameLabel = NodePath("NameLabel")
+LaserBeam = NodePath("LaserBeam")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 mesh = SubResource("CylinderMesh_ta8ye")
@@ -86,12 +100,21 @@ mouse_filter = 2
 script = ExtResource("3_reticle")
 
 [node name="NameLabel" type="Label3D" parent="."]
-transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 0, 2.5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)
 billboard = 1
 no_depth_test = true
 font_size = 28
 outline_size = 8
+visible = false
+
+[node name="LaserBeam" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21.5, 1, 0)
+visible = false
+mesh = SubResource("BoxMesh_laser")
+cast_shadow = 0
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_ktfil")
 script = ExtResource("1_acfcq")
+
+[node name="Upgrades" parent="." instance=ExtResource("4_ktfil")]

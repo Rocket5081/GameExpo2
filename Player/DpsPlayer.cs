@@ -10,6 +10,7 @@ public partial class DpsPlayer : Player
 		maxHp = 150;
 		speed = 20;
 		hp    = maxHp;
+		GetNode("Upgrades").GetNode<Options>("Options").add();
 		base._Ready();
 	}
 
