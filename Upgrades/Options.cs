@@ -19,10 +19,10 @@ public partial class Options : Control
 		grid = GetNode<GridContainer>("GridContainer");
 	}
 
-[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true,
-		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void add()
 	{
+			
+		
 		for(int i=0; i<3; i++)
 		{
 			
@@ -46,12 +46,12 @@ public partial class Options : Control
 			}
 			else if(randomOpt == "AC2")
 			{
-				Opt.Text = "Ability Cooldown \n\tLevel 1 \nReduces \n\t\tCooldown -5s";
+				Opt.Text = "Ability Cooldown \n\tLevel 2 \nReduces \n\t\tCooldown -5s";
 				Opt.opt = randomOpt;
 			}
 			else if(randomOpt == "AC3")
 			{
-				Opt.Text = "Ability Cooldown \n\tLevel 1 \nReduces \n\t\tCooldown -10s";
+				Opt.Text = "Ability Cooldown \n\tLevel 3 \nReduces \n\t\tCooldown -10s";
 				Opt.opt = randomOpt;
 			}
 			else if(randomOpt == "PC1")
@@ -61,12 +61,12 @@ public partial class Options : Control
 			}
 			else if(randomOpt == "PC2")
 			{
-				Opt.Text = "Projectile Cooldown \n\tLevel 1 \nReduces \n\t\tCooldown -5s";
+				Opt.Text = "Projectile Cooldown \n\tLevel 2 \nReduces \n\t\tCooldown -5s";
 				Opt.opt = randomOpt;
 			}
 			else if(randomOpt == "PC3")
 			{
-				Opt.Text = "Projectile Cooldown \n\tLevel 1 \nReduces \n\t\tCooldown -10s";
+				Opt.Text = "Projectile Cooldown \n\tLevel 3 \nReduces \n\t\tCooldown -10s";
 				Opt.opt = randomOpt;
 			}
 			else if(randomOpt == "MH1")

@@ -45,10 +45,7 @@ public partial class Player : CharacterBody3D
 	{
 		base._Ready();
 		AddToGroup("Players");
-	
-	GetNode("Upgrades").GetNode<Options>("Options").RpcId(1, "add");
-	//GetNode("Upgrades").GetNode<Options>("Options").add();
-}
+	}
 
 private void HideMenuOnConnect()
 {

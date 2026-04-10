@@ -8,6 +8,7 @@ public partial class TankPlayer : Player
 		maxHp = 200;
 		speed = 10;
 		hp    = maxHp;
+		GetNode("Upgrades").GetNode<Options>("Options").add();
 		base._Ready();
 	}
 
