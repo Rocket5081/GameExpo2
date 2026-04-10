@@ -16,6 +16,8 @@ public partial class MainMenuLobby : Control
 	[Export] public Control OfflinePanel;
 	[Export] public Control OnlinePanel;
 	[Export] public Label PlayerCountLabel;
+	[Export] public Control ControlsOverlay;
+	[Export] public Control DevelopersOverlay;
 
 	public string PlayerName  = "Player";
 	public int    ClassChoice = 0;
@@ -76,8 +78,17 @@ public partial class MainMenuLobby : Control
 	{
 		PlayerName = newText.Length > 0 ? newText : "Player";
 		RefreshNameLabel();
+		Rpc(MethodName.NameRPC, newText);
 	}
-
+	
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false,
+		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public void NameRPC(string name)
+	{
+		if (!GenericCore.Instance.IsServer) return;
+		PlayerName     = name;
+		NameEntry.Text = name;
+	}
 	private void OnClassSelected(long index)
 	{
 		ClassChoice = (int)index;
@@ -178,8 +189,9 @@ public partial class MainMenuLobby : Control
 		}
 	}
 
-	// ── StartGame RPC ─────────────────────────────────────────────────────────
 
+
+	// ── StartGame RPC ─────────────────────────────────────────────────────────
 private bool _gameStarted = false;
 [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true,
 	 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
@@ -271,9 +283,16 @@ private void StartGame()
 			{
 				string displayName = _readyPlayerNames.TryGetValue(peerId, out string n) ? n : "Player";
 				spawnedPlayer.PlayerDisplayName = displayName;
-			}
 
-			await ToSignal(GetTree().CreateTimer(0.5f), SceneTreeTimer.SignalName.Timeout);
+				// Belt-and-suspenders: also send via RPC so the name arrives even if
+				// the replication sync tick fires before NameLabel is ready on clients.
+				await ToSignal(GetTree().CreateTimer(1.0f), SceneTreeTimer.SignalName.Timeout);
+				spawnedPlayer.Rpc(Player.MethodName.SetDisplayName, displayName);
+			}
+			else
+			{
+				await ToSignal(GetTree().CreateTimer(0.5f), SceneTreeTimer.SignalName.Timeout);
+			}
 			i++;
 		}
 
@@ -294,6 +313,32 @@ private void StartGame()
 			ConnectButton.Text = $"Waiting... {current}/{required}";
 	}
 
+	// ── Overlay panels ───────────────────────────────────────────────────────────
+
+	public void ShowControlsPanel()
+	{
+		OfflinePanel.Visible      = false;
+		OnlinePanel.Visible       = false;
+		if (DevelopersOverlay != null) DevelopersOverlay.Visible = false;
+		if (ControlsOverlay   != null) ControlsOverlay.Visible   = true;
+	}
+
+	public void ShowDevelopersPanel()
+	{
+		OfflinePanel.Visible      = false;
+		OnlinePanel.Visible       = false;
+		if (ControlsOverlay   != null) ControlsOverlay.Visible   = false;
+		if (DevelopersOverlay != null) DevelopersOverlay.Visible = true;
+	}
+
+	public void ShowMainPanel()
+	{
+		if (ControlsOverlay   != null) ControlsOverlay.Visible   = false;
+		if (DevelopersOverlay != null) DevelopersOverlay.Visible = false;
+		OfflinePanel.Visible = true;
+		OnlinePanel.Visible  = false;
+	}
+
 	// ── Disconnect ────────────────────────────────────────────────────────────
 
 	public void Disconnect()
@@ -303,7 +348,9 @@ private void StartGame()
 		OnlinePanel.Visible    = false;
 		ConnectButton.Disabled = false;
 		ConnectButton.Text     = "Connect";
+		
 		LastPort = 0;
+		
 		GenericCore.Instance.SetPort("7000");
 		HP    = 100;
 		Score = 0;

@@ -7,7 +7,7 @@
 [ext_resource type="Script" uid="uid://bgc8brkraduc8" path="res://Player/PlayerCamera.cs" id="5_5y8m1"]
 [ext_resource type="Shader" uid="uid://bt1gpg2wo4k78" path="res://MainGame/water.gdshader" id="5_nuski"]
 [ext_resource type="Script" uid="uid://b2fb80xs807f4" path="res://NetworkCore/NetworkCore.cs" id="6_8e541"]
-[ext_resource type="PackedScene" path="res://MainGame/HUD.tscn" id="7_hud01"]
+[ext_resource type="PackedScene" uid="uid://c4hud0main001" path="res://MainGame/HUD.tscn" id="7_hud01"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5y8m1"]
 next_pass = ExtResource("1_6bbl1")
@@ -23,7 +23,7 @@ shader_parameter/wave_speed = 0.10000000475
 shader_parameter/wave_height = 0.02000000095
 shader_parameter/wave_frequency = 7.02700033052262
 shader_parameter/transparency = 0.21600001026
-shader_parameter/shallow_color = Color(0.023529412, 0.31764707, 1, 1)
+shader_parameter/shallow_color = Color(0.023529412, 0.56078434, 1, 1)
 shader_parameter/deep_color = Color(0.019607844, 0, 0.91764706, 0.29803923)
 shader_parameter/foam_color = Color(0.023529412, 0.56078434, 1, 1)
 shader_parameter/specular_color = Color(0.8, 0.5, 1, 1)

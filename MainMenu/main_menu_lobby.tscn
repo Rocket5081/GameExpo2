@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://dueebmf0c7uio"]
+[gd_scene load_steps=17 format=3 uid="uid://dueebmf0c7uio"]
 
 [ext_resource type="Script" uid="uid://c3xyxqeo68ya6" path="res://MainMenu/MainMenuLobby.cs" id="1_lobby"]
 [ext_resource type="Theme" uid="uid://cf6xkkbigiumk" path="res://Assets/Eldritch Theme1.tres" id="1_qloij"]
@@ -12,6 +12,7 @@
 [ext_resource type="Script" uid="uid://dtu02dnn3cgjc" path="res://MainMenu/About.cs" id="4_sybf7"]
 [ext_resource type="Script" uid="uid://buk05j0bwtce2" path="res://MainMenu/ConnectButton.cs" id="4_ug2ni"]
 [ext_resource type="PackedScene" uid="uid://lptd167x2g0q" path="res://MainMenu/cthulu_head.tscn" id="5_bwg8i"]
+[ext_resource type="Script" uid="uid://yo2i7m3b6pph" path="res://NetworkCore/NetID.cs" id="13_hu2c5"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_void"]
 shader = ExtResource("2_l1scf")
@@ -34,7 +35,18 @@ shader_parameter/line_color = Color(0.54901963, 0, 0, 1)
 shader_parameter/drip_color = Color(0.34901962, 0, 0, 1)
 shader_parameter/glow_color = Color(0.8, 0, 0.050980393, 1)
 
-[node name="MainMenuLobby" type="Control" node_paths=PackedStringArray("NameEntry", "ClassDropdown", "ItemDropdown", "NameColorLabel", "CharacterPreviewArea", "CowboyPreview", "PiratePreview", "PriestPreview", "ConnectButton", "OfflinePanel", "OnlinePanel", "PlayerCountLabel")]
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_jnayt"]
+properties/0/path = NodePath("MultiplayerSynchronizer:IsNetworkReady")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+properties/1/path = NodePath("MultiplayerSynchronizer:IsSynced")
+properties/1/spawn = true
+properties/1/replication_mode = 1
+properties/2/path = NodePath("MultiplayerSynchronizer:OwnerId")
+properties/2/spawn = true
+properties/2/replication_mode = 1
+
+[node name="MainMenuLobby" type="Control" node_paths=PackedStringArray("NameEntry", "ClassDropdown", "ItemDropdown", "NameColorLabel", "CharacterPreviewArea", "CowboyPreview", "PiratePreview", "PriestPreview", "ConnectButton", "OfflinePanel", "OnlinePanel", "PlayerCountLabel", "ControlsOverlay", "DevelopersOverlay")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -55,6 +67,8 @@ ConnectButton = NodePath("OfflinePanel/VBox/ConnectButton")
 OfflinePanel = NodePath("OfflinePanel")
 OnlinePanel = NodePath("OnlinePanel")
 PlayerCountLabel = NodePath("OnlinePanel/PlayerCountLabel")
+ControlsOverlay = NodePath("ControlsOverlay")
+DevelopersOverlay = NodePath("DevelopersOverlay")
 
 [node name="Background" type="ColorRect" parent="."]
 material = SubResource("ShaderMaterial_void")
@@ -366,8 +380,243 @@ render_target_update_mode = 4
 
 [node name="CthuluHead" parent="CthuluBackground/SubViewport" instance=ExtResource("5_bwg8i")]
 
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_jnayt")
+script = ExtResource("13_hu2c5")
+
+[node name="ControlsOverlay" type="Control" parent="."]
+visible = false
+z_index = 10
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="OverlayBG" type="ColorRect" parent="ControlsOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.01, 0, 0.04, 0.97)
+
+[node name="TitleLabel" type="Label" parent="ControlsOverlay"]
+z_index = 2
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -291.0
+offset_top = 16.0
+offset_right = 309.0
+offset_bottom = 74.0
+grow_horizontal = 2
+theme_override_colors/font_outline_color = Color(1, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 50
+text = "CONTROLS"
+horizontal_alignment = 1
+
+[node name="Card" type="PanelContainer" parent="ControlsOverlay"]
+z_index = 2
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.25
+anchor_top = 0.18
+anchor_right = 0.75
+anchor_bottom = 0.82
+offset_left = 13.0
+offset_top = -15.64
+offset_right = 13.0
+offset_bottom = -6.36
+
+[node name="VBox" type="VBoxContainer" parent="ControlsOverlay/Card"]
+layout_mode = 2
+theme_override_constants/separation = 28
+
+[node name="MovementHeader" type="Label" parent="ControlsOverlay/Card/VBox"]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(1, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 24
+text = "Movement"
+horizontal_alignment = 1
+
+[node name="MoveForward" type="Label" parent="ControlsOverlay/Card/VBox"]
+layout_mode = 2
+text = "W  -  Move Forward"
+horizontal_alignment = 1
+
+[node name="MoveBackward" type="Label" parent="ControlsOverlay/Card/VBox"]
+layout_mode = 2
+text = "S  -  Move Backward"
+horizontal_alignment = 1
+
+[node name="MoveLeft" type="Label" parent="ControlsOverlay/Card/VBox"]
+layout_mode = 2
+text = "A  -  Move Left"
+horizontal_alignment = 1
+
+[node name="MoveRight" type="Label" parent="ControlsOverlay/Card/VBox"]
+layout_mode = 2
+text = "D  -  Move Right"
+horizontal_alignment = 1
+
+[node name="CombatHeader" type="Label" parent="ControlsOverlay/Card/VBox"]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(1, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 24
+text = "Combat"
+horizontal_alignment = 1
+
+[node name="Shoot" type="Label" parent="ControlsOverlay/Card/VBox"]
+layout_mode = 2
+text = "Left Click  -  Shoot"
+horizontal_alignment = 1
+
+[node name="Ability" type="Label" parent="ControlsOverlay/Card/VBox"]
+layout_mode = 2
+text = "Q  -  Use Ability"
+horizontal_alignment = 1
+
+[node name="BackButton" type="Button" parent="ControlsOverlay"]
+z_index = 2
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.88
+anchor_right = 0.5
+anchor_bottom = 0.88
+offset_left = -65.0
+offset_top = 6.76
+offset_right = 95.0
+offset_bottom = 54.76
+text = "← Back"
+flat = true
+
+[node name="DevelopersOverlay" type="Control" parent="."]
+visible = false
+z_index = 10
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="OverlayBG" type="ColorRect" parent="DevelopersOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.01, 0, 0.04, 0.97)
+
+[node name="TitleLabel" type="Label" parent="DevelopersOverlay"]
+z_index = 2
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -300.0
+offset_top = 16.0
+offset_right = 300.0
+offset_bottom = 66.0
+grow_horizontal = 2
+theme_override_constants/outline_size = 7
+theme_override_font_sizes/font_size = 41
+text = "THE DEVELOPERS"
+horizontal_alignment = 1
+
+[node name="Card" type="PanelContainer" parent="DevelopersOverlay"]
+z_index = 2
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.12
+anchor_top = 0.18
+anchor_right = 0.88
+anchor_bottom = 0.82
+offset_left = -0.24
+offset_top = -28.64
+offset_right = -0.24
+offset_bottom = -0.36
+
+[node name="VBox" type="VBoxContainer" parent="DevelopersOverlay/Card"]
+layout_mode = 2
+theme_override_constants/separation = 33
+
+[node name="Ryan" type="Label" parent="DevelopersOverlay/Card/VBox"]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 20
+theme_override_font_sizes/font_size = 35
+text = "Ryan"
+horizontal_alignment = 1
+
+[node name="RyanRole" type="RichTextLabel" parent="DevelopersOverlay/Card/VBox"]
+layout_mode = 2
+bbcode_enabled = true
+text = "[center][color=#cc88ff]Lead Programmer  ·  Level Designer[/color][/center]"
+fit_content = true
+
+[node name="DividerA" type="HSeparator" parent="DevelopersOverlay/Card/VBox"]
+layout_mode = 2
+
+[node name="Ky-Mari" type="Label" parent="DevelopersOverlay/Card/VBox"]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0.015686275, 0, 1)
+theme_override_constants/outline_size = 20
+theme_override_font_sizes/font_size = 35
+text = "Ky-Mari"
+horizontal_alignment = 1
+
+[node name="KyMariRole" type="RichTextLabel" parent="DevelopersOverlay/Card/VBox"]
+layout_mode = 2
+bbcode_enabled = true
+text = "[center][color=#cc88ff]Music & Sound  ·  Level Designer  ·  3D Modeler  ·  Programmer[/color][/center]"
+fit_content = true
+
+[node name="DividerB" type="HSeparator" parent="DevelopersOverlay/Card/VBox"]
+layout_mode = 2
+
+[node name="Chandler" type="Label" parent="DevelopersOverlay/Card/VBox"]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 20
+theme_override_font_sizes/font_size = 35
+text = "Chandler"
+horizontal_alignment = 1
+
+[node name="ChandlerRole" type="RichTextLabel" parent="DevelopersOverlay/Card/VBox"]
+layout_mode = 2
+bbcode_enabled = true
+text = "[center][color=#cc88ff]3D Modeler & Animator  ·  UI  ·  Programmer[/color][/center]"
+fit_content = true
+
+[node name="BackButton" type="Button" parent="DevelopersOverlay"]
+z_index = 2
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.88
+anchor_right = 0.5
+anchor_bottom = 0.88
+offset_left = -80.0
+offset_top = -14.24
+offset_right = 80.0
+offset_bottom = 33.76
+text = "← Back"
+flat = true
+
 [connection signal="text_changed" from="OfflinePanel/VBox/NameEntry" to="." method="OnNameChanged"]
 [connection signal="item_selected" from="OfflinePanel/VBox/ClassDropdown" to="." method="OnClassSelected"]
 [connection signal="item_selected" from="OfflinePanel/VBox/ItemDropdown" to="." method="OnItemSelected"]
 [connection signal="pressed" from="OfflinePanel/VBox/ConnectButton" to="." method="OnConnectPressed"]
 [connection signal="pressed" from="OnlinePanel/DisconnectButton" to="." method="Disconnect"]
+[connection signal="pressed" from="ControlsOverlay/BackButton" to="." method="ShowMainPanel"]
+[connection signal="pressed" from="DevelopersOverlay/BackButton" to="." method="ShowMainPanel"]

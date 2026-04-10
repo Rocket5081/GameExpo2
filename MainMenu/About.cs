@@ -49,7 +49,8 @@ public partial class About : Button
 
 	private void OnPressed()
 	{
-		GetTree().ChangeSceneToFile("res://DevelopersScene/Developers.tscn");
+		var lobby = GetOwner<MainMenuLobby>();
+		lobby?.ShowDevelopersPanel();
 	}
 
 	private void AnimateTo(float target)

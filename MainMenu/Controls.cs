@@ -49,7 +49,8 @@ public partial class Controls : Button
 
 	private void OnPressed()
 	{
-		GetTree().ChangeSceneToFile("res://ControlsScene/controls.tscn");
+		var lobby = GetOwner<MainMenuLobby>();
+		lobby?.ShowControlsPanel();
 	}
 
 	private void AnimateTo(float target)

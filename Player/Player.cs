@@ -210,6 +210,28 @@ public partial class Player : CharacterBody3D
 		SyncedVelocity = new Vector3(horizontal.X, currentY, horizontal.Z);
 	}
 
+	// ── Nameplate RPC ────────────────────────────────────────────────────────
+	/// <summary>
+	/// Called by the server ~1 second after all players spawn, once every client
+	/// is guaranteed to have the node. Works alongside the SceneReplicationConfig
+	/// sync of PlayerDisplayName as a belt-and-suspenders delivery.
+	/// </summary>
+	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true,
+		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public void SetDisplayName(string name)
+	{
+		PlayerDisplayName = name;   // also keeps the synced property up to date
+
+		if (NameLabel == null) return;
+		if (myId != null && myId.IsLocal) { NameLabel.Visible = false; return; }
+
+		NameLabel.Text = name;
+		if      (this is DpsPlayer)     NameLabel.Modulate = new Color("ff4444");
+		else if (this is TankPlayer)    NameLabel.Modulate = new Color("4488ff");
+		else if (this is SupportPlayer) NameLabel.Modulate = new Color("44cc66");
+		NameLabel.Visible = true;
+	}
+
 	public Vector3 GetBulletSpawnPos()
 	{
 		if (BulletSpawn != null)
