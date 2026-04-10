@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://tj8w2hte7c2q"
+path="res://.godot/imported/DPS SHOT.mp3-847da6b03c2949ee366a8b077c1fac5b.mp3str"
+
+[deps]
+
+source_file="res://Sounds/DPS SHOT.mp3"
+dest_files=["res://.godot/imported/DPS SHOT.mp3-847da6b03c2949ee366a8b077c1fac5b.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://dx2stp6nyc40f"
+path="res://.godot/imported/Dps Triple Shot.mp3-b218cd88a063846bc54107209d242fcd.mp3str"
+
+[deps]
+
+source_file="res://Sounds/Dps Triple Shot.mp3"
+dest_files=["res://.godot/imported/Dps Triple Shot.mp3-b218cd88a063846bc54107209d242fcd.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

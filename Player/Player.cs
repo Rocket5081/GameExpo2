@@ -10,9 +10,12 @@ public partial class Player : CharacterBody3D
 	[Export] public CanvasLayer ReticleLayer;  // kept for legacy wiring; HUD.cs handles display
 	[Export] public Label3D NameLabel;
 
-	// Synced via SceneReplicationConfig (replication_mode=2, spawn=true).
-	// Server sets this after spawn; clients receive the value through the normal
-	// sync channel and _Process applies it to the Label3D.
+	// ── Sound ────────────────────────────────────────────────────────────────
+	[Export] public AudioStreamPlayer3D FootstepPlayer;
+	[Export] public float FootstepInterval = 0.45f;
+
+	private float _footstepTimer = 0f;
+
 	[Export] public string PlayerDisplayName = "";
 
 	[Export] public Vector3 SyncedVelocity
@@ -29,7 +32,7 @@ public partial class Player : CharacterBody3D
 	[Export] public bool SyncedIsOnFloor = true;
 	[Export] public bool SyncedIsJumping = false;
 
-	private float _mouseDeltaX = 0f;
+	private float _mouseDeltaX  = 0f;
 	private bool  _mouseCaptured = false;
 
 	public float timer = 0.5f;
@@ -38,6 +41,11 @@ public partial class Player : CharacterBody3D
 	public int   hp;
 	public int   maxHp;
 
+	// ── Ultimate ability ─────────────────────────────────────────────────────
+	public float UltimateCooldownMax   = 30f;
+	public float UltimateCooldownTimer = 30f;   // counts down to 0; 0 = ready
+	public bool  IsShielded            = false; // set by Tank bubble
+
 	public List<Bullet> Buls     = new List<Bullet>();
 	public int          bulCount = 0;
 
@@ -45,25 +53,17 @@ public partial class Player : CharacterBody3D
 	{
 		base._Ready();
 		AddToGroup("Players");
-	}
 
-private void HideMenuOnConnect()
-{
-	var mainMenu = GetTree().Root.GetNodeOrNull("GameRoot/MainMenu");
-	if (mainMenu == null)
-	{
-		GD.PrintErr("[Player] MainMenu NOT FOUND at GameRoot/MainMenu");
-		return;
+		// Register the "ability" (Q) action at runtime so it works without
+		// needing to be added manually in Project Settings → Input Map.
+		if (!InputMap.HasAction("ability"))
+		{
+			InputMap.AddAction("ability");
+			var ev = new InputEventKey();
+			ev.Keycode = Key.Q;
+			InputMap.ActionAddEvent("ability", ev);
+		}
 	}
-
-	GD.Print("[Player] Found: " + mainMenu.GetType().Name);
-
-	if (mainMenu is CanvasItem ci)
-	{
-		ci.Visible = false;
-		GD.Print("[Player] MainMenu hidden from Player.");
-	}
-}
 
 	public override void _Input(InputEvent @event)
 	{
@@ -82,28 +82,18 @@ private void HideMenuOnConnect()
 		if (myId == null) return;
 
 		// ── Nameplate ────────────────────────────────────────────────────────────
-		// PlayerDisplayName is synced from the server via SceneReplicationConfig.
-		// Poll every frame until the value arrives, then apply once and stop.
 		if (NameLabel != null)
 		{
 			if (myId.IsLocal)
 			{
-				// Never show the name above your own head
 				NameLabel.Visible = false;
 			}
 			else if (PlayerDisplayName.Length > 0 && NameLabel.Text != PlayerDisplayName)
 			{
-				// First time the synced name lands — set text + class colour
 				NameLabel.Text = PlayerDisplayName;
-
-				// Colours match the class colours in the main menu exactly:
-				//   Cowboy / DPS     → ff4444 (red)
-				//   Pirate / Tank    → 4488ff (blue)
-				//   Priest / Support → 44cc66 (green)
 				if      (this is DpsPlayer)     NameLabel.Modulate = new Color("ff4444");
 				else if (this is TankPlayer)    NameLabel.Modulate = new Color("4488ff");
 				else if (this is SupportPlayer) NameLabel.Modulate = new Color("44cc66");
-
 				NameLabel.Visible = true;
 			}
 		}
@@ -128,10 +118,14 @@ private void HideMenuOnConnect()
 			}
 		}
 
+		// ── Ultimate cooldown tick ─────────────────────────────────────────────
+		// Ticks on local client for HUD display; server also ticks for validation.
+		if (UltimateCooldownTimer > 0f)
+			UltimateCooldownTimer -= (float)delta;
+
 		// ── Server-side physics ───────────────────────────────────────────────
 		if (GenericCore.Instance.IsServer)
 		{
-			// 1. Apply gravity while airborne
 			if (!IsOnFloor())
 			{
 				Vector3 vel = SyncedVelocity;
@@ -139,12 +133,8 @@ private void HideMenuOnConnect()
 				SyncedVelocity = vel;
 			}
 
-			// 2. Move and resolve collisions
 			MoveAndSlide();
 
-			// 3. After sliding: clamp Y if on floor.
-			//    Clears both negative (landing) and small positive (penetration
-			//    artifacts). Intentional jumps (10f) are above the 3f threshold.
 			if (IsOnFloor())
 			{
 				Vector3 vel = SyncedVelocity;
@@ -167,7 +157,24 @@ private void HideMenuOnConnect()
 
 			Rpc("MoveMe", new Vector3(turnInput, moveInput, strafeInput));
 
-			if (Input.IsActionJustPressed("primary") && canShoot)
+			// ── Footstep sounds ───────────────────────────────────────────────
+			bool isMoving = Mathf.Abs(moveInput) > 0.01f || Mathf.Abs(strafeInput) > 0.01f;
+			if (isMoving && SyncedIsOnFloor && FootstepPlayer != null)
+			{
+				_footstepTimer -= (float)delta;
+				if (_footstepTimer <= 0f)
+				{
+					FootstepPlayer.Play();
+					_footstepTimer = FootstepInterval;
+				}
+			}
+			else if (!isMoving || !SyncedIsOnFloor)
+			{
+				FootstepPlayer?.Stop();
+				_footstepTimer = 0f;
+			}
+
+			if (Input.IsActionPressed("primary") && canShoot)
 			{
 				canShoot = false;
 				RpcId(1, "Fire");
@@ -176,6 +183,15 @@ private void HideMenuOnConnect()
 
 			if (Input.IsActionJustPressed("jump") && canJump)
 				RpcId(1, "Jump");
+
+			// ── Ultimate ability input ────────────────────────────────────────
+			// Registered at runtime in _Ready(); mapped to Q.
+			if (Input.IsActionJustPressed("ability") && UltimateCooldownTimer <= 0f)
+			{
+				UltimateCooldownTimer = UltimateCooldownMax;
+				OnLocalUltimateActivated();   // subclass plays its activation sound
+				RpcId(1, "UseUltimate");
+			}
 		}
 
 		if (!GenericCore.Instance.IsServer)
@@ -185,7 +201,23 @@ private void HideMenuOnConnect()
 	private void UpdateAnimation()
 	{
 		if (myAnimation == null) return;
+
 		if (myAnimation.CurrentAnimation == "Attack" && myAnimation.IsPlaying()) return;
+
+		Vector3 horizVel   = new Vector3(SyncedVelocity.X, 0f, SyncedVelocity.Z);
+		bool isMovingHoriz = horizVel.Length() > 0.5f;
+		bool shouldWalk    = isMovingHoriz && SyncedIsOnFloor;
+
+		if (shouldWalk)
+		{
+			if (myAnimation.CurrentAnimation != "Walk" || !myAnimation.IsPlaying())
+				myAnimation.Play("Walk");
+		}
+		else
+		{
+			if (myAnimation.CurrentAnimation == "Walk" && myAnimation.IsPlaying())
+				myAnimation.Stop();
+		}
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true,
@@ -208,6 +240,30 @@ private void HideMenuOnConnect()
 		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public virtual void Fire() { }
 
+	/// <summary>
+	/// Called locally on the pressing client the moment Q is accepted.
+	/// Override in each class to play an activation sound.
+	/// </summary>
+	protected virtual void OnLocalUltimateActivated() { }
+
+	/// <summary>
+	/// Override in each class to define the ultimate ability.
+	/// Called on the server via RpcId(1, "UseUltimate") from the local client.
+	/// </summary>
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false,
+		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public virtual void UseUltimate() { }
+
+	/// <summary>
+	/// Called when this player is hit by a damaging attack.
+	/// IsShielded (set by the Tank bubble) blocks all damage.
+	/// </summary>
+	public virtual void OnHitByBullet()
+	{
+		if (IsShielded) return;
+		// Damage is handled by the game's health system; hook here as needed.
+	}
+
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false,
 		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void MoveMe(Vector3 input)
@@ -229,16 +285,11 @@ private void HideMenuOnConnect()
 	}
 
 	// ── Nameplate RPC ────────────────────────────────────────────────────────
-	/// <summary>
-	/// Called by the server ~1 second after all players spawn, once every client
-	/// is guaranteed to have the node. Works alongside the SceneReplicationConfig
-	/// sync of PlayerDisplayName as a belt-and-suspenders delivery.
-	/// </summary>
 	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true,
 		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void SetDisplayName(string name)
 	{
-		PlayerDisplayName = name;   // also keeps the synced property up to date
+		PlayerDisplayName = name;
 
 		if (NameLabel == null) return;
 		if (myId != null && myId.IsLocal) { NameLabel.Visible = false; return; }
@@ -268,8 +319,6 @@ private void HideMenuOnConnect()
 			if (t1 == null) return;
 			if (t1 is RigidBody3D rb)
 			{
-				// Layer 4 = bullet layer; Mask 1 = only collide with environment (layer 1).
-				// Players are on layer 2 — bullets pass through them entirely.
 				rb.CollisionLayer = 4;
 				rb.CollisionMask  = 1;
 				rb.LinearVelocity = Transform.Basis.X * 150f;
@@ -286,13 +335,13 @@ private void HideMenuOnConnect()
 		{
 			Vector3 spawnPos = GetBulletSpawnPos();
 			Buls[bulCount].Show();
-			// Layer 4 = bullet layer; Mask 1 = only collide with environment.
 			Buls[bulCount].CollisionLayer = 4;
 			Buls[bulCount].CollisionMask  = 1;
 			Buls[bulCount].GlobalPosition = spawnPos;
 			Buls[bulCount].LinearVelocity = Transform.Basis.X * 150f;
 			bulCount++;
-			if (bulCount >= Buls.Count) bulCount = 0;
+			if (bulCount >= Buls.Count)
+				bulCount = 0;
 
 			await ToSignal(GetTree().CreateTimer(cooldown), SceneTreeTimer.SignalName.Timeout);
 		}
