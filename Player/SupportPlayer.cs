@@ -5,9 +5,8 @@ public partial class SupportPlayer : Player
 	[Export] public MeshInstance3D      LaserBeam;
 	[Export] public AudioStreamPlayer3D ShootSoundPlayer;
 
-	// ── Ultimate audio: drag your .mp3/.wav into this slot in the Inspector ──
-	[Export] public AudioStream UltimateSfx;
-	private AudioStreamPlayer3D _ultPlayer;
+	
+	[Export] public AudioStreamPlayer3D UltimateSound;
 
 	private const float LaserRange = 40f;
 	private bool _wasPressingFire = false;
@@ -20,9 +19,11 @@ public partial class SupportPlayer : Player
 		GetNode("Upgrades").GetNode<Options>("Options").add();
 		base._Ready();
 
-		// Ultimate audio player
-		_ultPlayer = new AudioStreamPlayer3D();
-		AddChild(_ultPlayer);
+		if (UltimateSound == null)
+		{
+			UltimateSound = new AudioStreamPlayer3D();
+			AddChild(UltimateSound);
+		}
 
 		// Build the laser beam in code so it works even if the TSCN export is null
 		if (LaserBeam == null)
@@ -46,14 +47,9 @@ public partial class SupportPlayer : Player
 		}
 	}
 
-	// Plays the ult activation sound locally the instant Q is pressed
 	protected override void OnLocalUltimateActivated()
 	{
-		if (UltimateSfx != null)
-		{
-			_ultPlayer.Stream = UltimateSfx;
-			_ultPlayer.Play();
-		}
+		UltimateSound?.Play();
 	}
 
 	public override void _Process(double delta)

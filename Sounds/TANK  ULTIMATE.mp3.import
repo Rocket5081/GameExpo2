@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://chvte3argv5uj"
+path="res://.godot/imported/TANK  ULTIMATE.mp3-e5e70e9c6bfbb90b90f36f9b773a9eed.mp3str"
+
+[deps]
+
+source_file="res://Sounds/TANK  ULTIMATE.mp3"
+dest_files=["res://.godot/imported/TANK  ULTIMATE.mp3-e5e70e9c6bfbb90b90f36f9b773a9eed.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

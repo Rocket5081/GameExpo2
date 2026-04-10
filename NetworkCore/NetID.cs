@@ -93,11 +93,17 @@ public partial class NetID : MultiplayerSynchronizer
 			if (!IsSynced)
 			{
 				GD.Print("Deleting the inscene object: " + GetParent().Name);
-		
+
 				GetParent().QueueFree();
 			}
 			else
 			{
+				// OwnerId is synced by now — derive IsLocal directly from it.
+				// This is more reliable than the Initialize RPC, which can arrive
+				// before the spawner has replicated the node to this client.
+				if (OwnerId != 0)
+					IsLocal = (Multiplayer.GetUniqueId() == OwnerId);
+
 				IsNetworkReady = true;
 			}
 		}

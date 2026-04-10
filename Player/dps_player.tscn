@@ -1,7 +1,8 @@
-[gd_scene load_steps=12 format=3 uid="uid://bfxq16gxvblha"]
+[gd_scene load_steps=13 format=3 uid="uid://bfxq16gxvblha"]
 
 [ext_resource type="Script" uid="uid://yo2i7m3b6pph" path="res://NetworkCore/NetID.cs" id="1_7ks6i"]
 [ext_resource type="Script" uid="uid://fy4vxbxhv0ql" path="res://Player/DpsPlayer.cs" id="1_k2htt"]
+[ext_resource type="AudioStream" uid="uid://c20khjfjjcjw0" path="res://Sounds/DPS ULTIMATE.mp3" id="2_pio5l"]
 [ext_resource type="Script" uid="uid://pdqvcyyprvgw" path="res://Player/Reticle.cs" id="3_reticle"]
 [ext_resource type="PackedScene" uid="uid://bntb5k0e3r13f" path="res://Upgrades/upgrades.tscn" id="4_4xhhv"]
 [ext_resource type="AudioStream" uid="uid://dx2stp6nyc40f" path="res://Sounds/Dps Triple Shot.mp3" id="5_f4wrp"]
@@ -54,10 +55,11 @@ properties/10/path = NodePath(".:PlayerDisplayName")
 properties/10/spawn = true
 properties/10/replication_mode = 2
 
-[node name="DPS_Player" type="CharacterBody3D" node_paths=PackedStringArray("ShootSoundPlayer", "myId", "BulletSpawn", "ReticleLayer", "NameLabel", "FootstepPlayer") groups=["Players"]]
+[node name="DPS_Player" type="CharacterBody3D" node_paths=PackedStringArray("ShootSoundPlayer", "UltimateSound", "myId", "BulletSpawn", "ReticleLayer", "NameLabel", "FootstepPlayer") groups=["Players"]]
 collision_layer = 2
 script = ExtResource("1_k2htt")
 ShootSoundPlayer = NodePath("Shooting")
+UltimateSound = NodePath("Ultimate")
 myId = NodePath("MultiplayerSynchronizer")
 BulletSpawn = NodePath("BulletSpawn")
 ReticleLayer = NodePath("ReticleLayer")
@@ -112,3 +114,7 @@ volume_db = -15.0
 [node name="Footsteps" type="AudioStreamPlayer3D" parent="."]
 stream = ExtResource("6_f4wrp")
 volume_db = -16.0
+
+[node name="Ultimate" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("2_pio5l")
+volume_db = -10.0

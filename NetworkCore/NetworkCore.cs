@@ -79,6 +79,12 @@ public partial class NetworkCore : MultiplayerSpawner
 				netId._myNetworkCore = this;
 				netId.IsNetworkReady = true;
 				GenericCore.Instance._netObjects.Add((int)(GenericCore.Instance._netObjectsCount++), netId);
+
+				// Set IsLocal immediately on the server before the RPC fires,
+				// so there is no frame where the server's own player has IsLocal=false.
+				netId.OwnerId = owner;
+				netId.IsLocal = (Multiplayer.GetUniqueId() == owner);
+
 				netId.Rpc("Initialize", owner);
 
 

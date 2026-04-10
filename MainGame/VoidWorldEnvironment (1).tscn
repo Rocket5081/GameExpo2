@@ -18,6 +18,5 @@ light_indirect_energy = 0.5
 
 [node name="GroundBounce" type="OmniLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
-light_color = Color(0.7, 0.1, 1, 1)
 light_energy = 0.5
 omni_range = 50.0

@@ -6,10 +6,7 @@ public partial class DpsPlayer : Player
 	private float burstDelay = 0.1f;
 
 	[Export] public AudioStreamPlayer3D ShootSoundPlayer;
-
-	// ── Ultimate audio: drag your .mp3/.wav into this slot in the Inspector ──
-	[Export] public AudioStream UltimateSfx;
-	private AudioStreamPlayer3D _ultPlayer;
+	[Export] public AudioStreamPlayer3D UltimateSound;
 
 	// ── Ultra state (server-side) ─────────────────────────────────────────────
 	private bool  _ultraActive = false;
@@ -22,26 +19,22 @@ public partial class DpsPlayer : Player
 		hp    = maxHp;
 		base._Ready();
 
-		// Audio player for the ultimate activation sound
-		_ultPlayer = new AudioStreamPlayer3D();
-		AddChild(_ultPlayer);
+		if (UltimateSound == null)
+		{
+			UltimateSound = new AudioStreamPlayer3D();
+			AddChild(UltimateSound);
+		}
 	}
 
-	// Plays the ult activation sound locally the instant Q is pressed
 	protected override void OnLocalUltimateActivated()
 	{
-		if (UltimateSfx != null)
-		{
-			_ultPlayer.Stream = UltimateSfx;
-			_ultPlayer.Play();
-		}
+		UltimateSound?.Play();
 	}
 
 	public override void _Process(double delta)
 	{
 		base._Process(delta);
 
-		// Ultra: force canShoot=true every frame so fire rate is instant
 		if (!GenericCore.Instance.IsServer) return;
 		if (!_ultraActive) return;
 
@@ -70,9 +63,6 @@ public partial class DpsPlayer : Player
 			ShootBullet(burstCount, burstDelay);
 	}
 
-	/// <summary>
-	/// DPS Ultimate: fires with zero cooldown for 5 seconds.
-	/// </summary>
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false,
 		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public override void UseUltimate()

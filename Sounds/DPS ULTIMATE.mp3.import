@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://c20khjfjjcjw0"
+path="res://.godot/imported/DPS ULTIMATE.mp3-3bbe6ac6e3199f53f886f33ea6231646.mp3str"
+
+[deps]
+
+source_file="res://Sounds/DPS ULTIMATE.mp3"
+dest_files=["res://.godot/imported/DPS ULTIMATE.mp3-3bbe6ac6e3199f53f886f33ea6231646.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

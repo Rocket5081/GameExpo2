@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://dkloqt2lomuxg"]
+[gd_scene load_steps=21 format=3 uid="uid://dkloqt2lomuxg"]
 
 [ext_resource type="Material" uid="uid://bf80snneu4sbx" path="res://MainGame/VoidParticles.tres" id="1_6bbl1"]
 [ext_resource type="PackedScene" uid="uid://dasl4cwcqllbs" path="res://Assets/head_of_cthulhu (1).glb" id="1_yfhen"]
@@ -8,6 +8,10 @@
 [ext_resource type="Shader" uid="uid://bt1gpg2wo4k78" path="res://MainGame/water.gdshader" id="5_nuski"]
 [ext_resource type="Script" uid="uid://b2fb80xs807f4" path="res://NetworkCore/NetworkCore.cs" id="6_8e541"]
 [ext_resource type="PackedScene" uid="uid://c4hud0main001" path="res://MainGame/HUD.tscn" id="7_hud01"]
+[ext_resource type="Script" uid="uid://djvjl34dybhte" path="res://MainGame/WorldSounds.cs" id="8_wsnd"]
+[ext_resource type="AudioStream" uid="uid://blmemx7c5hvg0" path="res://Sounds/Lightning.mp3" id="10_2vdra"]
+[ext_resource type="AudioStream" uid="uid://jplm8nvcb7pt" path="res://Sounds/Wind.mp3" id="11_dwi20"]
+[ext_resource type="AudioStream" uid="uid://dr2wruaja5is0" path="res://Sounds/Ambience 1.mp3" id="12_2mqu7"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5y8m1"]
 next_pass = ExtResource("1_6bbl1")
@@ -129,3 +133,21 @@ skeleton = NodePath("../..")
 shape = SubResource("WorldBoundaryShape3D_8e541")
 
 [node name="HUD" parent="." instance=ExtResource("7_hud01")]
+
+[node name="WorldSounds" type="Node" parent="." node_paths=PackedStringArray("LightningSound", "AirSound", "EnvironmentSound")]
+script = ExtResource("8_wsnd")
+LightningSound = NodePath("LightningSound")
+AirSound = NodePath("AirSound")
+EnvironmentSound = NodePath("EnvironmentSound")
+
+[node name="LightningSound" type="AudioStreamPlayer" parent="WorldSounds"]
+stream = ExtResource("10_2vdra")
+volume_db = -25.0
+
+[node name="AirSound" type="AudioStreamPlayer" parent="WorldSounds"]
+stream = ExtResource("11_dwi20")
+volume_db = -30.0
+
+[node name="EnvironmentSound" type="AudioStreamPlayer" parent="WorldSounds"]
+stream = ExtResource("12_2mqu7")
+volume_db = -50.0

@@ -5,12 +5,12 @@
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_sky"]
 shader = ExtResource("1_rijgn")
 shader_parameter/nebula_speed = 1.0
-shader_parameter/lightning_speed = 1.8
-shader_parameter/cloud_coverage = 0.55
+shader_parameter/lightning_speed = 2.08800009918
+shader_parameter/cloud_coverage = 0.4350000206625
 shader_parameter/cloud_sharpness = 3.5
 shader_parameter/sky_top = Color(0.08207414, 9.018499e-05, 0.23958322, 1)
 shader_parameter/sky_mid = Color(0.43582025, 0.020761585, 0.76217747, 1)
-shader_parameter/sky_horizon = Color(0.75, 0.1, 1, 1)
+shader_parameter/sky_horizon = Color(0.20039237, 0.0002075759, 0.2821199, 1)
 shader_parameter/cloud_dark = Color(0, 0, 0, 1)
 shader_parameter/cloud_mid = Color(0.22, 0, 0.5, 1)
 shader_parameter/cloud_bright = Color(0.6509804, 0.101960786, 1, 1)
@@ -32,7 +32,8 @@ tonemap_mode = 2
 tonemap_exposure = 1.1
 glow_bloom = 0.15
 fog_mode = 1
-fog_density = 1.0
+fog_density = 0.0
+fog_sky_affect = 0.085
 volumetric_fog_enabled = true
 volumetric_fog_density = 0.0
 volumetric_fog_albedo = Color(0.2, 0, 0.45, 1)

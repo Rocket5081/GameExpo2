@@ -4,9 +4,11 @@ public partial class TankPlayer : Player
 {
 	[Export] public AudioStreamPlayer3D ShootSoundPlayer;
 
-	// ── Ultimate audio: drag your .mp3/.wav into this slot in the Inspector ──
-	[Export] public AudioStream UltimateSfx;
-	private AudioStreamPlayer3D _ultPlayer;
+	// ── Ultimate audio ────────────────────────────────────────────────────────
+	// Add an AudioStreamPlayer3D node to this player in the scene, then drag it
+	// here in the Inspector. Set its Stream, Volume Db, and Pitch Scale freely.
+	// Leave empty and a silent placeholder is created automatically.
+	[Export] public AudioStreamPlayer3D UltimateSound;
 
 	// 6 evenly spaced angles across a ~60-degree arc (-0.5 to +0.5 radians)
 	private static readonly float[] SpreadAngles = { 0.5f, 0.3f, 0.1f, -0.1f, -0.3f, -0.5f };
@@ -18,19 +20,16 @@ public partial class TankPlayer : Player
 		hp    = maxHp;
 		base._Ready();
 
-		// Audio player for the ultimate activation sound
-		_ultPlayer = new AudioStreamPlayer3D();
-		AddChild(_ultPlayer);
+		if (UltimateSound == null)
+		{
+			UltimateSound = new AudioStreamPlayer3D();
+			AddChild(UltimateSound);
+		}
 	}
 
-	// Plays the ult activation sound locally the instant Q is pressed
 	protected override void OnLocalUltimateActivated()
 	{
-		if (UltimateSfx != null)
-		{
-			_ultPlayer.Stream = UltimateSfx;
-			_ultPlayer.Play();
-		}
+		UltimateSound?.Play();
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false,
@@ -45,7 +44,7 @@ public partial class TankPlayer : Player
 
 		ShootSoundPlayer?.Play();
 
-		int count = SpreadAngles.Length;   // 6
+		int count = SpreadAngles.Length;
 
 		if (Buls.Count < count * 4)
 			SpawnBulletSpread();
@@ -54,25 +53,18 @@ public partial class TankPlayer : Player
 	}
 
 	// ── Tank Ultimate: Bubble Shield ──────────────────────────────────────────
-	/// <summary>
-	/// Spawns a large stationary protective bubble at the Tank's position.
-	/// Radius 8 — fits ~4 players comfortably.
-	/// Any player inside takes no damage for 8 seconds.
-	/// </summary>
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false,
 		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public override void UseUltimate()
 	{
 		if (!GenericCore.Instance.IsServer) return;
 
-		// Centre the bubble at waist height so the bottom sits at ground level
 		const float BubbleRadius = 8f;
 		Vector3 spawnPos = GlobalPosition + new Vector3(0, BubbleRadius * 0.5f, 0);
 
-		// ── Server-side collision zone ─────────────────────────────────────────
 		var bubble = new Area3D();
 		bubble.CollisionLayer = 0;
-		bubble.CollisionMask  = 2;   // layer 2 = players
+		bubble.CollisionMask  = 2;
 
 		var shape = new CollisionShape3D();
 		shape.Shape = new SphereShape3D { Radius = BubbleRadius };
@@ -84,7 +76,6 @@ public partial class TankPlayer : Player
 		GetParent().AddChild(bubble);
 		bubble.GlobalPosition = spawnPos;
 
-		// Auto-remove after 8 s, clearing shields first
 		GetTree().CreateTimer(8f).Timeout += () =>
 		{
 			foreach (var body in bubble.GetOverlappingBodies())
@@ -92,19 +83,14 @@ public partial class TankPlayer : Player
 			bubble.QueueFree();
 		};
 
-		// ── Show visual on every client ───────────────────────────────────────
 		Rpc("ShowBubbleVisual", spawnPos, BubbleRadius, 8f);
 	}
 
-	/// <summary>
-	/// Runs on every peer (CallLocal=true so the server also sees it).
-	/// Creates a large translucent blue sphere mesh.
-	/// </summary>
 	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true,
 		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void ShowBubbleVisual(Vector3 pos, float radius, float duration)
 	{
-		var meshInst  = new MeshInstance3D();
+		var meshInst   = new MeshInstance3D();
 		var sphereMesh = new SphereMesh();
 		sphereMesh.Radius         = radius;
 		sphereMesh.Height         = radius * 2f;
