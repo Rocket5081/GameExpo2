@@ -98,8 +98,8 @@ SpawnInexZeroOnConnect = true
 [node name="GameRoot" type="Node" parent="." node_paths=PackedStringArray("MainNetworkCore")]
 script = ExtResource("3_p6o7m")
 MainNetworkCore = NodePath("MainGame/PlayerSpawner")
-_portMaximum = 7000
-_portMinimum = 7010
+_portMaximum = 7010
+_portMinimum = 7000
 _localPort = 7000
 _serverAddress = "127.0.0.1"
 _maxConnections = 4

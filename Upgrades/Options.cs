@@ -22,7 +22,7 @@ public partial class Options : Control
 	public void add()
 	{
 			
-		
+		GD.Print(GetParent<Upgrades>().GetParent<Player>().myId.IsLocal);
 		for(int i=0; i<3; i++)
 		{
 			
@@ -39,77 +39,77 @@ public partial class Options : Control
 			string button = "res://Upgrades/choosing_upgrade.tscn";
 			PackedScene packedscene = GD.Load<PackedScene>(button);
 			ChoosingUpgrade Opt = packedscene.Instantiate<ChoosingUpgrade>();
-			if(randomOpt == "AC1")
+			if(randomOpt == "AC:1")
 			{
-				Opt.Text = "Ability Cooldown \n\tLevel 1 \nReduces \n\t\tCooldown -2s";
+				Opt.Text = "Ability Cooldown \n\tLevel 1 \nReduces \n\t\tCooldown -2.5s";
 				Opt.opt = randomOpt;
 			}
-			else if(randomOpt == "AC2")
+			else if(randomOpt == "AC:2")
 			{
 				Opt.Text = "Ability Cooldown \n\tLevel 2 \nReduces \n\t\tCooldown -5s";
 				Opt.opt = randomOpt;
 			}
-			else if(randomOpt == "AC3")
+			else if(randomOpt == "AC:3")
 			{
-				Opt.Text = "Ability Cooldown \n\tLevel 3 \nReduces \n\t\tCooldown -10s";
+				Opt.Text = "Ability Cooldown \n\tLevel 3 \nReduces \n\t\tCooldown -7.5s";
 				Opt.opt = randomOpt;
 			}
-			else if(randomOpt == "PC1")
+			else if(randomOpt == "PC:1")
 			{
-				Opt.Text = "Projectile Cooldown \n\tLevel 1 \nReduces \n\t\tCooldown -2s";
+				Opt.Text = "Projectile Cooldown \n\tLevel 1 \nReduces \n\t\tCooldown -.05s";
 				Opt.opt = randomOpt;
 			}
-			else if(randomOpt == "PC2")
+			else if(randomOpt == "PC:2")
 			{
-				Opt.Text = "Projectile Cooldown \n\tLevel 2 \nReduces \n\t\tCooldown -5s";
+				Opt.Text = "Projectile Cooldown \n\tLevel 2 \nReduces \n\t\tCooldown -.1s";
 				Opt.opt = randomOpt;
 			}
-			else if(randomOpt == "PC3")
+			else if(randomOpt == "PC:3")
 			{
-				Opt.Text = "Projectile Cooldown \n\tLevel 3 \nReduces \n\t\tCooldown -10s";
+				Opt.Text = "Projectile Cooldown \n\tLevel 3 \nReduces \n\t\tCooldown -.15s";
 				Opt.opt = randomOpt;
 			}
-			else if(randomOpt == "MH1")
+			else if(randomOpt == "MH:1")
 			{
 				Opt.Text = "Max Health \n\tLevel 1\n\t\tHealth +5";
 				Opt.opt = randomOpt;
 			}
-			else if(randomOpt == "MH2")
+			else if(randomOpt == "MH:2")
 			{
 				Opt.Text = "Max Health \n\tLevel 2\n\t\tHealth +10";
 				Opt.opt = randomOpt;
 			}
-			else if(randomOpt == "MH3")
+			else if(randomOpt == "MH:3")
 			{
-				Opt.Text = "Max Health \n\tLevel 3\n\t\tHealth +20";
+				Opt.Text = "Max Health \n\tLevel 3\n\t\tHealth +15";
 				Opt.opt = randomOpt;
 			}
-			else if(randomOpt == "D1")
+			else if(randomOpt == "D:1")
 			{
 				Opt.Text = "Damage Up \n\tLevel 1\n\t\tDamage +???";
 				Opt.opt = randomOpt;
 			}
-			else if(randomOpt == "D2")
+			else if(randomOpt == "D:2")
 			{
 				Opt.Text = "Damage Up \n\tLevel 2\n\t\tDamage +???";
 				Opt.opt = randomOpt;
 			}
-			else if(randomOpt == "D3")
+			else if(randomOpt == "D:3")
 			{
 				Opt.Text = "Damage Up \n\tLevel 3\n\t\tDamage +???";
 				Opt.opt = randomOpt;
 			}
-			else if(randomOpt == "AP1")
+			else if(randomOpt == "AP:1")
 			{
 				Opt.Text = "Additional Projectiles \n\tLevel 1\n\t\tProjectiles +1";
 				Opt.opt = randomOpt;
 			}
-			else if(randomOpt == "AP2")
+			else if(randomOpt == "AP:2")
 			{
 				Opt.Text = "Additional Projectiles \n\tLevel 2\n\t\tProjectiles +2";
 				Opt.opt = randomOpt;
 			}
-			else if(randomOpt == "AP3")
+			else if(randomOpt == "AP:3")
 			{
 				Opt.Text = "Additional Projectiles \n\tLevel 3\n\t\tProjectiles +3";
 				Opt.opt = randomOpt;
@@ -119,7 +119,7 @@ public partial class Options : Control
 				Opt.Text = "";
 				Opt.opt = "";
 			}
-			Opt.Pressed += OnOptionPressed;
+			Opt.Pressed += Opt.OnOptionPressed;
 			grid.AddChild(Opt);
 		}
 	}
@@ -144,11 +144,5 @@ public partial class Options : Control
 		}
 	}
 	
-	public void OnOptionPressed(){
-		GetParent<Upgrades>().GetParent<Player>();
-	}
 	
-	public void callAdd(){
-		RpcId(1, "add");
-	}
 }

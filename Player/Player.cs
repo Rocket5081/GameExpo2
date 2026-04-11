@@ -35,8 +35,8 @@ public partial class Player : CharacterBody3D
 	private float _mouseDeltaX  = 0f;
 	private bool  _mouseCaptured = false;
 
+	public float maxTimer = 0.5f;
 	public float timer = 0.5f;
-	public float abilityCooldown;
 	public float damage = 10f;
 	public int   hp;
 	public int   maxHp;
@@ -48,6 +48,9 @@ public partial class Player : CharacterBody3D
 
 	public List<Bullet> Buls     = new List<Bullet>();
 	public int          bulCount = 0;
+
+	public int   burstCount = 3;
+	public float burstDelay = 0.1f;
 
 	public override void _Ready()
 	{

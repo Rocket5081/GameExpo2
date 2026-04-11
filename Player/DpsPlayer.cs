@@ -2,8 +2,6 @@ using Godot;
 
 public partial class DpsPlayer : Player
 {
-	private int   burstCount = 3;
-	private float burstDelay = 0.1f;
 
 	[Export] public AudioStreamPlayer3D ShootSoundPlayer;
 	[Export] public AudioStreamPlayer3D UltimateSound;
@@ -24,6 +22,7 @@ public partial class DpsPlayer : Player
 			UltimateSound = new AudioStreamPlayer3D();
 			AddChild(UltimateSound);
 		}
+		GetNode<Upgrades>("Upgrades").GetNode<Options>("Options").add();
 	}
 
 	protected override void OnLocalUltimateActivated()
@@ -53,10 +52,10 @@ public partial class DpsPlayer : Player
 		if (!canShoot) return;
 
 		canShoot = false;
-		timer    = 0.5f;
+		timer    = maxTimer;
 
 		ShootSoundPlayer?.Play();
-
+		GD.Print(burstCount);
 		if (Buls.Count < 9)
 			SpawnBullet(burstCount, burstDelay);
 		else
