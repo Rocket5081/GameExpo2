@@ -1,6 +1,7 @@
-[gd_scene load_steps=21 format=3 uid="uid://dkloqt2lomuxg"]
+[gd_scene load_steps=22 format=3 uid="uid://dkloqt2lomuxg"]
 
 [ext_resource type="Material" uid="uid://bf80snneu4sbx" path="res://MainGame/VoidParticles.tres" id="1_6bbl1"]
+[ext_resource type="Script" uid="uid://c4ryjwo0gxk68" path="res://MainGame/MainGame.cs" id="1_f0e2v"]
 [ext_resource type="PackedScene" uid="uid://dasl4cwcqllbs" path="res://Assets/head_of_cthulhu (1).glb" id="1_yfhen"]
 [ext_resource type="PackedScene" uid="uid://f2s0hloywdgu" path="res://Assets/Statue2.glb" id="2_vj0bg"]
 [ext_resource type="PackedScene" uid="uid://bkllvy4oqjbnc" path="res://MainGame/VoidWorldEnvironment (1).tscn" id="4_yfhen"]
@@ -47,7 +48,9 @@ material = SubResource("StandardMaterial3D_ry3at")
 
 [sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_8e541"]
 
-[node name="MainGame" type="Node3D"]
+[node name="MainGame" type="Node3D" node_paths=PackedStringArray("EnemySpawners")]
+script = ExtResource("1_f0e2v")
+EnemySpawners = []
 
 [node name="Sketchfab_Scene" parent="." instance=ExtResource("1_yfhen")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -198.83478, 284.88364, -915.4341)
@@ -151,3 +154,25 @@ volume_db = -30.0
 [node name="EnvironmentSound" type="AudioStreamPlayer" parent="WorldSounds"]
 stream = ExtResource("12_2mqu7")
 volume_db = -50.0
+
+[node name="EnemySpawns" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10.39019, -125.427475)
+
+[node name="SpawnPoints0" type="Node3D" parent="EnemySpawns"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -99.175064, 0, 0)
+
+[node name="SpawnPoints1" type="Node3D" parent="EnemySpawns"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -37.118473, 0, 0)
+
+[node name="SpawnPoints2" type="Node3D" parent="EnemySpawns"]
+
+[node name="SpawnPoints3" type="Node3D" parent="EnemySpawns"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.609589, 0, 0)
+
+[node name="SpawnPoints4" type="Node3D" parent="EnemySpawns"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 104.053925, 0, 0)
+
+[node name="EnemySpawner" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("uid://bg3r7c8qcwvpc")
+spawn_path = NodePath("../EnemySpawns")
+script = ExtResource("6_8e541")
