@@ -52,6 +52,16 @@ public partial class Player : CharacterBody3D
 	public int   burstCount = 3;
 	public float burstDelay = 0.1f;
 
+	public bool rewinding = false;
+
+	public Godot.Collections.Dictionary rewindValues = new Godot.Collections.Dictionary
+	{
+		{"position", new Godot.Collections.Array {}},
+		{"rotation", new Godot.Collections.Array {}},
+		{"velocity", new Godot.Collections.Array {}}
+	};
+	
+
 	public override void _Ready()
 	{
 		base._Ready();
@@ -66,6 +76,8 @@ public partial class Player : CharacterBody3D
 			ev.Keycode = Key.Q;
 			InputMap.ActionAddEvent("ability", ev);
 		}
+
+		GD.Print(rewindValues["position"]);
 	}
 
 	public override void _Input(InputEvent @event)
@@ -199,6 +211,11 @@ public partial class Player : CharacterBody3D
 
 		if (!GenericCore.Instance.IsServer)
 			UpdateAnimation();
+
+		if (!rewinding)
+		{
+			//rewindValues["position"];
+		}
 	}
 
 	private void UpdateAnimation()
