@@ -1,6 +1,8 @@
 using Godot;
+using Godot.NativeInterop;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public partial class Player : CharacterBody3D
 {
@@ -76,8 +78,7 @@ public partial class Player : CharacterBody3D
 			ev.Keycode = Key.Q;
 			InputMap.ActionAddEvent("ability", ev);
 		}
-
-		GD.Print(rewindValues["position"]);
+		GD.Print(myId.IsLocal);
 	}
 
 	public override void _Input(InputEvent @event)
@@ -93,6 +94,7 @@ public partial class Player : CharacterBody3D
 
 	public override void _Process(double delta)
 	{
+		if(rewinding){return;}
 		base._Process(delta);
 		if (myId == null) return;
 
@@ -207,16 +209,31 @@ public partial class Player : CharacterBody3D
 				OnLocalUltimateActivated();   // subclass plays its activation sound
 				RpcId(1, "UseUltimate");
 			}
+			if (Input.IsActionJustPressed("Rewind"))
+				rewind();
+
 		}
 
 		if (!GenericCore.Instance.IsServer)
 			UpdateAnimation();
 
-		if (!rewinding)
-		{
-			//rewindValues["position"];
-		}
 	}
+
+    public override void _PhysicsProcess(double delta)
+    {
+        if (!rewinding)
+		{
+			((Godot.Collections.Array)rewindValues["position"]).Add(Position);
+			((Godot.Collections.Array)rewindValues["rotation"]).Add(Rotation);
+			((Godot.Collections.Array)rewindValues["velocity"]).Add(SyncedVelocity);
+		}
+		else
+		{
+			computeRewind();
+			
+		}
+    }
+
 
 	private void UpdateAnimation()
 	{
@@ -364,6 +381,45 @@ public partial class Player : CharacterBody3D
 				bulCount = 0;
 
 			await ToSignal(GetTree().CreateTimer(cooldown), SceneTreeTimer.SignalName.Timeout);
+		}
+	}
+
+	public void rewind()
+	{
+		rewinding = true;
+		GetNode<CollisionShape3D>("CollisionShape3D").SetDeferred("disabled", true);
+	}
+	
+	//https://www.youtube.com/watch?v=XoETrCrSkks a link for a complete description of rewind feature: 1:12 - 3:44
+	public void computeRewind()
+	{
+		var pos = ((Godot.Collections.Array)rewindValues["position"]).Last();
+		var rot = ((Godot.Collections.Array)rewindValues["rotation"]).Last();
+		((Godot.Collections.Array)rewindValues["position"]).RemoveAt(((Godot.Collections.Array)rewindValues["position"]).Count -1);
+		((Godot.Collections.Array)rewindValues["rotation"]).RemoveAt(((Godot.Collections.Array)rewindValues["rotation"]).Count -1);
+		if(((Godot.Collections.Array)rewindValues["position"]).Count == 0)
+		{
+			GetNode<CollisionShape3D>("CollisionShape3D").SetDeferred("disabled", false);
+			rewinding = false;
+			Position = (Vector3)pos;
+			Rotation = (Vector3)rot;
+			SyncedVelocity = (Vector3)((Godot.Collections.Array)rewindValues["velocity"]).First();
+			Rpc("computeRewindRPC", pos, rot);
+
+		}
+		Position = (Vector3)pos;
+		Rotation = (Vector3)rot;
+		Rpc("computeRewindRPC", pos, rot);
+	}
+[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true,
+		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public void computeRewindRPC( Vector3 pos, Vector3 rot)
+	{
+		if (GenericCore.Instance.IsServer)
+		{
+			SyncedVelocity = (Vector3)((Godot.Collections.Array)rewindValues["velocity"]).First();
+			Position = pos;
+			Rotation = rot;
 		}
 	}
 }
