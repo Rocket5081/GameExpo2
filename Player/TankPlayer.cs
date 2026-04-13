@@ -144,17 +144,43 @@ public partial class TankPlayer : Player
 
 	private async void ShootBulletSpread()
 	{
+		// Purge any bullet references that were freed unexpectedly.
+		// Normally bullets are pooled (never QueueFree'd), but this is a safety net.
+		Buls.RemoveAll(b => !IsInstanceValid(b));
+
+		// If the pool somehow ran dry, fall back to spawning a fresh batch.
+		if (Buls.Count < SpreadAngles.Length)
+		{
+			SpawnBulletSpread();
+			return;
+		}
+
+		if (bulCount >= Buls.Count)
+			bulCount = 0;
+
 		for (int i = 0; i < SpreadAngles.Length; i++)
 		{
-			Vector3 spawnPos = GetBulletSpawnPos();
+			// Extra validity guard — belt-and-suspenders.
+			if (!IsInstanceValid(Buls[bulCount]))
+			{
+				Buls.RemoveAt(bulCount);
+				if (bulCount >= Buls.Count) bulCount = 0;
+				SpawnBulletSpread();   // pool too small, grow it
+				return;
+			}
 
-			Buls[bulCount].Show();
-			Buls[bulCount].CollisionLayer = 4;
-			Buls[bulCount].CollisionMask  = 1;
-			Buls[bulCount].Rotation       = Rotation;
-			Buls[bulCount].GlobalPosition = spawnPos;
-			Buls[bulCount].RotateY(SpreadAngles[i]);
-			Buls[bulCount].LinearVelocity = Buls[bulCount].Transform.Basis.X * 200f;
+			Vector3 spawnPos = GetBulletSpawnPos();
+			var bul = Buls[bulCount];
+
+			// Reset pooled state BEFORE Show() so collision is re-enabled.
+			bul.Reset();
+			bul.Show();
+			bul.CollisionLayer = 4;
+			bul.CollisionMask  = 1;
+			bul.Rotation       = Rotation;
+			bul.GlobalPosition = spawnPos;
+			bul.RotateY(SpreadAngles[i]);
+			bul.LinearVelocity = bul.Transform.Basis.X * 200f;
 
 			bulCount++;
 			if (bulCount >= Buls.Count)

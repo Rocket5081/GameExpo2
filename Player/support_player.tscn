@@ -64,6 +64,7 @@ properties/12/spawn = true
 properties/12/replication_mode = 2
 
 [node name="Support_Player" type="CharacterBody3D" node_paths=PackedStringArray("LaserBeam", "ShootSoundPlayer", "UltimateSound", "myId", "BulletSpawn", "ReticleLayer", "NameLabel", "FootstepPlayer") groups=["Players"]]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
 collision_layer = 2
 script = ExtResource("1_q1xqf")
 LaserBeam = NodePath("BulletSpawn/LaserBeam")

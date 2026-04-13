@@ -4,8 +4,8 @@ public partial class PlayerCamera : Camera3D
 {
 	[Export] public float followSpeed = 10f;
 	[Export] public float mouseSensitivity = 0.002f;
-	[Export] public float pitchMin = -70f;
-	[Export] public float pitchMax = 70f;
+	[Export] public float pitchMin = -75f;   // negative = looking UP in Godot
+	[Export] public float pitchMax = 40f;    // positive = looking DOWN
 
 	//offset will change once the actual models are in, this is just a placeholder
 	[Export] public Vector3 offset = new Vector3(-5.0f,2.0f, 2.0f);
@@ -20,7 +20,9 @@ public partial class PlayerCamera : Camera3D
 
 		if (@event is InputEventMouseMotion mouseMotion)
 		{
-			_cameraPitch -= mouseMotion.Relative.Y * mouseSensitivity;
+			// Relative.Y is negative when mouse moves UP (screen coords).
+			// In Godot, negative Rotation.X = looking UP, so += is correct.
+			_cameraPitch += mouseMotion.Relative.Y * mouseSensitivity;
 			_cameraPitch = Mathf.Clamp(
 				_cameraPitch,
 				Mathf.DegToRad(pitchMin),

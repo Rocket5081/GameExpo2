@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=3 uid="uid://dkloqt2lomuxg"]
+[gd_scene load_steps=40 format=3 uid="uid://dkloqt2lomuxg"]
 
 [ext_resource type="Material" uid="uid://bf80snneu4sbx" path="res://MainGame/VoidParticles.tres" id="1_6bbl1"]
 [ext_resource type="Script" uid="uid://c4ryjwo0gxk68" path="res://MainGame/MainGame.cs" id="1_f0e2v"]
@@ -14,6 +14,9 @@
 [ext_resource type="AudioStream" uid="uid://blmemx7c5hvg0" path="res://Sounds/Lightning.mp3" id="10_dwi20"]
 [ext_resource type="AudioStream" uid="uid://jplm8nvcb7pt" path="res://Sounds/Wind.mp3" id="12_e85xm"]
 [ext_resource type="AudioStream" uid="uid://dr2wruaja5is0" path="res://Sounds/Ambience 1.mp3" id="13_qf7iq"]
+[ext_resource type="AudioStream" uid="uid://canvy1y0ggn08" path="res://Sounds/dragon-studio-alien-sounds-463202.mp3" id="14_i36yx"]
+[ext_resource type="AudioStream" uid="uid://oclxysbx4uuo" path="res://Sounds/freesound_community-crazy-bat-43208.mp3" id="15_oq4gx"]
+[ext_resource type="AudioStream" uid="uid://be6yjkdxdnysd" path="res://Sounds/universfield-worm-movement-277577.mp3" id="16_xfdxe"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5y8m1"]
 next_pass = ExtResource("1_6bbl1")
@@ -231,12 +234,15 @@ shape = SubResource("WorldBoundaryShape3D_8e541")
 
 [node name="HUD" parent="." instance=ExtResource("7_hud01")]
 
-[node name="WorldSounds" type="Node" parent="." node_paths=PackedStringArray("LightningSound", "AirSound", "EnvironmentSound")]
+[node name="WorldSounds" type="Node" parent="." node_paths=PackedStringArray("LightningSound", "AirSound", "EnvironmentSound", "Enemy1Sound", "Enemy2Sound", "Enemy3Sound")]
 script = ExtResource("8_wsnd")
 LightningSound = NodePath("LightningSound")
 AirSound = NodePath("AirSound")
 EnvironmentSound = NodePath("EnvironmentSound")
 LightningInterval = 16.0
+Enemy1Sound = NodePath("Enemy1Sound")
+Enemy2Sound = NodePath("Enemy2Sound")
+Enemy3Sound = NodePath("Enemy3Sound")
 
 [node name="LightningSound" type="AudioStreamPlayer" parent="WorldSounds"]
 stream = ExtResource("10_dwi20")
@@ -249,6 +255,18 @@ volume_db = -20.293
 [node name="EnvironmentSound" type="AudioStreamPlayer" parent="WorldSounds"]
 stream = ExtResource("13_qf7iq")
 volume_db = -50.0
+
+[node name="Enemy1Sound" type="AudioStreamPlayer" parent="WorldSounds"]
+stream = ExtResource("14_i36yx")
+volume_db = -15.0
+
+[node name="Enemy2Sound" type="AudioStreamPlayer" parent="WorldSounds"]
+stream = ExtResource("15_oq4gx")
+volume_db = -15.0
+
+[node name="Enemy3Sound" type="AudioStreamPlayer" parent="WorldSounds"]
+stream = ExtResource("16_xfdxe")
+volume_db = -15.0
 
 [node name="WorldAtmosphere" type="Node3D" parent="."]
 
@@ -701,34 +719,4 @@ cast_shadow = 0
 mesh = SubResource("CylinderMesh_mound")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Terrain/Mound_5"]
-shape = SubResource("CylinderShape3D_mound")
-
-[node name="Mound_6" type="StaticBody3D" parent="Terrain"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -74, 3.5, 74)
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Terrain/Mound_6"]
-cast_shadow = 0
-mesh = SubResource("CylinderMesh_mound")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Terrain/Mound_6"]
-shape = SubResource("CylinderShape3D_mound")
-
-[node name="Mound_7" type="StaticBody3D" parent="Terrain"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -105, 3.5, 0)
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Terrain/Mound_7"]
-cast_shadow = 0
-mesh = SubResource("CylinderMesh_mound")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Terrain/Mound_7"]
-shape = SubResource("CylinderShape3D_mound")
-
-[node name="Mound_8" type="StaticBody3D" parent="Terrain"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -74, 3.5, -74)
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Terrain/Mound_8"]
-cast_shadow = 0
-mesh = SubResource("CylinderMesh_mound")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Terrain/Mound_8"]
 shape = SubResource("CylinderShape3D_mound")

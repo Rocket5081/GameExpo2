@@ -36,6 +36,7 @@ public partial class MainMenuLobby : Control
 	private readonly Dictionary<int, int>    _readyPlayers     = new();
 	private readonly Dictionary<int, string> _readyPlayerNames = new();
 	private readonly Dictionary<int, int>    _readyRelics      = new();
+	private bool _musicShouldPlay = false;
 
 	public override void _Ready()
 	{
@@ -58,10 +59,19 @@ public partial class MainMenuLobby : Control
 		ConnectButton.Pressed      += OnConnectPressed;
 
 
-		// Music persists through Controls/Developers overlays because those are
-		// just panels toggled inside this same node — not scene changes.
-		if (MenuMusic != null && !MenuMusic.Playing)
+		// Duplicate the stream so we get a private copy whose Loop flag we can set
+		// without touching the shared imported resource.
+		if (MenuMusic != null && MenuMusic.Stream != null)
+		{
+			var loopedStream = (AudioStream)MenuMusic.Stream.Duplicate();
+			if (loopedStream is AudioStreamMP3 mp3)
+				mp3.Loop = true;
+			else if (loopedStream is AudioStreamOggVorbis ogg)
+				ogg.Loop = true;
+			MenuMusic.Stream = loopedStream;
+			_musicShouldPlay = true;
 			MenuMusic.Play();
+		}
 
 		OfflinePanel.Visible = true;
 		OnlinePanel.Visible  = false;
@@ -78,6 +88,29 @@ public partial class MainMenuLobby : Control
 		if (ClassDropdown != null) ClassDropdown.ItemSelected -= OnClassSelected;
 		if (ItemDropdown != null)  ItemDropdown.ItemSelected  -= OnItemSelected;
 		if (ConnectButton != null) ConnectButton.Pressed      -= OnConnectPressed;
+		_musicShouldPlay = false;
+	}
+
+	// Watchdog: loops music while in menus; force-stops it the moment MainGame is visible.
+	public override void _Process(double delta)
+	{
+		if (_musicShouldPlay)
+		{
+			// Kill music immediately if the game world has become visible
+			// (catches edge cases where StartGame RPC fires slightly late)
+			var gameRoot = GetParent();
+			var mainGame = gameRoot?.GetNodeOrNull<Node3D>("MainGame");
+			if (mainGame != null && mainGame.Visible)
+			{
+				_musicShouldPlay = false;
+				MenuMusic?.Stop();
+				return;
+			}
+
+			// Normal loop: restart if the track ended
+			if (MenuMusic != null && !MenuMusic.Playing)
+				MenuMusic.Play();
+		}
 	}
 
 	// ── UI ────────────────────────────────────────────────────────────────────
@@ -187,6 +220,10 @@ public partial class MainMenuLobby : Control
 		{
 			GD.Print("[MainMenuLobby] FIRING StartGame RPC now!");
 
+			// Stop menu music on every connected peer immediately — before the
+			// one-frame delay so there's no gap where music plays over the transition.
+			Rpc(MethodName.StopMenuMusicRpc);
+
 			// Wait one frame so all peers finish processing before StartGame fires
 			await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
 
@@ -199,6 +236,18 @@ public partial class MainMenuLobby : Control
 	}
 
 
+
+	// ── Music stop RPC ───────────────────────────────────────────────────────
+	// Fired by the server as soon as all players click ready, before StartGame.
+	// CallLocal = true so the host also stops its own music without a separate call.
+	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true,
+		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	private void StopMenuMusicRpc()
+	{
+		_musicShouldPlay = false;
+		MenuMusic?.Stop();
+		GD.Print($"[MainMenuLobby] Menu music stopped on peer {Multiplayer.GetUniqueId()}");
+	}
 
 	// ── StartGame RPC ─────────────────────────────────────────────────────────
 private bool _gameStarted = false;
@@ -227,6 +276,10 @@ private void StartGame()
 	else
 		GD.PrintErr("[MainMenuLobby] GenericLobbySystem not found under AbsoluteRoot!");
 
+	// Stop menu music before the game world becomes visible.
+	_musicShouldPlay = false;
+	MenuMusic?.Stop();
+
 	// Show MainGame (sibling of MainMenu under GameRoot) and activate its camera
 	var mainGame = gameRoot.GetNodeOrNull<Node3D>("MainGame");
 	if (mainGame != null)
@@ -242,9 +295,6 @@ private void StartGame()
 	}
 	else
 		GD.PrintErr("[MainMenuLobby] Camera3D not found at GameRoot/MainGame/Camera3D!");
-
-
-	MenuMusic?.Stop();
 
 	if (GenericCore.Instance.IsServer)
 		ServerSpawnWithDelay();

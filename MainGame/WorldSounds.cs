@@ -2,46 +2,51 @@ using Godot;
 
 public partial class WorldSounds : Node
 {
-	// ── Inspector slots ───────────────────────────────────────────────────────
+	// ── Inspector slots — world ambience ──────────────────────────────────────
 
 	[Export] public AudioStreamPlayer LightningSound;
 	[Export] public AudioStreamPlayer AirSound;
 	[Export] public AudioStreamPlayer EnvironmentSound;
 	[Export] public float LightningInterval = 20f;
 
+	// ── Inspector slots — enemy SFX ───────────────────────────────────────────
+	// Drop up to three enemy audio files here. The system picks one at random
+	// every 5–10 seconds so the world feels alive without per-enemy overhead.
+
+	[Export] public AudioStreamPlayer Enemy1Sound;
+	[Export] public AudioStreamPlayer Enemy2Sound;
+	[Export] public AudioStreamPlayer Enemy3Sound;
+
+	[Export] public float EnemySfxMinInterval = 5f;
+	[Export] public float EnemySfxMaxInterval = 10f;
+
+	// ── Private ───────────────────────────────────────────────────────────────
+
 	private Timer   _lightningTimer;
-	private Node3D  _parentNode3D;   // the MainGame root node; watched for visibility
+	private Timer   _enemySfxTimer;
+	private Node3D  _parentNode3D;
+	private RandomNumberGenerator _rng = new RandomNumberGenerator();
 
 	public override void _Ready()
 	{
-		// Create fallback silent players for any un-wired slots
-		if (LightningSound == null)
-		{
-			LightningSound = new AudioStreamPlayer();
-			LightningSound.Name = "LightningSound";
-			AddChild(LightningSound);
-		}
-		if (AirSound == null)
-		{
-			AirSound = new AudioStreamPlayer();
-			AirSound.Name = "AirSound";
-			AddChild(AirSound);
-		}
-		if (EnvironmentSound == null)
-		{
-			EnvironmentSound = new AudioStreamPlayer();
-			EnvironmentSound.Name = "EnvironmentSound";
-			AddChild(EnvironmentSound);
-		}
+		_rng.Randomize();
 
-		// ── Constant sounds — restart automatically when the clip ends ────────
-		AirSound.Finished         += () => { if (AirSound.Stream != null && _IsGameVisible())         AirSound.Play(); };
+		// ── Fallback silent players for un-wired world slots ──────────────────
+		if (LightningSound == null)   { LightningSound   = _MakePlayer("LightningSound"); }
+		if (AirSound == null)         { AirSound         = _MakePlayer("AirSound"); }
+		if (EnvironmentSound == null) { EnvironmentSound = _MakePlayer("EnvironmentSound"); }
+
+		// ── Fallback silent players for un-wired enemy slots ─────────────────
+		if (Enemy1Sound == null) { Enemy1Sound = _MakePlayer("Enemy1Sound"); }
+		if (Enemy2Sound == null) { Enemy2Sound = _MakePlayer("Enemy2Sound"); }
+		if (Enemy3Sound == null) { Enemy3Sound = _MakePlayer("Enemy3Sound"); }
+
+		// ── Constant ambient — restart when clip ends ─────────────────────────
+		AirSound.Finished         += () => { if (AirSound.Stream != null         && _IsGameVisible()) AirSound.Play(); };
 		EnvironmentSound.Finished += () => { if (EnvironmentSound.Stream != null && _IsGameVisible()) EnvironmentSound.Play(); };
 
-		// ── Lightning timer — created but NOT autostarted ─────────────────────
-		_lightningTimer = new Timer();
-		_lightningTimer.WaitTime  = LightningInterval;
-		_lightningTimer.Autostart = false;
+		// ── Lightning timer — NOT autostarted; started in StartSounds() ───────
+		_lightningTimer = new Timer { WaitTime = LightningInterval, Autostart = false };
 		AddChild(_lightningTimer);
 		_lightningTimer.Timeout += () =>
 		{
@@ -49,16 +54,18 @@ public partial class WorldSounds : Node
 				LightningSound.Play();
 		};
 
+		// ── Enemy SFX timer — random interval, NOT autostarted ───────────────
+		_enemySfxTimer = new Timer { WaitTime = EnemySfxMinInterval, Autostart = false, OneShot = true };
+		AddChild(_enemySfxTimer);
+		_enemySfxTimer.Timeout += OnEnemySfxTick;
+
 		// ── Watch parent (MainGame root) visibility ───────────────────────────
-		// generic_lobby_system loads MainGame with visible=false so sounds must
-		// not start until the game world actually becomes visible to the player.
 		if (GetParent() is Node3D parent)
 		{
 			_parentNode3D = parent;
 			_parentNode3D.VisibilityChanged += OnParentVisibilityChanged;
 		}
 
-		// Apply current visibility state right now
 		OnParentVisibilityChanged();
 	}
 
@@ -68,22 +75,21 @@ public partial class WorldSounds : Node
 			_parentNode3D.VisibilityChanged -= OnParentVisibilityChanged;
 	}
 
-	// ── Called whenever the MainGame node is shown or hidden ─────────────────
+	// ── Visibility gate ───────────────────────────────────────────────────────
 
 	private void OnParentVisibilityChanged()
 	{
-		if (_IsGameVisible())
-			StartSounds();
-		else
-			StopSounds();
+		if (_IsGameVisible()) StartSounds();
+		else                  StopSounds();
 	}
 
 	private void StartSounds()
 	{
 		if (AirSound.Stream         != null && !AirSound.Playing)         AirSound.Play();
 		if (EnvironmentSound.Stream != null && !EnvironmentSound.Playing) EnvironmentSound.Play();
-		if (!_lightningTimer.IsStopped()) return;
-		_lightningTimer.Start();
+
+		if (_lightningTimer.IsStopped())  _lightningTimer.Start();
+		if (_enemySfxTimer.IsStopped())   _ScheduleNextEnemySfx();
 	}
 
 	private void StopSounds()
@@ -92,6 +98,48 @@ public partial class WorldSounds : Node
 		EnvironmentSound?.Stop();
 		LightningSound?.Stop();
 		_lightningTimer?.Stop();
+
+		Enemy1Sound?.Stop();
+		Enemy2Sound?.Stop();
+		Enemy3Sound?.Stop();
+		_enemySfxTimer?.Stop();
+	}
+
+	// ── Enemy SFX logic ───────────────────────────────────────────────────────
+
+	private void OnEnemySfxTick()
+	{
+		if (!_IsGameVisible()) return;
+
+		// Collect whichever slots actually have a stream assigned
+		var available = new System.Collections.Generic.List<AudioStreamPlayer>();
+		if (Enemy1Sound.Stream != null) available.Add(Enemy1Sound);
+		if (Enemy2Sound.Stream != null) available.Add(Enemy2Sound);
+		if (Enemy3Sound.Stream != null) available.Add(Enemy3Sound);
+
+		if (available.Count > 0)
+		{
+			var pick = available[_rng.RandiRange(0, available.Count - 1)];
+			if (!pick.Playing) pick.Play();
+		}
+
+		// Schedule the next tick at a new random interval
+		_ScheduleNextEnemySfx();
+	}
+
+	private void _ScheduleNextEnemySfx()
+	{
+		_enemySfxTimer.WaitTime = _rng.RandfRange(EnemySfxMinInterval, EnemySfxMaxInterval);
+		_enemySfxTimer.Start();
+	}
+
+	// ── Helpers ───────────────────────────────────────────────────────────────
+
+	private AudioStreamPlayer _MakePlayer(string nodeName)
+	{
+		var p = new AudioStreamPlayer { Name = nodeName };
+		AddChild(p);
+		return p;
 	}
 
 	private bool _IsGameVisible() =>

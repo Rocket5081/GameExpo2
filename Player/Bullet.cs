@@ -1,5 +1,4 @@
 using Godot;
-using System;
 
 public partial class Bullet : RigidBody3D
 {
@@ -8,6 +7,9 @@ public partial class Bullet : RigidBody3D
 	private float _lifetime = 0f;
 	private const float MaxLifetime = 6f;
 	public float damage;
+
+	// Guard: prevents HideBullet from running more than once per bullet instance
+	private bool _isDying = false;
 
 	public override void _Ready()
 	{
@@ -35,21 +37,52 @@ public partial class Bullet : RigidBody3D
 	private void OnAreaEntered(Node body)
 	{
 		if (!GenericCore.Instance.IsServer) return;
+		if (_isDying) return;
 
-		// Players are on layer 2; bullets are on layer 4 with mask 1 (layer 1 only),
-		// so this callback will never fire for a Player — but guard just in case.
+		// Players are on layer 2; bullets only have mask 1 so this is a safety guard.
 		if (body is Player) return;
-		if (body.IsInGroup("enemy"))
+
+		// Use a direct C# cast instead of Call() — Call() cannot reliably find
+		// methods inherited from a C# base class through Godot's scripting reflection.
+		// All enemy types (Bat, WormEnemy, etc.) extend Enemy, so this always works.
+		if (body is Enemy enemy && IsInstanceValid(enemy))
 		{
+			enemy.OnHitByBullet((int)damage);
 			HideBullet();
-			body.Call("OnHitByBullet", damage);
 		}
 	}
 
 	private void HideBullet()
 	{
+		if (_isDying) return;
+		_isDying  = true;
+		_lifetime = 0f;
+
 		Hide();
-		GetNode<CollisionShape3D>("CollisionShape3D").SetDeferred("disabled", true);
-		GetNode<Area3D>("Area3D").SetDeferred("disabled", true);
+
+		// Disable physics/detection deferred so we don't interrupt the physics step.
+		// We do NOT QueueFree here — bullets are pooled and reused by TankPlayer.
+		// Calling Reset() will re-enable these deferred fields when the bullet fires again.
+		var col  = GetNodeOrNull<CollisionShape3D>("CollisionShape3D");
+		if (col  != null) col.SetDeferred("disabled", true);
+
+		var area = GetNodeOrNull<Area3D>("Area3D");
+		if (area != null) area.SetDeferred("monitoring", false);
+	}
+
+	/// <summary>
+	/// Called by TankPlayer before reusing a pooled bullet.
+	/// Resets all per-shot state so the bullet behaves as if newly spawned.
+	/// </summary>
+	public void Reset()
+	{
+		_isDying  = false;
+		_lifetime = 0f;
+
+		var col  = GetNodeOrNull<CollisionShape3D>("CollisionShape3D");
+		if (col  != null) col.SetDeferred("disabled", false);
+
+		var area = GetNodeOrNull<Area3D>("Area3D");
+		if (area != null) area.SetDeferred("monitoring", true);
 	}
 }

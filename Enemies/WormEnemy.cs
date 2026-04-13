@@ -1,10 +1,7 @@
 using Godot;
-using System;
 
 public partial class WormEnemy : Enemy
 {
-	private Player player;
-
 	[Export] public Vector3 SyncedVelocity
 	{
 		get => Velocity;
@@ -16,77 +13,65 @@ public partial class WormEnemy : Enemy
 
 	public override void _Ready()
 	{
-		maxHP = 50;
-		hp = maxHP;
+		maxHP  = 50;
+		hp     = maxHP;
 		damage = 10;
-
 		base._Ready();
 	}
 
 	public override void _PhysicsProcess(double delta)
 	{
-//        if (!myId.IsNetworkReady) return;
-		if (GenericCore.Instance.IsServer)
+		// MUST call base so Enemy._PhysicsProcess runs the damage tick
+		base._PhysicsProcess(delta);
+
+		if (!GenericCore.Instance.IsServer) return;
+
+		if (!IsOnFloor())
 		{
-			if (!IsOnFloor())
-			{
-				Vector3 vel = Velocity;
-				vel.Y -= 20f * (float)delta;
-				Velocity = vel;
-			}
+			var vel = Velocity;
+			vel.Y  -= 20f * (float)delta;
+			Velocity = vel;
+		}
 
-			// Refresh target every frame in case players join/die
-			player = FindPlayer();
-			if (player == null)
-			{
-				// No players found, stand still
-				Velocity = new Vector3(0, 0, 0);
-				SyncedIsMoving = false;
-			}
-			else
-			{
-				moveWorm();
-			}
-
+		var target = FindNearestPlayer();
+		if (target == null)
+		{
+			Velocity       = Vector3.Zero;
+			SyncedIsMoving = false;
+		}
+		else
+		{
+			MoveToward(target);
 		}
 	}
 
-	public Player FindPlayer()
+	private Player FindNearestPlayer()
 	{
-		Player near = null;
-		float nearestDistance = float.MaxValue;       
-
-		foreach (Player player in GetTree().GetNodesInGroup("Players"))
+		Player nearest  = null;
+		float  bestDist = float.MaxValue;
+		foreach (Node node in GetTree().GetNodesInGroup("Players"))
 		{
-			
-			// Skip dead players
-			//if (player._isDead) continue;
-			float distance = GlobalPosition.DistanceTo(player.GlobalPosition);
-			if (distance < nearestDistance)
-			{
-				nearestDistance = distance;
-				near = player;
-			}
+			if (node is not Player p) continue;
+			float d = GlobalPosition.DistanceTo(p.GlobalPosition);
+			if (d < bestDist) { bestDist = d; nearest = p; }
 		}
-		return near;
+		return nearest;
 	}
 
-	private void moveWorm()
+	private void MoveToward(Player target)
 	{
-		Vector3 direction = new Vector3 (player.GlobalPosition.X - GlobalPosition.X, -5f, player.GlobalPosition.Z - GlobalPosition.Z).Normalized();
-		SyncedVelocity = direction*speed;
-		LookAt(player.GlobalPosition);
+		Vector3 dir = new Vector3(
+			target.GlobalPosition.X - GlobalPosition.X,
+			-5f,
+			target.GlobalPosition.Z - GlobalPosition.Z
+		).Normalized();
+
+		SyncedVelocity = dir * speed;
+		SyncedIsMoving = true;
+
+		if (GlobalPosition.DistanceTo(target.GlobalPosition) > 0.5f)
+			LookAt(target.GlobalPosition, Vector3.Up);
+
 		MoveAndSlide();
 	}
-
- private void OnHitByBullet(int damage)
-    {
-        TakeDamage(damage);
-        if(hp <= 0)
-        {
-            QueueFree();
-        }
-        
-    }
-	
 }
