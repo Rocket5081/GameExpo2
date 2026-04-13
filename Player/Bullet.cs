@@ -7,6 +7,7 @@ public partial class Bullet : RigidBody3D
 
 	private float _lifetime = 0f;
 	private const float MaxLifetime = 6f;
+	public float damage;
 
 	public override void _Ready()
 	{
@@ -41,7 +42,7 @@ public partial class Bullet : RigidBody3D
 		if (body.IsInGroup("enemy"))
 		{
 			HideBullet();
-			body.Call("OnHitByBullet");
+			body.Call("OnHitByBullet", damage);
 		}
 	}
 

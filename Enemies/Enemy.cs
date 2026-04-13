@@ -22,7 +22,7 @@ public partial class Enemy : CharacterBody3D
 
     public void TakeDamage(int amount)
     {
-        
+        hp-=amount;
     }
 
 }

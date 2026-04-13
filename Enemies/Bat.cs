@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public partial class WormEnemy : Enemy
+public partial class Bat : Enemy
 {
     private Player player;
 
@@ -12,11 +12,11 @@ public partial class WormEnemy : Enemy
     }
     [Export] public bool SyncedIsMoving = false;
 
-    public int speed = 5;
+    public int speed = 10;
 
     public override void _Ready()
     {
-        maxHP = 50;
+        maxHP = 20;
         hp = maxHP;
         damage = 10;
 

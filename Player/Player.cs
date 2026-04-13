@@ -360,7 +360,11 @@ public partial class Player : CharacterBody3D
 				rb.CollisionMask  = 1;
 				rb.LinearVelocity = Transform.Basis.X * 150f;
 			}
-			if (t1 is Bullet b) Buls.Add(b);
+			if (t1 is Bullet b)
+			{
+				b.damage = damage;
+				Buls.Add(b);
+			} 
 
 			await ToSignal(GetTree().CreateTimer(cooldown), SceneTreeTimer.SignalName.Timeout);
 		}

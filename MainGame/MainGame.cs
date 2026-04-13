@@ -12,7 +12,7 @@ public partial class MainGame : Node3D
 
 	private bool setUp = false;
 
-	private readonly int[] LevelWeights = { 50, 30, 15, 5 };
+	private readonly int[] LevelWeights = { 50, 30, 5, 1 };
 	public override void _Ready()
 	{
 		var spawnerParent = GetNode<Node>("EnemySpawns");
@@ -34,6 +34,7 @@ public partial class MainGame : Node3D
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
+		_elapsedSec += delta;
 		if (IsVisibleInTree() && !setUp)
 		{
 			var spawnerParent = GetNode<Node>("EnemySpawns");
@@ -66,26 +67,26 @@ public partial class MainGame : Node3D
 	{
 		if (GenericCore.Instance.IsServer){
 		if (EnemySpawners == null || EnemySpawners.Length == 0) { GD.PushWarning("No spawners assigned."); return; }
-		// int maxAllowedLevel = GetMaxAllowedLevel(_elapsedSec);
-		// int chosenLevel = GetWeightedLevel(maxAllowedLevel);
+		int maxAllowedLevel = GetMaxAllowedLevel(_elapsedSec);
+		int chosenLevel = GetWeightedLevel(maxAllowedLevel);
 		var spawnPoint = EnemySpawners[GD.RandRange(0, EnemySpawners.Length - 1)];
 
 
 		var enemySpawner = GetTree().Root.FindChild("EnemySpawner", true, false) as NetworkCore;
-		var spawnedNode = enemySpawner.NetCreateObject(0, spawnPoint.Position, Quaternion.Identity, 1);
+		var spawnedNode = enemySpawner.NetCreateObject(chosenLevel, spawnPoint.Position, Quaternion.Identity, 1);
 		}
 	}
 
 	private int GetWeightedLevel(int maxAllowedLevel)
 	{
-		int totalWeight = 0;
+		int totalWeight = 1;
 
-		for (int i = 0; i < maxAllowedLevel; i++)
+		for (int i = 1; i < maxAllowedLevel; i++)
 			totalWeight += LevelWeights[i];
 
-		int roll = GD.RandRange(1, totalWeight);
-
-		int cumulative = 0;
+		int roll = GD.RandRange(0, totalWeight);
+		
+		int cumulative = 1;
 
 		for (int i = 0; i < maxAllowedLevel; i++)
 		{
@@ -94,15 +95,15 @@ public partial class MainGame : Node3D
 				return i + 1; 
 		}
 
-		return 1; 
+		return 0; 
 	}
 
 	private int GetMaxAllowedLevel(double elapsedSec)
 	{
-		if (elapsedSec < 15.0) return 1;
-		if (elapsedSec < 30.0) return 2;
-		if (elapsedSec < 45.0) return 3;
-		return 4;
+		if (elapsedSec < 15.0) return 0;
+		if (elapsedSec < 30.0) return 1;
+		if (elapsedSec < 45.0) return 1;
+		return 1;
 	}
 
 
