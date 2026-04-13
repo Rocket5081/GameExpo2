@@ -31,17 +31,13 @@ public partial class Bullet : RigidBody3D
 			HideBullet();
 	}
 
-	private void OnBodyEntered(Node body)
+	private void OnAreaEntered(Node body)
 	{
 		if (!GenericCore.Instance.IsServer) return;
 
 		// Players are on layer 2; bullets are on layer 4 with mask 1 (layer 1 only),
 		// so this callback will never fire for a Player — but guard just in case.
 		if (body is Player) return;
-
-		if (body.IsInGroup("boxes"))
-			HideBullet();
-
 		if (body.IsInGroup("enemy"))
 		{
 			HideBullet();
@@ -52,8 +48,7 @@ public partial class Bullet : RigidBody3D
 	private void HideBullet()
 	{
 		Hide();
-		CollisionLayer = 8;
-		CollisionMask  = 8;
-		_lifetime      = 0f;
+		GetNode<CollisionShape3D>("CollisionShape3D").SetDeferred("disabled", true);
+		GetNode<Area3D>("Area3D").SetDeferred("disabled", true);
 	}
 }

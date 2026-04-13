@@ -30,7 +30,7 @@ properties/4/replication_mode = 1
 script = ExtResource("1_ayd6b")
 
 [node name="Area3D" type="Area3D" parent="."]
-transform = Transform3D(1.1, 0, 0, 0, 1.1, 0, 0, 0, 1.1, 0, 0, 0)
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, 0, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
 shape = SubResource("SphereShape3D_x3e43")
@@ -44,3 +44,5 @@ shape = SubResource("SphereShape3D_4s4u5")
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_bullet")
 script = ExtResource("2_netid")
+
+[connection signal="body_entered" from="Area3D" to="." method="OnAreaEntered"]

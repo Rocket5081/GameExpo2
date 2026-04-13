@@ -156,7 +156,7 @@ stream = ExtResource("12_2mqu7")
 volume_db = -50.0
 
 [node name="EnemySpawns" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10.39019, -125.427475)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -125.427)
 
 [node name="SpawnPoints0" type="Node3D" parent="EnemySpawns"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -99.175064, 0, 0)

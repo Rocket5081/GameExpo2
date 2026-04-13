@@ -3,7 +3,7 @@ using System;
 
 public partial class WormEnemy : Enemy
 {
-    private NavigationAgent3D navAgent;
+    private Player player;
 
     [Export] public Vector3 SyncedVelocity
     {
@@ -20,15 +20,12 @@ public partial class WormEnemy : Enemy
         hp = maxHP;
         damage = 10;
 
-        navAgent = GetNode<NavigationAgent3D>("NavigationAgent3D");
-        navAgent.PathPostprocessing = NavigationPathQueryParameters3D.PathPostProcessing.None;
-
         base._Ready();
     }
 
     public override void _PhysicsProcess(double delta)
     {
-        if (!myId.IsNetworkReady) return;
+//        if (!myId.IsNetworkReady) return;
         if (GenericCore.Instance.IsServer)
         {
             if (!IsOnFloor())
@@ -39,28 +36,18 @@ public partial class WormEnemy : Enemy
             }
 
             // Refresh target every frame in case players join/die
-            var player = FindPlayer();
-
-            if (player != null)
+            player = FindPlayer();
+            if (player == null)
             {
-                navAgent.TargetPosition = player.GlobalPosition;
-
-                if (!navAgent.IsNavigationFinished())
-                {
-                    MoveAlongPath();
-                    SyncedIsMoving = true;
-                }
-                else
-                {
-                    SyncedIsMoving = false;
-                }
+                // No players found, stand still
+                Velocity = new Vector3(0, 0, 0);
+                SyncedIsMoving = false;
             }
             else
             {
-                // No players found, stand still
-                Velocity = new Vector3(0, Velocity.Y, 0);
-                SyncedIsMoving = false;
+                moveWorm();
             }
+
         }
     }
 
@@ -68,12 +55,12 @@ public partial class WormEnemy : Enemy
     {
         Player near = null;
         float nearestDistance = float.MaxValue;
-
-        foreach (Player player in GetTree().GetNodesInGroup("players"))
+       
+        foreach (Player player in GetTree().GetNodesInGroup("Players"))
         {
+            
             // Skip dead players
             //if (player._isDead) continue;
-
             float distance = GlobalPosition.DistanceTo(player.GlobalPosition);
             if (distance < nearestDistance)
             {
@@ -81,27 +68,20 @@ public partial class WormEnemy : Enemy
                 near = player;
             }
         }
-
         return near;
     }
 
-    public void MoveAlongPath()
+    private void moveWorm()
     {
-        Vector3 destination = navAgent.GetNextPathPosition();
-        Vector3 direction = (destination - GlobalPosition).Normalized();
-
-        float currentY = Velocity.Y;
-        Velocity = new Vector3(direction.X * speed, currentY, direction.Z * speed);
-
-        Vector3 flatDirection = new Vector3(direction.X, 0, direction.Z).Normalized();
-        if (flatDirection.Length() > 0.1f)
-        {
-            Transform3D t = Transform;
-            t.Basis = Basis.LookingAt(flatDirection, Vector3.Up).Rotated(Vector3.Up, Mathf.DegToRad(0));
-            Transform = t;
-        }
-
+        Vector3 direction = new Vector3 (player.GlobalPosition.X - GlobalPosition.X, -5f, player.GlobalPosition.Z - GlobalPosition.Z).Normalized();
+        SyncedVelocity = direction*speed;
+        LookAt(player.GlobalPosition);
         MoveAndSlide();
+    }
+
+    private void OnHitByBullet()
+    {
+        QueueFree();
     }
 
 }

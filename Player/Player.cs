@@ -372,8 +372,8 @@ public partial class Player : CharacterBody3D
 		{
 			Vector3 spawnPos = GetBulletSpawnPos();
 			Buls[bulCount].Show();
-			Buls[bulCount].CollisionLayer = 4;
-			Buls[bulCount].CollisionMask  = 1;
+			Buls[bulCount].GetNode<CollisionShape3D>("CollisionShape3D").SetDeferred("disabled", false);
+			Buls[bulCount].GetNode<Area3D>("Area3D").SetDeferred("disabled", false);
 			Buls[bulCount].GlobalPosition = spawnPos;
 			Buls[bulCount].LinearVelocity = Transform.Basis.X * 150f;
 			bulCount++;

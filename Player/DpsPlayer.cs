@@ -56,7 +56,7 @@ public partial class DpsPlayer : Player
 
 		ShootSoundPlayer?.Play();
 		GD.Print(burstCount);
-		if (Buls.Count < 9)
+		if (Buls.Count < 60)
 			SpawnBullet(burstCount, burstDelay);
 		else
 			ShootBullet(burstCount, burstDelay);
