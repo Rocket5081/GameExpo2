@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=3 uid="uid://blus88i3vm2o2"]
+[gd_scene load_steps=37 format=3 uid="uid://dkloqt2lomuxg"]
 
 [ext_resource type="Material" uid="uid://bf80snneu4sbx" path="res://MainGame/VoidParticles.tres" id="1_6bbl1"]
 [ext_resource type="Script" uid="uid://c4ryjwo0gxk68" path="res://MainGame/MainGame.cs" id="1_f0e2v"]
@@ -493,8 +493,23 @@ mesh = SubResource("PrismMesh_mountain")
 
 [node name="EnemySpawns" type="Node3D" parent="."]
 
-[node name="EnemyNetworkCore" type="MultiplayerSpawner" parent="."]
-_spawnable_scenes = PackedStringArray("uid://bg3r7c8qcwvpc")
+[node name="Node3D" type="Node3D" parent="EnemySpawns"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, -229.3)
+
+[node name="Node3D2" type="Node3D" parent="EnemySpawns"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 134, 1, -221.2)
+
+[node name="Node3D3" type="Node3D" parent="EnemySpawns"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 224.76, 1, -131.3)
+
+[node name="Node3D4" type="Node3D" parent="EnemySpawns"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -134.9, 1, -227.2)
+
+[node name="Node3D5" type="Node3D" parent="EnemySpawns"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -200.5, 1, -160.3)
+
+[node name="EnemySpawner" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("uid://bg3r7c8qcwvpc", "uid://di61ig18jknfo")
 spawn_path = NodePath("../EnemySpawns")
 script = ExtResource("6_8e541")
 
