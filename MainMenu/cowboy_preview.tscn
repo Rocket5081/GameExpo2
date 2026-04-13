@@ -1,16 +1,42 @@
-[gd_scene load_steps=2 format=3 uid="uid://d3enrlsl5me4x"]
+[gd_scene load_steps=3 format=3 uid="uid://d3enrlsl5me4x"]
 
-[ext_resource type="PackedScene" uid="uid://beb51xlln1h3a" path="res://Assets/western_cowboy_rigged.glb" id="1_80m4t"]
+[ext_resource type="PackedScene" uid="uid://br1l666tmqbyw" path="res://Assets/Cowboy/DPS.glb" id="1_uyqfk"]
+[ext_resource type="Script" uid="uid://cc3mpn6y6ykrx" path="res://MainMenu/PreviewAutoPlay.cs" id="2_prev"]
 
 [node name="CowboyPreview" type="Node3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.9196396, 0, 0)
-
-[node name="Sketchfab_Scene" parent="." instance=ExtResource("1_80m4t")]
-transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, 0)
+script = ExtResource("2_prev")
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.34397554, 0.540357)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.34397554, 0.7688433)
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.39190435, 2.3476987)
 visible = false
+
+[node name="DPS" parent="." instance=ExtResource("1_uyqfk")]
+transform = Transform3D(0, 0, -0.1, 0, 0.1, 0, 0.1, 0, 0, 0, 0, 0)
+
+[node name="Skeleton3D" parent="DPS/DPS Player" index="0"]
+bones/1/rotation = Quaternion(6.663965e-08, 1.0041667e-08, -0.13824695, 0.9903978)
+bones/2/position = Vector3(-7.898886e-17, -0.17786717, 0.19955821)
+bones/2/rotation = Quaternion(-7.54979e-08, 1.6763906e-23, 1, -6.8964377e-38)
+bones/3/rotation = Quaternion(-1.7342849e-07, 1.1036127e-07, 0.7071068, 0.7071068)
+bones/4/position = Vector3(-4.0457715e-17, -0.18220532, -0.19522)
+bones/4/rotation = Quaternion(0.99995714, -1.09989697e-16, -1.09989405e-16, -0.0092580635)
+bones/5/rotation = Quaternion(-4.609812e-09, -4.609812e-09, -0.7071068, 0.7071068)
+bones/6/rotation = Quaternion(0.88515854, 4.4373422e-07, 8.441522e-07, 0.4652896)
+bones/7/rotation = Quaternion(0.007166397, 3.9342288e-07, -0.70459116, 0.7095773)
+bones/8/rotation = Quaternion(0.8851586, -9.148698e-18, -9.148701e-18, -0.46528962)
+bones/9/rotation = Quaternion(-0.007165072, 3.6323687e-08, -0.7045913, 0.7095772)
+
+[node name="Head_2" parent="DPS/DPS Player/Skeleton3D" index="0"]
+transform = Transform3D(0.96177536, 0.2738389, 1.4650323e-09, -0.2738389, 0.96177536, -1.3477596e-07, -3.831594e-08, 1.2922304e-07, 0.9999999, 0, 0.9999999, 0)
+
+[node name="RHand_2" parent="DPS/DPS Player/Skeleton3D" index="1"]
+transform = Transform3D(0.0071025887, 0.9999237, -0.010096294, 0.5752868, -0.012344313, -0.8178583, -0.8179208, 6.61239e-07, -0.57533056, -2.5919845e-14, 0.53581, 0.674339)
+
+[node name="LHand_2" parent="DPS/DPS Player/Skeleton3D" index="2"]
+transform = Transform3D(0.007102249, 0.99992365, 0.010096944, 0.5752847, -0.012344631, 0.81785977, 0.8179221, -7.916242e-09, -0.5753285, -2.0228847e-17, 0.53581, -0.67433906)
+
+[editable path="DPS"]

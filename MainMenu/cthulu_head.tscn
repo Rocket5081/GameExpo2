@@ -19,3 +19,6 @@ light_energy = 16.0
 light_size = 1.0
 omni_range = 4096.0
 omni_attenuation = 0.291
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="O"]
+light_energy = 0.338
