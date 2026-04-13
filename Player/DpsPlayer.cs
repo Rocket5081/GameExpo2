@@ -14,7 +14,7 @@ public partial class DpsPlayer : Player
 	{
 		maxHp = 150;
 		speed = 20;
-		hp    = maxHp;
+		hp    = maxHp / 2;   // DEBUG: halved for relic testing
 		base._Ready();
 
 		if (UltimateSound == null)
@@ -69,6 +69,6 @@ public partial class DpsPlayer : Player
 		if (!GenericCore.Instance.IsServer) return;
 
 		_ultraActive = true;
-		_ultraTimer  = 5f;
+		_ultraTimer  = 5f;   // 5-second rapid-fire window
 	}
 }

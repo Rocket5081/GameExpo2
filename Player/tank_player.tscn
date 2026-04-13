@@ -46,6 +46,12 @@ properties/9/replication_mode = 2
 properties/10/path = NodePath(".:PlayerDisplayName")
 properties/10/spawn = true
 properties/10/replication_mode = 2
+properties/11/path = NodePath(".:hp")
+properties/11/spawn = true
+properties/11/replication_mode = 2
+properties/12/path = NodePath(".:maxHp")
+properties/12/spawn = true
+properties/12/replication_mode = 2
 
 [node name="Tank_Player" type="CharacterBody3D" node_paths=PackedStringArray("ShootSoundPlayer", "UltimateSound", "myId", "BulletSpawn", "ReticleLayer", "NameLabel", "FootstepPlayer") groups=["Players"]]
 collision_layer = 2
@@ -64,7 +70,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.16210938, 0)
 shape = SubResource("BoxShape3D_nxeor")
 
 [node name="BulletSpawn" type="Marker3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 1, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.9887086, -0.07017326, 0.49020875)
 
 [node name="ReticleLayer" type="CanvasLayer" parent="."]
 visible = false

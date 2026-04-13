@@ -67,8 +67,8 @@ public partial class NetworkCore : MultiplayerSpawner
 			((Node3D)node).Position = initialPosition;
 			((Node3D)node).Rotation = rotation.GetEuler();
 		}
-		 GetNode(SpawnPath).AddChild(node, true);
-	   
+		GetNode(SpawnPath).AddChild(node, true);
+
 
 		foreach (var child in node.GetChildren())
 			if (child is NetID netId)
@@ -80,14 +80,23 @@ public partial class NetworkCore : MultiplayerSpawner
 				netId.IsNetworkReady = true;
 				GenericCore.Instance._netObjects.Add((int)(GenericCore.Instance._netObjectsCount++), netId);
 
-				// Set IsLocal immediately on the server before the RPC fires,
-				// so there is no frame where the server's own player has IsLocal=false.
 				netId.OwnerId = owner;
-				netId.IsLocal = (Multiplayer.GetUniqueId() == owner);
-
+				// IsLocal is derived solely by the Initialize RPC (CallLocal=true),
+				// so we do NOT set it here — avoids the conflicting-setter bug.
 				netId.Rpc("Initialize", owner);
 
-
+				// Re-send Initialize after 300 ms in case the first RPC arrived on some
+				// clients before the MultiplayerSpawner had finished replicating the node.
+				// Initialize is idempotent so a duplicate call is harmless.
+				{
+					long   capturedOwner  = owner;
+					NetID  capturedNetId  = netId;
+					GetTree().CreateTimer(0.3f).Timeout += () =>
+					{
+						if (IsInstanceValid(capturedNetId))
+							capturedNetId.Rpc("Initialize", capturedOwner);
+					};
+				}
 			}
 
 		return node;

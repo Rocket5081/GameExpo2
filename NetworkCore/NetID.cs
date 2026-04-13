@@ -82,25 +82,38 @@ public partial class NetID : MultiplayerSynchronizer
 		await ToSignal(GetTree().CreateTimer(0.1f), SceneTreeTimer.SignalName.Timeout);
 		if (!GenericCore.Instance.IsServer)
 		{
-			for(int i =0; i < 10; i ++)
+			// Poll at 100 ms so we detect IsSynced within one tick, not up to 1 s late.
+			// (The old 1 s interval caused up to 1 s of timer skew between clients.)
+			for (int i = 0; i < 100; i++)
 			{
-				await ToSignal(GetTree().CreateTimer(1.0f), SceneTreeTimer.SignalName.Timeout);
-				if(IsSynced)
-				{
-					break;
-				}
+				await ToSignal(GetTree().CreateTimer(0.1f), SceneTreeTimer.SignalName.Timeout);
+				if (IsSynced) break;
 			}
+
 			if (!IsSynced)
 			{
-				GD.Print("Deleting the inscene object: " + GetParent().Name);
-
-				GetParent().QueueFree();
+				// IsSynced never fired via the synchronizer.
+				// The Initialize RPC may still have arrived and stamped OwnerId — check that first.
+				if (OwnerId != 0)
+				{
+					// We have enough info to continue — don't delete the player.
+					IsLocal = (Multiplayer.GetUniqueId() == OwnerId);
+					IsNetworkReady = true;
+				}
+				else
+				{
+					GD.Print("Deleting the inscene object: " + GetParent().Name);
+					GetParent().QueueFree();
+				}
 			}
 			else
 			{
-				// OwnerId is synced by now — derive IsLocal directly from it.
-				// This is more reliable than the Initialize RPC, which can arrive
-				// before the spawner has replicated the node to this client.
+				// IsSynced = true. OwnerId arrives in the same sync packet normally,
+				// but poll briefly in case it lags by one more cycle.
+				for (int retry = 0; retry < 10 && OwnerId == 0; retry++)
+					await ToSignal(GetTree().CreateTimer(0.1f), SceneTreeTimer.SignalName.Timeout);
+
+				// Derive IsLocal from the synced OwnerId.
 				if (OwnerId != 0)
 					IsLocal = (Multiplayer.GetUniqueId() == OwnerId);
 

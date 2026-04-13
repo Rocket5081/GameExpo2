@@ -1,8 +1,6 @@
 using Godot;
-using Godot.NativeInterop;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 public partial class Player : CharacterBody3D
 {
@@ -40,13 +38,18 @@ public partial class Player : CharacterBody3D
 	public float maxTimer = 0.5f;
 	public float timer = 0.5f;
 	public float damage = 10f;
-	public int   hp;
-	public int   maxHp;
+	[Export] public int hp;
+	[Export] public int maxHp;
 
 	// ── Ultimate ability ─────────────────────────────────────────────────────
 	public float UltimateCooldownMax   = 30f;
 	public float UltimateCooldownTimer = 30f;   // counts down to 0; 0 = ready
 	public bool  IsShielded            = false; // set by Tank bubble
+
+	// ── Relic system ──────────────────────────────────────────────────────────
+	public enum RelicType { None, Health, Cooldown }
+	public RelicType ChosenRelic = RelicType.None;
+	private float _relicHealthTimer = 0f;
 
 	public List<Bullet> Buls     = new List<Bullet>();
 	public int          bulCount = 0;
@@ -66,6 +69,7 @@ public partial class Player : CharacterBody3D
 
 	public override void _Ready()
 	{
+		GD.Print(myId.IsLocal);
 		base._Ready();
 		AddToGroup("Players");
 
@@ -136,9 +140,20 @@ public partial class Player : CharacterBody3D
 		}
 
 		// ── Ultimate cooldown tick ─────────────────────────────────────────────
-		// Ticks on local client for HUD display; server also ticks for validation.
 		if (UltimateCooldownTimer > 0f)
 			UltimateCooldownTimer -= (float)delta;
+
+		// ── Relic: Health regen (server-authoritative, +1 HP/s) ──────────────
+		if (GenericCore.Instance.IsServer && ChosenRelic == RelicType.Health)
+		{
+			_relicHealthTimer += (float)delta;
+			if (_relicHealthTimer >= 1f)
+			{
+				_relicHealthTimer -= 1f;
+				if (hp < maxHp)
+					hp += 1;
+			}
+		}
 
 		// ── Server-side physics ───────────────────────────────────────────────
 		if (GenericCore.Instance.IsServer)
@@ -219,9 +234,9 @@ public partial class Player : CharacterBody3D
 
 	}
 
-    public override void _PhysicsProcess(double delta)
-    {
-        if (!rewinding)
+	public override void _PhysicsProcess(double delta)
+	{
+		if (!rewinding)
 		{
 			((Godot.Collections.Array)rewindValues["position"]).Add(Position);
 			((Godot.Collections.Array)rewindValues["rotation"]).Add(Rotation);
@@ -232,7 +247,7 @@ public partial class Player : CharacterBody3D
 			computeRewind();
 			
 		}
-    }
+	}
 
 
 	private void UpdateAnimation()
@@ -290,6 +305,38 @@ public partial class Player : CharacterBody3D
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false,
 		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public virtual void UseUltimate() { }
+
+	// ── Relic RPCs ───────────────────────────────────────────────────────────
+
+	/// <summary>
+	/// Local client sends this to the server to request a relic.
+	/// Server validates, then broadcasts SyncRelicChosen to all peers.
+	/// </summary>
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false,
+		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public void SelectRelic(int relicIndex)
+	{
+		if (!GenericCore.Instance.IsServer) return;
+		if (ChosenRelic != RelicType.None)    return; // already locked in
+		Rpc("SyncRelicChosen", relicIndex);
+	}
+
+	/// <summary>
+	/// Server broadcasts the confirmed relic choice to every peer.
+	/// CallLocal = true so the server also applies it immediately.
+	/// </summary>
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true,
+		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public void SyncRelicChosen(int relicIndex)
+	{
+		if (ChosenRelic != RelicType.None) return;   // prevent double-apply
+		ChosenRelic = (RelicType)relicIndex;
+		if (ChosenRelic == RelicType.Cooldown)
+		{
+			UltimateCooldownMax   = Mathf.Max(UltimateCooldownMax - 10f, 5f);
+			UltimateCooldownTimer = Mathf.Min(UltimateCooldownTimer, UltimateCooldownMax);
+		}
+	}
 
 	/// <summary>
 	/// Called when this player is hit by a damaging attack.
@@ -372,8 +419,8 @@ public partial class Player : CharacterBody3D
 		{
 			Vector3 spawnPos = GetBulletSpawnPos();
 			Buls[bulCount].Show();
-			Buls[bulCount].GetNode<CollisionShape3D>("CollisionShape3D").SetDeferred("disabled", false);
-			Buls[bulCount].GetNode<Area3D>("Area3D").SetDeferred("disabled", false);
+			Buls[bulCount].CollisionLayer = 4;
+			Buls[bulCount].CollisionMask  = 1;
 			Buls[bulCount].GlobalPosition = spawnPos;
 			Buls[bulCount].LinearVelocity = Transform.Basis.X * 150f;
 			bulCount++;
@@ -384,42 +431,31 @@ public partial class Player : CharacterBody3D
 		}
 	}
 
-	public void rewind()
+	// ── Rewind ───────────────────────────────────────────────────────────────
+	private void rewind()
 	{
 		rewinding = true;
-		GetNode<CollisionShape3D>("CollisionShape3D").SetDeferred("disabled", true);
 	}
-	
-	//https://www.youtube.com/watch?v=XoETrCrSkks a link for a complete description of rewind feature: 1:12 - 3:44
-	public void computeRewind()
-	{
-		var pos = ((Godot.Collections.Array)rewindValues["position"]).Last();
-		var rot = ((Godot.Collections.Array)rewindValues["rotation"]).Last();
-		((Godot.Collections.Array)rewindValues["position"]).RemoveAt(((Godot.Collections.Array)rewindValues["position"]).Count -1);
-		((Godot.Collections.Array)rewindValues["rotation"]).RemoveAt(((Godot.Collections.Array)rewindValues["rotation"]).Count -1);
-		if(((Godot.Collections.Array)rewindValues["position"]).Count == 0)
-		{
-			GetNode<CollisionShape3D>("CollisionShape3D").SetDeferred("disabled", false);
-			rewinding = false;
-			Position = (Vector3)pos;
-			Rotation = (Vector3)rot;
-			SyncedVelocity = (Vector3)((Godot.Collections.Array)rewindValues["velocity"]).First();
-			Rpc("computeRewindRPC", pos, rot);
 
-		}
-		Position = (Vector3)pos;
-		Rotation = (Vector3)rot;
-		Rpc("computeRewindRPC", pos, rot);
-	}
-[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true,
-		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-	public void computeRewindRPC( Vector3 pos, Vector3 rot)
+	private void computeRewind()
 	{
-		if (GenericCore.Instance.IsServer)
+		var positions  = (Godot.Collections.Array)rewindValues["position"];
+		var rotations  = (Godot.Collections.Array)rewindValues["rotation"];
+		var velocities = (Godot.Collections.Array)rewindValues["velocity"];
+
+		if (positions.Count == 0)
 		{
-			SyncedVelocity = (Vector3)((Godot.Collections.Array)rewindValues["velocity"]).First();
-			Position = pos;
-			Rotation = rot;
+			rewinding = false;
+			return;
 		}
+
+		int last = positions.Count - 1;
+		Position       = (Vector3)positions[last];
+		Rotation       = (Vector3)rotations[last];
+		SyncedVelocity = (Vector3)velocities[last];
+
+		positions.RemoveAt(last);
+		rotations.RemoveAt(last);
+		velocities.RemoveAt(last);
 	}
 }

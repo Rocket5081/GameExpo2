@@ -56,10 +56,17 @@ properties/9/replication_mode = 2
 properties/10/path = NodePath(".:PlayerDisplayName")
 properties/10/spawn = true
 properties/10/replication_mode = 2
+properties/11/path = NodePath(".:hp")
+properties/11/spawn = true
+properties/11/replication_mode = 2
+properties/12/path = NodePath(".:maxHp")
+properties/12/spawn = true
+properties/12/replication_mode = 2
 
-[node name="Support_Player" type="CharacterBody3D" node_paths=PackedStringArray("ShootSoundPlayer", "UltimateSound", "myId", "BulletSpawn", "ReticleLayer", "NameLabel", "FootstepPlayer") groups=["Players"]]
+[node name="Support_Player" type="CharacterBody3D" node_paths=PackedStringArray("LaserBeam", "ShootSoundPlayer", "UltimateSound", "myId", "BulletSpawn", "ReticleLayer", "NameLabel", "FootstepPlayer") groups=["Players"]]
 collision_layer = 2
 script = ExtResource("1_q1xqf")
+LaserBeam = NodePath("BulletSpawn/LaserBeam")
 ShootSoundPlayer = NodePath("Shooting")
 UltimateSound = NodePath("Ultimate")
 myId = NodePath("MultiplayerSynchronizer")
@@ -73,7 +80,14 @@ FootstepInterval = 5.93
 shape = SubResource("BoxShape3D_km5gb")
 
 [node name="BulletSpawn" type="Marker3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 1, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.28735936, 0.3829335, -0.4752004)
+
+[node name="LaserBeam" type="MeshInstance3D" parent="BulletSpawn"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.944515, -0.0010613203, 0.040492415)
+visible = false
+cast_shadow = 0
+mesh = SubResource("BoxMesh_laser")
+skeleton = NodePath("../..")
 
 [node name="ReticleLayer" type="CanvasLayer" parent="."]
 visible = false
@@ -95,12 +109,6 @@ billboard = 1
 no_depth_test = true
 font_size = 28
 outline_size = 8
-
-[node name="LaserBeam" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21.5, 1, 0)
-visible = false
-cast_shadow = 0
-mesh = SubResource("BoxMesh_laser")
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_ktfil")

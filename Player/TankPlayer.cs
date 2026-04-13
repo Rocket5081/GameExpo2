@@ -17,7 +17,7 @@ public partial class TankPlayer : Player
 	{
 		maxHp = 200;
 		speed = 10;
-		hp    = maxHp;
+		hp    = maxHp / 2;   // DEBUG: halved for relic testing
 		base._Ready();
 
 		if (UltimateSound == null)
@@ -59,7 +59,7 @@ public partial class TankPlayer : Player
 	{
 		if (!GenericCore.Instance.IsServer) return;
 
-		const float BubbleRadius = 8f;
+		const float BubbleRadius = 18f;
 		Vector3 spawnPos = GlobalPosition + new Vector3(0, BubbleRadius * 0.5f, 0);
 
 		var bubble = new Area3D();
@@ -99,7 +99,7 @@ public partial class TankPlayer : Player
 
 		var mat = new StandardMaterial3D();
 		mat.Transparency             = BaseMaterial3D.TransparencyEnum.Alpha;
-		mat.AlbedoColor              = new Color(0.4f, 0.7f, 1f, 0.18f);
+		mat.AlbedoColor              = new Color(0.4f, 0.7f, 1f, 0.07f);
 		mat.EmissionEnabled          = true;
 		mat.Emission                 = new Color(0.4f, 0.7f, 1f);
 		mat.EmissionEnergyMultiplier = 2.5f;
