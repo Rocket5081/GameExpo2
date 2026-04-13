@@ -1,7 +1,7 @@
 [gd_scene load_steps=9 format=3 uid="uid://bg3r7c8qcwvpc"]
 
 [ext_resource type="Script" uid="uid://yo2i7m3b6pph" path="res://NetworkCore/NetID.cs" id="1_2nuh0"]
-[ext_resource type="Script" uid="uid://bx6v0334vi7cw" path="res://Enemies/Enemy.cs" id="1_vy3xu"]
+[ext_resource type="Script" uid="uid://capplpn7inmf4" path="res://Enemies/WormEnemy.cs" id="1_vy3xu"]
 
 [sub_resource type="PrismMesh" id="PrismMesh_vy3xu"]
 size = Vector3(1, 1, 2.5)

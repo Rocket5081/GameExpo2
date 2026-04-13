@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://bfxq16gxvblha"]
+[gd_scene load_steps=11 format=3 uid="uid://bfxq16gxvblha"]
 
 [ext_resource type="Script" uid="uid://yo2i7m3b6pph" path="res://NetworkCore/NetID.cs" id="1_7ks6i"]
 [ext_resource type="Script" uid="uid://fy4vxbxhv0ql" path="res://Player/DpsPlayer.cs" id="1_k2htt"]
@@ -7,15 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://bntb5k0e3r13f" path="res://Upgrades/upgrades.tscn" id="4_4xhhv"]
 [ext_resource type="AudioStream" uid="uid://dx2stp6nyc40f" path="res://Sounds/Dps Triple Shot.mp3" id="5_f4wrp"]
 [ext_resource type="AudioStream" uid="uid://ppjebi50m8yd" path="res://Sounds/Footstep SFX.mp3" id="6_f4wrp"]
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_k2htt"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7ks6i"]
-albedo_color = Color(0, 0, 0, 1)
-
-[sub_resource type="BoxMesh" id="BoxMesh_k2htt"]
-material = SubResource("StandardMaterial3D_7ks6i")
-size = Vector3(0.5, 0.5, 0.7)
+[ext_resource type="PackedScene" uid="uid://br1l666tmqbyw" path="res://Assets/Cowboy/DPS.glb" id="8_yrita"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_wsqot"]
 size = Vector3(1, 2, 1)
@@ -67,13 +59,6 @@ NameLabel = NodePath("NameLabel")
 FootstepPlayer = NodePath("Footsteps")
 FootstepInterval = 5.93
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-mesh = SubResource("CapsuleMesh_k2htt")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="MeshInstance3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.42082286, 0.3404883, 0)
-mesh = SubResource("BoxMesh_k2htt")
-
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("BoxShape3D_wsqot")
 
@@ -118,3 +103,6 @@ volume_db = -16.0
 [node name="Ultimate" type="AudioStreamPlayer3D" parent="."]
 stream = ExtResource("2_pio5l")
 volume_db = -10.0
+
+[node name="DPS" parent="." instance=ExtResource("8_yrita")]
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, -0.10930401, -0.80604434, -0.013012826)
