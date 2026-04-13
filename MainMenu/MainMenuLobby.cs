@@ -18,6 +18,7 @@ public partial class MainMenuLobby : Control
 	[Export] public Label PlayerCountLabel;
 	[Export] public Control ControlsOverlay;
 	[Export] public Control DevelopersOverlay;
+	[Export] public AudioStreamPlayer MenuMusic;  
 
 	public string PlayerName  = "Player";
 	public int    ClassChoice = 0;
@@ -34,6 +35,7 @@ public partial class MainMenuLobby : Control
 
 	private readonly Dictionary<int, int>    _readyPlayers     = new();
 	private readonly Dictionary<int, string> _readyPlayerNames = new();
+	private readonly Dictionary<int, int>    _readyRelics      = new();
 
 	public override void _Ready()
 	{
@@ -54,6 +56,12 @@ public partial class MainMenuLobby : Control
 		ClassDropdown.ItemSelected += OnClassSelected;
 		ItemDropdown.ItemSelected  += OnItemSelected;
 		ConnectButton.Pressed      += OnConnectPressed;
+
+
+		// Music persists through Controls/Developers overlays because those are
+		// just panels toggled inside this same node — not scene changes.
+		if (MenuMusic != null && !MenuMusic.Playing)
+			MenuMusic.Play();
 
 		OfflinePanel.Visible = true;
 		OnlinePanel.Visible  = false;
@@ -152,22 +160,23 @@ public partial class MainMenuLobby : Control
 		OnlinePanel.Visible  = true;
 
 		if (GenericCore.Instance.IsServer)
-			ServerRegisterPlayer(1, ClassChoice, PlayerName);
+			ServerRegisterPlayer(1, ClassChoice, PlayerName, ItemChoice);
 		else
-			RpcId(1, MethodName.ClientSendReady, ClassChoice, PlayerName);
+			RpcId(1, MethodName.ClientSendReady, ClassChoice, PlayerName, ItemChoice);
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-	private void ClientSendReady(int classChoice, string playerName)
+	private void ClientSendReady(int classChoice, string playerName, int itemChoice)
 	{
 		if (!GenericCore.Instance.IsServer) return;
-		ServerRegisterPlayer(Multiplayer.GetRemoteSenderId(), classChoice, playerName);
+		ServerRegisterPlayer(Multiplayer.GetRemoteSenderId(), classChoice, playerName, itemChoice);
 	}
 
-	private async void ServerRegisterPlayer(long peerId, int classChoice, string playerName)
+	private async void ServerRegisterPlayer(long peerId, int classChoice, string playerName, int itemChoice)
 	{
 		_readyPlayers[(int)peerId]     = classChoice;
 		_readyPlayerNames[(int)peerId] = playerName.Length > 0 ? playerName : "Player";
+		_readyRelics[(int)peerId]      = itemChoice;
 
 		GD.Print($"[MainMenuLobby] Registered peer {peerId} class={classChoice} ({_readyPlayers.Count}/{RequiredPlayers})");
 		GD.Print($"[MainMenuLobby] _readyPlayers keys: {string.Join(", ", _readyPlayers.Keys)}");
@@ -234,6 +243,9 @@ private void StartGame()
 	else
 		GD.PrintErr("[MainMenuLobby] Camera3D not found at GameRoot/MainGame/Camera3D!");
 
+
+	MenuMusic?.Stop();
+
 	if (GenericCore.Instance.IsServer)
 		ServerSpawnWithDelay();
 }
@@ -282,12 +294,28 @@ private void StartGame()
 			if (spawnedNode is Player spawnedPlayer)
 			{
 				string displayName = _readyPlayerNames.TryGetValue(peerId, out string n) ? n : "Player";
+				int    relicChoice = _readyRelics.TryGetValue(peerId, out int r) ? r : 0;
+
 				spawnedPlayer.PlayerDisplayName = displayName;
 
-				// Belt-and-suspenders: also send via RPC so the name arrives even if
-				// the replication sync tick fires before NameLabel is ready on clients.
+				// The dropdown has no "None" entry, so its indices are:
+				//   0 = Relic of Health  → RelicType.Health  (enum value 1)
+				//   1 = Relic of Cooldown→ RelicType.Cooldown(enum value 2)
+				// Shift by +1 to align with the enum.
+				int relicEnumValue = relicChoice + 1;
+
+				// Apply relic immediately on the server so health regen / cooldown
+				// reduction starts from the very first frame of gameplay.
+				spawnedPlayer.SyncRelicChosen(relicEnumValue);
+
+				// Wait for replication before sending RPCs to clients
 				await ToSignal(GetTree().CreateTimer(1.0f), SceneTreeTimer.SignalName.Timeout);
+
 				spawnedPlayer.Rpc(Player.MethodName.SetDisplayName, displayName);
+
+				// Broadcast to clients. The guard in SyncRelicChosen (ChosenRelic != None)
+				// prevents the server from double-applying.
+				spawnedPlayer.Rpc("SyncRelicChosen", relicEnumValue);
 			}
 			else
 			{
@@ -298,6 +326,7 @@ private void StartGame()
 
 		_readyPlayers.Clear();
 		_readyPlayerNames.Clear();
+		_readyRelics.Clear();
 		GD.Print("[MainMenuLobby] All players spawned!");
 	}
 

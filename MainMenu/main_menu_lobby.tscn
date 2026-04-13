@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://dueebmf0c7uio"]
+[gd_scene load_steps=18 format=3 uid="uid://dueebmf0c7uio"]
 
 [ext_resource type="Script" uid="uid://c3xyxqeo68ya6" path="res://MainMenu/MainMenuLobby.cs" id="1_lobby"]
 [ext_resource type="Theme" uid="uid://cf6xkkbigiumk" path="res://Assets/Eldritch Theme1.tres" id="1_qloij"]
@@ -13,6 +13,7 @@
 [ext_resource type="Script" uid="uid://buk05j0bwtce2" path="res://MainMenu/ConnectButton.cs" id="4_ug2ni"]
 [ext_resource type="PackedScene" uid="uid://lptd167x2g0q" path="res://MainMenu/cthulu_head.tscn" id="5_bwg8i"]
 [ext_resource type="Script" uid="uid://yo2i7m3b6pph" path="res://NetworkCore/NetID.cs" id="13_hu2c5"]
+[ext_resource type="AudioStream" uid="uid://glrnjxaroinf" path="res://Sounds/MainMenuExpo2.mp3" id="14_jnayt"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_void"]
 shader = ExtResource("2_l1scf")
@@ -46,7 +47,7 @@ properties/2/path = NodePath("MultiplayerSynchronizer:OwnerId")
 properties/2/spawn = true
 properties/2/replication_mode = 1
 
-[node name="MainMenuLobby" type="Control" node_paths=PackedStringArray("NameEntry", "ClassDropdown", "ItemDropdown", "NameColorLabel", "CharacterPreviewArea", "CowboyPreview", "PiratePreview", "PriestPreview", "ConnectButton", "OfflinePanel", "OnlinePanel", "PlayerCountLabel", "ControlsOverlay", "DevelopersOverlay")]
+[node name="MainMenuLobby" type="Control" node_paths=PackedStringArray("NameEntry", "ClassDropdown", "ItemDropdown", "NameColorLabel", "CharacterPreviewArea", "CowboyPreview", "PiratePreview", "PriestPreview", "ConnectButton", "OfflinePanel", "OnlinePanel", "PlayerCountLabel", "ControlsOverlay", "DevelopersOverlay", "MenuMusic")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -69,6 +70,7 @@ OnlinePanel = NodePath("OnlinePanel")
 PlayerCountLabel = NodePath("OnlinePanel/PlayerCountLabel")
 ControlsOverlay = NodePath("ControlsOverlay")
 DevelopersOverlay = NodePath("DevelopersOverlay")
+MenuMusic = NodePath("AudioStreamPlayer2D")
 
 [node name="Background" type="ColorRect" parent="."]
 material = SubResource("ShaderMaterial_void")
@@ -612,6 +614,10 @@ offset_right = 80.0
 offset_bottom = 33.76
 text = "← Back"
 flat = true
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("14_jnayt")
+volume_db = -20.0
 
 [connection signal="text_changed" from="OfflinePanel/VBox/NameEntry" to="." method="OnNameChanged"]
 [connection signal="item_selected" from="OfflinePanel/VBox/ClassDropdown" to="." method="OnClassSelected"]

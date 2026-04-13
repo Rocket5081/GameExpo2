@@ -15,7 +15,7 @@ public partial class SupportPlayer : Player
 	{
 		maxHp = 100;
 		speed = 20;
-		hp    = maxHp;
+		hp    = maxHp / 2;   // DEBUG: halved for relic testing
 		GetNode("Upgrades").GetNode<Options>("Options").add();
 		base._Ready();
 
@@ -130,8 +130,8 @@ public partial class SupportPlayer : Player
 	{
 		if (!GenericCore.Instance.IsServer) return;
 
-		const float PoolRadius = 9f;
-		Vector3 spawnPos = GlobalPosition;
+		const float PoolRadius = 18f;
+		Vector3 spawnPos = GlobalPosition - new Vector3(0, 0.9f, 0);   // hug the ground
 
 		// ── Server-side logic zone ─────────────────────────────────────────────
 		var zone = new Area3D();
@@ -139,7 +139,7 @@ public partial class SupportPlayer : Player
 		zone.CollisionMask  = 2;   // layer 2 = players
 
 		var shape = new CollisionShape3D();
-		shape.Shape = new CylinderShape3D { Radius = PoolRadius, Height = 3f };
+		shape.Shape = new CylinderShape3D { Radius = PoolRadius, Height = 2f };
 		zone.AddChild(shape);
 
 		GetParent().AddChild(zone);

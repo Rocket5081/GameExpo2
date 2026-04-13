@@ -12,6 +12,7 @@ public partial class Enemy : CharacterBody3D
 
     public override void _Ready()
     {
+        AddToGroup("Enemies");
         base._Ready();
     }
 
@@ -20,9 +21,8 @@ public partial class Enemy : CharacterBody3D
         base._PhysicsProcess(delta);
     }
 
-    public void TakeDamage(int amount)
+    public virtual void TakeDamage(int amount)
     {
         hp-=amount;
     }
-
 }
