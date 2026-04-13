@@ -69,7 +69,6 @@ public partial class NetworkCore : MultiplayerSpawner
 		}
 		GetNode(SpawnPath).AddChild(node, true);
 
-
 		foreach (var child in node.GetChildren())
 			if (child is NetID netId)
 			{

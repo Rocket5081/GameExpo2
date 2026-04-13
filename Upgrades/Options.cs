@@ -22,7 +22,9 @@ public partial class Options : Control
 	public void add()
 	{
 			
-		GD.Print(GetParent<Upgrades>().GetParent<Player>().myId.IsLocal);
+		if(GetParent<Upgrades>().GetParent<Player>().myId.IsLocal){
+			
+		
 		for(int i=0; i<3; i++)
 		{
 			
@@ -121,6 +123,7 @@ public partial class Options : Control
 			}
 			Opt.Pressed += Opt.OnOptionPressed;
 			grid.AddChild(Opt);
+		}
 		}
 	}
 

@@ -51,6 +51,9 @@ public partial class Player : CharacterBody3D
 	public enum RelicType { None, Health, Cooldown }
 	public RelicType ChosenRelic = RelicType.None;
 	private float _relicHealthTimer = 0f;
+	
+	public float RoundTimer = 15f;
+	public float waitTimer = 0f;
 
 	public List<Bullet> Buls     = new List<Bullet>();
 	public int          bulCount = 0;
@@ -59,6 +62,8 @@ public partial class Player : CharacterBody3D
 	public float burstDelay = 0.1f;
 
 	public bool rewinding = false;
+	
+	public bool upgrading = false;
 
 	public Godot.Collections.Dictionary rewindValues = new Godot.Collections.Dictionary
 	{
@@ -83,7 +88,7 @@ public partial class Player : CharacterBody3D
 			ev.Keycode = Key.Q;
 			InputMap.ActionAddEvent("ability", ev);
 		}
-		GD.Print(myId.IsLocal);
+
 	}
 
 	public override void _Input(InputEvent @event)
@@ -155,6 +160,23 @@ public partial class Player : CharacterBody3D
 					hp += 1;
 			}
 		}
+		
+		if(RoundTimer > 0f)
+			RoundTimer -= (float)delta;
+		else{
+			if(!upgrading){
+				GetNode("Upgrades").GetNode<Options>("Options").add();
+				upgrading = true;
+			}
+			if(waitTimer <= 0f){
+				waitTimer = 10f;
+				RoundTimer = 60f;
+				upgrading = false;
+			}
+			else
+			waitTimer -= (float)delta;
+		}
+		
 
 		// ── Server-side physics ───────────────────────────────────────────────
 		if (GenericCore.Instance.IsServer)

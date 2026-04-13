@@ -22,7 +22,6 @@ public partial class DpsPlayer : Player
 			UltimateSound = new AudioStreamPlayer3D();
 			AddChild(UltimateSound);
 		}
-		GetNode<Upgrades>("Upgrades").GetNode<Options>("Options").add();
 	}
 
 	protected override void OnLocalUltimateActivated()
