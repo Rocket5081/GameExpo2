@@ -18,6 +18,7 @@ public partial class TankPlayer : Player
 		maxHp = 200;
 		speed = 10;
 		hp    = maxHp / 2;   // DEBUG: halved for relic testing
+		damage = 10f;
 		base._Ready();
 
 		if (UltimateSound == null)
@@ -136,7 +137,11 @@ public partial class TankPlayer : Player
 			}
 
 			if (obj is Bullet b)
+			{
+				b.damage = damage;
 				Buls.Add(b);
+			}
+				
 
 			await ToSignal(GetTree().CreateTimer(0f), SceneTreeTimer.SignalName.Timeout);
 		}
