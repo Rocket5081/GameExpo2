@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://b5u7xa4ita8x6" path="res://Upgrades/ChoosingUpgrade.cs" id="1_vr7ae"]
 
 [node name="ChoosingUpgrade" type="MenuButton"]
+z_index = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
