@@ -12,15 +12,14 @@ public partial class SupportPlayer : Player
 
 	
 	private float _laserDamageTimer  = 0f;
-	private const float LaserDamageInterval = 0.35f; // seconds between laser ticks
+	private const float LaserDamageInterval = 0.15f; // seconds between laser ticks
 	private const float LaserDamagePerTick  = 5f;    // damage per tick
 
 	public override void _Ready()
 	{
 		maxHp = 100;
 		speed = 20;
-		hp    = maxHp / 2;   // DEBUG: halved for relic testing
-		GetNode("Upgrades").GetNode<Options>("Options").add();
+		hp    = maxHp;   
 		base._Ready();
 
 		if (UltimateSound == null)

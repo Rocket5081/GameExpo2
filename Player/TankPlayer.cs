@@ -5,19 +5,16 @@ public partial class TankPlayer : Player
 	[Export] public AudioStreamPlayer3D ShootSoundPlayer;
 
 	// ── Ultimate audio ────────────────────────────────────────────────────────
-	// Add an AudioStreamPlayer3D node to this player in the scene, then drag it
-	// here in the Inspector. Set its Stream, Volume Db, and Pitch Scale freely.
-	// Leave empty and a silent placeholder is created automatically.
+
 	[Export] public AudioStreamPlayer3D UltimateSound;
 
-	// 6 evenly spaced angles across a ~60-degree arc (-0.5 to +0.5 radians)
 	private static readonly float[] SpreadAngles = { 0.5f, 0.3f, 0.1f, -0.1f, -0.3f, -0.5f };
 
 	public override void _Ready()
 	{
 		maxHp = 200;
 		speed = 10;
-		hp    = maxHp / 2;   // DEBUG: halved for relic testing
+		hp    = maxHp ; 
 		damage = 10f;
 		base._Ready();
 

@@ -66,8 +66,11 @@ public partial class Player : CharacterBody3D
 	private const float DamageScorePerPoint = 0.5f;  // score per damage point dealt
 	private const int   KillScoreBase       = 50;    // bonus score per kill
 
-	/// <summary>If the player's Y position drops below this value they die and respawn.
-	/// Adjust in the Inspector (or edit here) to match your map's floor depth.</summary>
+	// ── Upgrade system ───────────────────────────────────────────────────────
+	private int _killsSinceUpgrade  = 0;
+	[Export] public int KillsPerUpgrade = 3;  // change in Inspector to taste
+
+	
 	[Export] public float FallDeathY = -20f;
 
 	private bool  _isDead              = false;
@@ -96,7 +99,7 @@ public partial class Player : CharacterBody3D
 		AddToGroup("Players");
 
 		if (myAnimTree != null){
-    		myAnimTree.Active = true;
+			myAnimTree.Active = true;
 		}
 
 		// Register the "ability" (Q) action at runtime so it works without
@@ -313,23 +316,23 @@ public partial class Player : CharacterBody3D
 
 	private void UpdateAnimation()
 	{
-    	if (myAnimation == null) return;
+		if (myAnimation == null) return;
 
-        if (myAnimation.CurrentAnimation == "Attack" && myAnimation.IsPlaying())
-            return;
+		if (myAnimation.CurrentAnimation == "Attack" && myAnimation.IsPlaying())
+			return;
 
-        if (SyncedIsJumping)
-        {
-            myAnimation.Play("Falling");
-        }
-        else
-        {
-            Vector3 flatVel = new Vector3(SyncedVelocity.X, 0, SyncedVelocity.Z);
-            if (flatVel.Length() > 0.15f)
-                myAnimation.Play("WalkCycle");
-            else
-                myAnimation.Play("BaseStance");
-        }
+		if (SyncedIsJumping)
+		{
+			myAnimation.Play("Falling");
+		}
+		else
+		{
+			Vector3 flatVel = new Vector3(SyncedVelocity.X, 0, SyncedVelocity.Z);
+			if (flatVel.Length() > 0.15f)
+				myAnimation.Play("WalkCycle");
+			else
+				myAnimation.Play("BaseStance");
+		}
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true,
@@ -337,7 +340,7 @@ public partial class Player : CharacterBody3D
 	public void PlayAttackAnimation()
 	{
 		if (myAnimation == null) return;
-        myAnimation.Play("Shoot");
+		myAnimation.Play("Shoot");
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false,
@@ -590,8 +593,26 @@ public partial class Player : CharacterBody3D
 		Score          += Mathf.RoundToInt(KillScoreBase * Multiplier);
 		Multiplier      = Mathf.Min(Multiplier + 0.25f, 4f);
 		_noDamageTimer  = 0f;
-		// Push updated values to all peers so the HUD stays in sync
 		Rpc(MethodName.SyncScoreRpc, Score, Multiplier);
+
+		// Every KillsPerUpgrade kills, show the upgrade picker on the owning client
+		_killsSinceUpgrade++;
+		if (_killsSinceUpgrade >= KillsPerUpgrade)
+		{
+			_killsSinceUpgrade = 0;
+			Rpc(MethodName.ShowUpgradeUIRpc);
+		}
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true,
+		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	private void ShowUpgradeUIRpc()
+	{
+		// Only the local peer shows the UI; other clients ignore this call
+		if (myId == null || !myId.IsLocal) return;
+		GetNodeOrNull<Upgrades>("Upgrades")
+			?.GetNodeOrNull<Options>("Options")
+			?.add();
 	}
 
 	public void ResetMultiplier()
@@ -603,17 +624,76 @@ public partial class Player : CharacterBody3D
 			Rpc(MethodName.SyncScoreRpc, Score, Multiplier);
 	}
 
-	/// <summary>
-	/// Sent by the server to every peer whenever Score or Multiplier changes.
-	/// CallLocal = true so the server's own HUD also reflects the change.
-	/// Uses Unreliable transfer — a missed packet is fine, the next update will correct it.
-	/// </summary>
+
 	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true,
 		 TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
 	private void SyncScoreRpc(int score, float multiplier)
 	{
 		Score      = score;
 		Multiplier = multiplier;
+	}
+
+	// ── Upgrades ──────────────────────────────────────────────────────────────
+
+	/// <summary>
+	/// Client calls RpcId(1, nameof(ServerApplyUpgrade), opt) to send the chosen
+	/// upgrade to the server. The server applies the stat change authoritatively,
+	/// then broadcasts the new values back to all peers so every display stays in sync.
+	/// </summary>
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false,
+		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public void ServerApplyUpgrade(string opt)
+	{
+		if (!GenericCore.Instance.IsServer) return;
+
+		string[] parts = opt.Split(':');
+		string   type  = parts.Length > 0 ? parts[0] : "";
+		int      level = parts.Length > 1 && int.TryParse(parts[1], out int lv) ? lv : 1;
+
+		switch (type)
+		{
+			case "AC":
+				float acReduction     = level * 2.5f;
+				UltimateCooldownMax   = Mathf.Max(UltimateCooldownMax - acReduction, 5f);
+				UltimateCooldownTimer = Mathf.Min(UltimateCooldownTimer, UltimateCooldownMax);
+				break;
+
+			case "PC":
+				maxTimer = Mathf.Max(maxTimer - level * 0.05f, 0.05f);
+				break;
+
+			case "MH":
+				int gain = level * 5;
+				maxHp   += gain;
+				hp       = Mathf.Min(hp + gain, maxHp);
+				break;
+
+			case "D":
+				damage += level * 2f;
+				break;
+
+			case "AP":
+				burstCount += level;
+				break;
+		}
+
+		// Broadcast the updated stats to every peer so HUD and local values stay current
+		Rpc(MethodName.SyncUpgradeRpc, maxHp, hp, damage, maxTimer, burstCount,
+			UltimateCooldownMax, UltimateCooldownTimer);
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true,
+		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	private void SyncUpgradeRpc(int newMaxHp, int newHp, float newDamage, float newMaxTimer,
+								int newBurstCount, float newUltMax, float newUltTimer)
+	{
+		maxHp                 = newMaxHp;
+		hp                    = newHp;
+		damage                = newDamage;
+		maxTimer              = newMaxTimer;
+		burstCount            = newBurstCount;
+		UltimateCooldownMax   = newUltMax;
+		UltimateCooldownTimer = newUltTimer;
 	}
 
 	// ── Rewind ────────────────────────────────────────────────────────────────

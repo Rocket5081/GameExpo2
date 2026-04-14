@@ -29,7 +29,7 @@ public partial class PreviewAutoPlay : Node3D
 		string chosen = null;
 		foreach (string anim in animations)
 		{
-			if ( anim.ToLower().Contains("idle") || anim.ToLower().Contains("special") )
+			if ( anim.ToLower().Contains("idle") || anim.ToLower().Contains("special") || anim.ToLower().Contains("slowmove") )
 			{
 				chosen = anim;
 				break;

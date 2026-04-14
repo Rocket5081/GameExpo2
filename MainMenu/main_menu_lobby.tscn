@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://dueebmf0c7uio"]
+[gd_scene load_steps=21 format=3 uid="uid://dueebmf0c7uio"]
 
 [ext_resource type="Script" uid="uid://c3xyxqeo68ya6" path="res://MainMenu/MainMenuLobby.cs" id="1_lobby"]
 [ext_resource type="Theme" uid="uid://cf6xkkbigiumk" path="res://Assets/Eldritch Theme1.tres" id="1_qloij"]
@@ -14,6 +14,7 @@
 [ext_resource type="PackedScene" uid="uid://lptd167x2g0q" path="res://MainMenu/cthulu_head.tscn" id="5_bwg8i"]
 [ext_resource type="Script" uid="uid://yo2i7m3b6pph" path="res://NetworkCore/NetID.cs" id="13_hu2c5"]
 [ext_resource type="AudioStream" uid="uid://glrnjxaroinf" path="res://Sounds/MainMenuExpo2.mp3" id="14_jnayt"]
+[ext_resource type="Script" uid="uid://0nkih8l5ekmn" path="res://ControlsScene/BackButton.cs" id="14_xeop1"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_void"]
 shader = ExtResource("2_l1scf")
@@ -46,6 +47,30 @@ properties/1/replication_mode = 1
 properties/2/path = NodePath("MultiplayerSynchronizer:OwnerId")
 properties/2/spawn = true
 properties/2/replication_mode = 1
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_jnayt"]
+shader = ExtResource("2_l1scf")
+shader_parameter/speed = 0.18
+shader_parameter/rune_count = 8.0
+shader_parameter/rune_size = 0.07
+shader_parameter/glow_radius = 3.5
+shader_parameter/void_dark = Color(0.01, 0, 0.04, 1)
+shader_parameter/void_mid = Color(0.03, 0.01, 0.1, 1)
+shader_parameter/rune_glow = Color(0.4, 0, 0.03137255, 1)
+shader_parameter/rune_core = Color(0.85, 0.6, 1, 1)
+shader_parameter/rune_dim = Color(0.15, 0, 0.35, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_xeop1"]
+shader = ExtResource("2_l1scf")
+shader_parameter/speed = 0.18
+shader_parameter/rune_count = 8.0
+shader_parameter/rune_size = 0.07
+shader_parameter/glow_radius = 3.5
+shader_parameter/void_dark = Color(0.01, 0, 0.04, 1)
+shader_parameter/void_mid = Color(0.03, 0.01, 0.1, 1)
+shader_parameter/rune_glow = Color(0.039215688, 0.95686275, 0.1764706, 1)
+shader_parameter/rune_core = Color(0.85, 0.6, 1, 1)
+shader_parameter/rune_dim = Color(0.15, 0, 0.35, 1)
 
 [node name="MainMenuLobby" type="Control" node_paths=PackedStringArray("NameEntry", "ClassDropdown", "ItemDropdown", "NameColorLabel", "CharacterPreviewArea", "CowboyPreview", "PiratePreview", "PriestPreview", "ConnectButton", "OfflinePanel", "OnlinePanel", "PlayerCountLabel", "ControlsOverlay", "DevelopersOverlay", "MenuMusic")]
 layout_mode = 3
@@ -392,6 +417,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="OverlayBG" type="ColorRect" parent="ControlsOverlay"]
+material = SubResource("ShaderMaterial_jnayt")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -494,6 +520,7 @@ offset_right = 95.0
 offset_bottom = 54.76
 text = "← Back"
 flat = true
+script = ExtResource("14_xeop1")
 
 [node name="DevelopersOverlay" type="Control" parent="."]
 visible = false
@@ -506,6 +533,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="OverlayBG" type="ColorRect" parent="DevelopersOverlay"]
+material = SubResource("ShaderMaterial_xeop1")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -545,7 +573,7 @@ offset_bottom = -0.36
 
 [node name="VBox" type="VBoxContainer" parent="DevelopersOverlay/Card"]
 layout_mode = 2
-theme_override_constants/separation = 33
+theme_override_constants/separation = 39
 
 [node name="Ryan" type="Label" parent="DevelopersOverlay/Card/VBox"]
 layout_mode = 2
@@ -575,7 +603,21 @@ horizontal_alignment = 1
 [node name="KyMariRole" type="RichTextLabel" parent="DevelopersOverlay/Card/VBox"]
 layout_mode = 2
 bbcode_enabled = true
-text = "[center][color=#cc88ff]Music & Sound  ·  Level Designer  ·  Art Direction[/color][/center]"
+text = "[center][color=#cc88ff]Music & Sound  ·  Level Designer  ·  Art Direction  ·  UI [/color][/center]"
+fit_content = true
+
+[node name="Chandler" type="Label" parent="DevelopersOverlay/Card/VBox"]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0.015686275, 0, 1)
+theme_override_constants/outline_size = 20
+theme_override_font_sizes/font_size = 35
+text = "Chandler"
+horizontal_alignment = 1
+
+[node name="ChandlerRole" type="RichTextLabel" parent="DevelopersOverlay/Card/VBox"]
+layout_mode = 2
+bbcode_enabled = true
+text = "[center][color=#cc88ff]3D Modeler and Animator   ·  UI  ·  Programmer[/color][/center]"
 fit_content = true
 
 [node name="BackButton" type="Button" parent="DevelopersOverlay"]
@@ -592,6 +634,7 @@ offset_right = 95.0
 offset_bottom = 54.76
 text = "← Back"
 flat = true
+script = ExtResource("14_xeop1")
 
 [node name="AudioStreamPlayer2D" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("14_jnayt")

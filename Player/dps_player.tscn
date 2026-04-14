@@ -8,6 +8,7 @@
 [ext_resource type="AudioStream" uid="uid://dx2stp6nyc40f" path="res://Sounds/Dps Triple Shot.mp3" id="5_f4wrp"]
 [ext_resource type="AudioStream" uid="uid://ppjebi50m8yd" path="res://Sounds/Footstep SFX.mp3" id="6_f4wrp"]
 [ext_resource type="PackedScene" uid="uid://br1l666tmqbyw" path="res://Assets/Cowboy/DPS.glb" id="8_yrita"]
+[ext_resource type="AudioStream" uid="uid://v85a56osk0cx" path="res://Sounds/Revive sound.mp3" id="9_6f1m7"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_wsqot"]
 size = Vector3(1, 2, 1)
@@ -155,6 +156,7 @@ NameLabel = NodePath("NameLabel")
 FootstepPlayer = NodePath("Footsteps")
 FootstepInterval = 5.93
 myAnimTree = NodePath("DPS/AnimationTree")
+RespawnSound = NodePath("RespawnSound")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1936655, 0)
@@ -244,3 +246,6 @@ parameters/Shooting/current_index = 0
 parameters/SpecialBlend/blend_amount = 0.0
 
 [editable path="DPS"]
+[node name="RespawnSound" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("9_6f1m7")
+volume_db = -20.0

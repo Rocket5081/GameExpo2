@@ -14,7 +14,7 @@ public partial class DpsPlayer : Player
 	{
 		maxHp = 150;
 		speed = 20;
-		hp    = maxHp / 2;   // DEBUG: halved for relic testing
+		hp    = maxHp;   
 		base._Ready();
 
 		if (UltimateSound == null)
