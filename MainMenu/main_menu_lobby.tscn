@@ -254,6 +254,10 @@ anchor_left = 0.2
 anchor_top = 0.1
 anchor_right = 0.8
 anchor_bottom = 0.85
+offset_left = 6.799988
+offset_top = -22.12001
+offset_right = 6.799988
+offset_bottom = -22.120026
 stretch = true
 
 [node name="SubViewport" type="SubViewport" parent="OfflinePanel/CharacterPreviewArea/PiratePreview"]
@@ -580,24 +584,7 @@ horizontal_alignment = 1
 [node name="KyMariRole" type="RichTextLabel" parent="DevelopersOverlay/Card/VBox"]
 layout_mode = 2
 bbcode_enabled = true
-text = "[center][color=#cc88ff]Music & Sound  ·  Level Designer  ·  3D Modeler  ·  Programmer[/color][/center]"
-fit_content = true
-
-[node name="DividerB" type="HSeparator" parent="DevelopersOverlay/Card/VBox"]
-layout_mode = 2
-
-[node name="Chandler" type="Label" parent="DevelopersOverlay/Card/VBox"]
-layout_mode = 2
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 20
-theme_override_font_sizes/font_size = 35
-text = "Chandler"
-horizontal_alignment = 1
-
-[node name="ChandlerRole" type="RichTextLabel" parent="DevelopersOverlay/Card/VBox"]
-layout_mode = 2
-bbcode_enabled = true
-text = "[center][color=#cc88ff]3D Modeler & Animator  ·  UI  ·  Programmer[/color][/center]"
+text = "[center][color=#cc88ff]Music & Sound  ·  Level Designer  ·  Art Direction[/color][/center]"
 fit_content = true
 
 [node name="BackButton" type="Button" parent="DevelopersOverlay"]
@@ -608,21 +595,13 @@ anchor_left = 0.5
 anchor_top = 0.88
 anchor_right = 0.5
 anchor_bottom = 0.88
-offset_left = -80.0
-offset_top = -14.24
-offset_right = 80.0
-offset_bottom = 33.76
+offset_left = -65.0
+offset_top = 6.76
+offset_right = 95.0
+offset_bottom = 54.76
 text = "← Back"
 flat = true
 
 [node name="AudioStreamPlayer2D" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("14_jnayt")
 volume_db = -20.0
-
-[connection signal="text_changed" from="OfflinePanel/VBox/NameEntry" to="." method="OnNameChanged"]
-[connection signal="item_selected" from="OfflinePanel/VBox/ClassDropdown" to="." method="OnClassSelected"]
-[connection signal="item_selected" from="OfflinePanel/VBox/ItemDropdown" to="." method="OnItemSelected"]
-[connection signal="pressed" from="OfflinePanel/VBox/ConnectButton" to="." method="OnConnectPressed"]
-[connection signal="pressed" from="OnlinePanel/DisconnectButton" to="." method="Disconnect"]
-[connection signal="pressed" from="ControlsOverlay/BackButton" to="." method="ShowMainPanel"]
-[connection signal="pressed" from="DevelopersOverlay/BackButton" to="." method="ShowMainPanel"]

@@ -133,8 +133,10 @@ public partial class NetID : MultiplayerSynchronizer
 		if (peerIdOwner == 1)
 			IsServer = true;
 		// Use GetUniqueId() — the only reliable way to know if this peer owns this object
-		if (Multiplayer.GetUniqueId() == OwnerId)
+		if (Multiplayer.GetUniqueId() == OwnerId){
 			IsLocal = true;
+		}
+			
 	}
 
 	~NetID()

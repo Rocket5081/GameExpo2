@@ -22,7 +22,8 @@ public partial class Options : Control
 	public void add()
 	{
 			
-		GD.Print(GetParent<Upgrades>().GetParent<Player>().myId.IsLocal);
+		if(GetParent<Upgrades>().GetParent<Player>().myId.IsLocal){
+		Input.MouseMode = Input.MouseModeEnum.Visible;
 		for(int i=0; i<3; i++)
 		{
 			
@@ -122,6 +123,7 @@ public partial class Options : Control
 			Opt.Pressed += Opt.OnOptionPressed;
 			grid.AddChild(Opt);
 		}
+		}
 	}
 
 	public void clear()
@@ -129,7 +131,7 @@ public partial class Options : Control
 		int count = grid.GetChildCount();
 		for(int i=0; i<count; i++)
 		{
-			grid.GetChild(0).Free();
+			grid.GetChild(i).QueueFree();
 		}
 		for(int i=0; i<3; i++)
 		{
@@ -146,3 +148,4 @@ public partial class Options : Control
 	
 	
 }
+

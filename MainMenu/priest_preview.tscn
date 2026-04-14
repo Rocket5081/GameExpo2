@@ -1,15 +1,51 @@
-[gd_scene load_steps=2 format=3 uid="uid://bg6bx5jr3jygn"]
+[gd_scene load_steps=3 format=3 uid="uid://bg6bx5jr3jygn"]
 
-[ext_resource type="PackedScene" uid="uid://dg3ftxgbuoqei" path="res://Assets/lowpoly_angel_knight.glb" id="1_rilg1"]
+[ext_resource type="PackedScene" uid="uid://cefr484mm864e" path="res://Assets/Bishop/Support.glb" id="1_rilg1"]
+[ext_resource type="Script" uid="uid://cc3mpn6y6ykrx" path="res://MainMenu/PreviewAutoPlay.cs" id="2_prev"]
 
 [node name="PriestPreview" type="Node3D"]
-
-[node name="Sketchfab_Scene" parent="." instance=ExtResource("1_rilg1")]
+script = ExtResource("2_prev")
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0453357, 2.7492747)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0453357, 1.5929561)
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7053635, 5.9443817)
 visible = false
 light_energy = 4.6
+
+[node name="Support2" parent="." instance=ExtResource("1_rilg1")]
+transform = Transform3D(-8.742278e-09, 0, -0.2, 0, 0.2, 0, 0.2, 0, -8.742278e-09, 0, 0, 0)
+
+[node name="Skeleton3D" parent="Support2/Support" index="0"]
+bones/1/rotation = Quaternion(0.88771385, -1.4967023e-16, -1.4967023e-16, 0.46039572)
+bones/2/rotation = Quaternion(-0.0063712425, 7.9403094e-08, -0.7093126, 0.7048653)
+bones/3/rotation = Quaternion(0.88771397, -4.7441812e-17, -4.744184e-17, -0.46039563)
+bones/4/position = Vector3(-0.108818434, 1.9115142, 0.017434848)
+bones/4/rotation = Quaternion(0.0063712182, -2.0304623e-07, -0.7093127, 0.7048652)
+bones/5/rotation = Quaternion(-3.6977852e-32, -1.110223e-16, -1.11022296e-16, 1)
+bones/6/position = Vector3(1.1410782e-09, -0.9659726, 0.40314242)
+bones/6/rotation = Quaternion(-0.1374704, -0.13451439, -0.70140487, 0.6863228)
+bones/7/position = Vector3(3.518827e-09, -0.9659725, -0.40314242)
+bones/7/rotation = Quaternion(0.701405, 0.6863228, 0.13747029, -0.1345143)
+bones/8/position = Vector3(-0.3593601, 1.331283, -1.1406102e-15)
+
+[node name="RHand_2" parent="Support2/Support/Skeleton3D" index="0"]
+transform = Transform3D(-0.0062488317, 0.9999396, 0.009038517, 0.5686489, 0.010988296, -0.822507, -0.8225566, 3.9115548e-08, -0.5686832, -2.4608046e-16, 1.1535391, 1.5725131)
+
+[node name="LHand_2" parent="Support2/Support/Skeleton3D" index="1"]
+transform = Transform3D(-0.0062489505, 0.9999397, -0.009038658, 0.5686492, 0.010988477, 0.8225065, 0.82255614, -2.514571e-08, -0.56868345, -0.108818434, 1.174868, -1.5725133)
+
+[node name="Head_2" parent="Support2/Support/Skeleton3D" index="2"]
+transform = Transform3D(1, 2.2204459e-16, -2.220446e-16, -2.2204459e-16, 1, 9.860761e-32, 2.220446e-16, -4.93038e-32, 1, 0, 2.261786, 0)
+
+[node name="RFoot_2" parent="Support2/Support/Skeleton3D" index="3"]
+transform = Transform3D(-0.020125866, 0.9997638, 0.008204222, -0.9257968, -0.02173376, 0.37739623, 0.3774854, -2.9802322e-08, 0.92601556, 1.1410782e-09, -0.9659726, 0.40314242)
+
+[node name="LFoot_2" parent="Support2/Support/Skeleton3D" index="4"]
+transform = Transform3D(0.020125926, 0.99976385, 0.008204221, 0.925797, -0.021734, 0.37739593, 0.37748513, -2.9802322e-08, -0.9260158, 3.518827e-09, -0.9659725, -0.40314242)
+
+[node name="Spine_002" parent="Support2/Support/Skeleton3D" index="5"]
+transform = Transform3D(-0.94560945, -0.3253048, 4.9353847e-08, 0.3253049, -0.9456092, -1.6978522e-08, 5.2192664e-08, -2.6645353e-15, 1, -0.3593601, 1.331283, -1.1406102e-15)
+
+[editable path="Support2"]

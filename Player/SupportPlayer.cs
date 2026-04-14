@@ -5,11 +5,15 @@ public partial class SupportPlayer : Player
 	[Export] public MeshInstance3D      LaserBeam;
 	[Export] public AudioStreamPlayer3D ShootSoundPlayer;
 
-	
 	[Export] public AudioStreamPlayer3D UltimateSound;
 
 	private const float LaserRange = 40f;
-	private bool _wasPressingFire = false;
+	private bool  _wasPressingFire  = false;
+
+	
+	private float _laserDamageTimer  = 0f;
+	private const float LaserDamageInterval = 0.35f; // seconds between laser ticks
+	private const float LaserDamagePerTick  = 5f;    // damage per tick
 
 	public override void _Ready()
 	{
@@ -62,11 +66,11 @@ public partial class SupportPlayer : Player
 		{
 			bool pressing = Input.IsActionPressed("primary");
 
-			// ── Local view: set directly every frame ──────────────────────────
+			
 			if (LaserBeam != null)
 				LaserBeam.Visible = pressing;
 
-			// ── Sound ─────────────────────────────────────────────────────────
+		
 			if (pressing && ShootSoundPlayer != null && !ShootSoundPlayer.Playing)
 				ShootSoundPlayer.Play();
 			else if (!pressing)
@@ -77,6 +81,22 @@ public partial class SupportPlayer : Player
 				Rpc("SetLaserActive", pressing);
 
 			_wasPressingFire = pressing;
+
+			// ── Continuous laser damage (local player → server RPC) ───────────
+			if (pressing)
+			{
+				_laserDamageTimer -= (float)delta;
+				if (_laserDamageTimer <= 0f)
+				{
+					_laserDamageTimer = LaserDamageInterval;
+					// Ask the server to do the raycast and apply damage
+					RpcId(1, nameof(DoLaserDamageTick));
+				}
+			}
+			else
+			{
+				_laserDamageTimer = 0f; // reset so next press fires immediately
+			}
 		}
 	}
 
@@ -98,10 +118,19 @@ public partial class SupportPlayer : Player
 		canShoot = false;
 		timer    = 0.15f;
 
-		DoLaserRaycast();
+		// Single-shot version (kept for compatibility)
+		DoLaserRaycast(LaserDamagePerTick * 2f);
 	}
 
-	private void DoLaserRaycast()
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false,
+		 TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
+	private void DoLaserDamageTick()
+	{
+		if (!GenericCore.Instance.IsServer) return;
+		DoLaserRaycast(LaserDamagePerTick);
+	}
+
+	private void DoLaserRaycast(float dmg)
 	{
 		var spaceState = GetWorld3D().DirectSpaceState;
 		Vector3 origin    = GetBulletSpawnPos();
@@ -114,16 +143,14 @@ public partial class SupportPlayer : Player
 		var result = spaceState.IntersectRay(query);
 		if (result.Count == 0) return;
 
-		if (result["collider"].As<Node>() is Node hit && hit.IsInGroup("enemy"))
-			hit.Call("OnHitByBullet");
+		// Use a direct C# cast — Call() cannot reliably find methods inherited from
+		// a C# base class through Godot's scripting reflection layer.
+		if (result["collider"].As<Node>() is Enemy hitEnemy && IsInstanceValid(hitEnemy))
+			hitEnemy.OnHitByBullet((int)dmg);
 	}
 
 	// ── Support Ultimate: Healing Circle ──────────────────────────────────────
-	/// <summary>
-	/// Drops a large healing zone at the Support's feet.
-	/// Radius 9 — very roomy. Heals 10 HP every 0.5 s for 10 s.
-	/// Green particles rise from the glowing disc.
-	/// </summary>
+
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false,
 		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public override void UseUltimate()
@@ -173,10 +200,6 @@ public partial class SupportPlayer : Player
 		Rpc("ShowHealingCircleVisual", spawnPos, PoolRadius, duration);
 	}
 
-	/// <summary>
-	/// Runs on every peer (CallLocal=true so the server also sees it).
-	/// Creates a glowing green disc with dense rising particles.
-	/// </summary>
 	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true,
 		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void ShowHealingCircleVisual(Vector3 pos, float radius, float duration)
@@ -208,18 +231,18 @@ public partial class SupportPlayer : Player
 
 		// ── Rising green particles ─────────────────────────────────────────────
 		var particles = new GpuParticles3D();
-		particles.Amount           = 80;    // dense cloud
-		particles.Lifetime         = 2.5f;
-		particles.Emitting         = true;
+		particles.Amount   = 80;
+		particles.Lifetime = 2.5f;
+		particles.Emitting = true;
 
 		var pMat = new ParticleProcessMaterial();
 		pMat.EmissionShape        = ParticleProcessMaterial.EmissionShapeEnum.Sphere;
-		pMat.EmissionSphereRadius = radius - 0.5f;   // fill the whole disc
+		pMat.EmissionSphereRadius = radius - 0.5f;
 		pMat.Direction            = new Vector3(0f, 1f, 0f);
-		pMat.Spread               = 10f;              // mostly straight up
+		pMat.Spread               = 10f;
 		pMat.InitialVelocityMin   = 2f;
 		pMat.InitialVelocityMax   = 5f;
-		pMat.Gravity              = new Vector3(0f, -0.3f, 0f);   // gentle float
+		pMat.Gravity              = new Vector3(0f, -0.3f, 0f);
 		pMat.ScaleMin             = 0.1f;
 		pMat.ScaleMax             = 0.25f;
 		pMat.Color                = new Color(0.2f, 1f, 0.35f, 1f);
