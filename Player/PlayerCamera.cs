@@ -25,8 +25,9 @@ public partial class PlayerCamera : Camera3D
 			_cameraPitch += mouseMotion.Relative.Y * mouseSensitivity;
 			_cameraPitch = Mathf.Clamp(
 				_cameraPitch,
-				Mathf.DegToRad(pitchMin),
-				Mathf.DegToRad(pitchMax)
+				0,0 //This fixed the camera after the upgrades change
+				// Mathf.DegToRad(pitchMin), 
+				// Mathf.DegToRad(pitchMax)
 			);
 		}
 

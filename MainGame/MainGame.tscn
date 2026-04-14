@@ -56,7 +56,8 @@ material = SubResource("StandardMaterial3D_ry3at")
 subdivide_width = 80
 subdivide_depth = 80
 
-[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_8e541"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
+size = Vector3(2, 0.2, 2)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_moon"]
 albedo_color = Color(0.38, 0.12, 0.72, 1)
@@ -230,7 +231,7 @@ mesh = SubResource("PlaneMesh_mh0ok")
 skeleton = NodePath("../..")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
-shape = SubResource("WorldBoundaryShape3D_8e541")
+shape = SubResource("BoxShape3D_ground")
 
 [node name="HUD" parent="." instance=ExtResource("7_hud01")]
 
