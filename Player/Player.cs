@@ -38,7 +38,7 @@ public partial class Player : CharacterBody3D
 
 	public float maxTimer = 0.5f;
 	public float timer = 0.5f;
-	public float damage = 20f;
+	public float damage = 10f;
 	[Export] public int hp;
 	[Export] public int maxHp;
 
@@ -51,19 +51,29 @@ public partial class Player : CharacterBody3D
 	public enum RelicType { None, Health, Cooldown }
 	public RelicType ChosenRelic = RelicType.None;
 	private float _relicHealthTimer = 0f;
-	
-	public float RoundTimer = 15f;
-	public float waitTimer = 0f;
 
+	// ── Score system ────────────────────────────────────────────────────────
+	public int   Score          = 0;
+	public float Multiplier     = 1f;
+	private float _noDamageTimer = 0f;
+	private const float MultiplierResetTime = 15f;
+	private const float DamageScorePerPoint = 0.5f;  // score per damage point dealt
+	private const int   KillScoreBase       = 50;    // bonus score per kill
+
+	/// <summary>If the player's Y position drops below this value they die and respawn.
+	/// Adjust in the Inspector (or edit here) to match your map's floor depth.</summary>
+	[Export] public float FallDeathY = -20f;
+
+	private bool  _isDead              = false;
+	private bool  _respawnPending      = false;  // true while a respawn timer is in flight
+	private float _respawnImmunityTimer = 0f;    // seconds of post-respawn immunity
 	public List<Bullet> Buls     = new List<Bullet>();
 	public int          bulCount = 0;
 
-	[Export] public int   burstCount = 3;
-	[Export] public float burstDelay = 0.1f;
+	public int   burstCount = 3;
+	public float burstDelay = 0.1f;
 
 	public bool rewinding = false;
-	
-	public bool upgrading = false;
 
 	public Godot.Collections.Dictionary rewindValues = new Godot.Collections.Dictionary
 	{
@@ -88,7 +98,7 @@ public partial class Player : CharacterBody3D
 			ev.Keycode = Key.Q;
 			InputMap.ActionAddEvent("ability", ev);
 		}
-
+		GD.Print(myId.IsLocal);
 	}
 
 	public override void _Input(InputEvent @event)
@@ -149,6 +159,41 @@ public partial class Player : CharacterBody3D
 		if (UltimateCooldownTimer > 0f)
 			UltimateCooldownTimer -= (float)delta;
 
+		// ── Score: no-damage multiplier decay ───────────────────────────────
+		if (Multiplier > 1f)
+		{
+			_noDamageTimer += (float)delta;
+			if (_noDamageTimer >= MultiplierResetTime)
+				ResetMultiplier();
+		}
+
+		// ── Death / respawn — SERVER ONLY ─────────────────────────────────────
+		if (GenericCore.Instance.IsServer)
+		{
+			// Tick post-respawn immunity window
+			if (_respawnImmunityTimer > 0f)
+				_respawnImmunityTimer -= (float)delta;
+
+			// Fall-off detection — blocked while any death/respawn is in progress
+			if (!_isDead && !_respawnPending && _respawnImmunityTimer <= 0f
+				&& GlobalPosition.Y < FallDeathY)
+				hp = 0;
+
+			// Death — can only trigger when fully alive: not dead, no pending timer, not immune
+			if (hp <= 0 && !_isDead && !_respawnPending && _respawnImmunityTimer <= 0f)
+			{
+				_isDead = true;
+				NotifyDied();
+			}
+			// Revive — only after DoRespawn has finished AND immunity has expired.
+			// _respawnPending stays true until DoRespawn clears it, so relic/healing
+			// can never raise hp > 0 and accidentally trigger this while the timer runs.
+			else if (hp > 0 && _isDead && !_respawnPending && _respawnImmunityTimer <= 0f)
+			{
+				_isDead = false;
+			}
+		}
+
 		// ── Relic: Health regen (server-authoritative, +1 HP/s) ──────────────
 		if (GenericCore.Instance.IsServer && ChosenRelic == RelicType.Health)
 		{
@@ -160,23 +205,6 @@ public partial class Player : CharacterBody3D
 					hp += 1;
 			}
 		}
-		
-		if(RoundTimer > 0f)
-			RoundTimer -= (float)delta;
-		else{
-			if(!upgrading){
-				GetNode("Upgrades").GetNode<Options>("Options").add();
-				upgrading = true;
-			}
-			if(waitTimer <= 0f){
-				waitTimer = 10f;
-				RoundTimer = 60f;
-				upgrading = false;
-			}
-			else
-			waitTimer -= (float)delta;
-		}
-		
 
 		// ── Server-side physics ───────────────────────────────────────────────
 		if (GenericCore.Instance.IsServer)
@@ -432,7 +460,8 @@ public partial class Player : CharacterBody3D
 			}
 			if (t1 is Bullet b)
 			{
-				b.damage = damage;
+				b.damage  = damage;
+				b.Shooter = this;
 				Buls.Add(b);
 			} 
 
@@ -442,99 +471,168 @@ public partial class Player : CharacterBody3D
 
 	public async void ShootBullet(int count, float cooldown)
 	{
+		// Purge any freed bullets before reusing
+		Buls.RemoveAll(b => !IsInstanceValid(b));
+		if (Buls.Count == 0) { SpawnBullet(count, cooldown); return; }
+
 		for (int i = 0; i < count; i++)
 		{
+			if (bulCount >= Buls.Count) bulCount = 0;
+			if (!IsInstanceValid(Buls[bulCount])) { bulCount = 0; continue; }
+
 			Vector3 spawnPos = GetBulletSpawnPos();
-			Buls[bulCount].damage = damage;
-			Buls[bulCount].Show();
-			Buls[bulCount].CollisionLayer = 4;
-			Buls[bulCount].CollisionMask  = 1;
-			Buls[bulCount].GlobalPosition = spawnPos;
-			Buls[bulCount].LinearVelocity = Transform.Basis.X * 150f;
+			var bul = Buls[bulCount];
+
+			bul.Reset();
+			bul.Show();
+			bul.CollisionLayer    = 4;
+			bul.CollisionMask     = 1;
+			bul.Rotation          = Rotation;
+			bul.GlobalPosition    = spawnPos;
+			bul.LinearVelocity    = bul.Transform.Basis.X * 200f;
+			bul.damage            = damage;
+			bul.Shooter           = this;
+
 			bulCount++;
-			if (bulCount >= Buls.Count)
-				bulCount = 0;
+			if (bulCount >= Buls.Count) bulCount = 0;
 
 			await ToSignal(GetTree().CreateTimer(cooldown), SceneTreeTimer.SignalName.Timeout);
 		}
 	}
 
-	// ── Rewind ───────────────────────────────────────────────────────────────
-	public void rewind()
-	{
-		rewinding = true;
-		GetNode<CollisionShape3D>("CollisionShape3D").SetDeferred("disabled", true);
-	}
-	
-	//https://www.youtube.com/watch?v=XoETrCrSkks a link for a complete description of rewind feature: 1:12 - 3:44
-	public void computeRewind()
-	{
-		var pos = ((Godot.Collections.Array)rewindValues["position"]).Last();
-		var rot = ((Godot.Collections.Array)rewindValues["rotation"]).Last();
-		((Godot.Collections.Array)rewindValues["position"]).RemoveAt(((Godot.Collections.Array)rewindValues["position"]).Count -1);
-		((Godot.Collections.Array)rewindValues["rotation"]).RemoveAt(((Godot.Collections.Array)rewindValues["rotation"]).Count -1);
-		if(((Godot.Collections.Array)rewindValues["position"]).Count == 0)
-		{
-			GetNode<CollisionShape3D>("CollisionShape3D").SetDeferred("disabled", false);
-			rewinding = false;
-			Position = (Vector3)pos;
-			Rotation = (Vector3)rot;
-			SyncedVelocity = (Vector3)((Godot.Collections.Array)rewindValues["velocity"]).First();
-			Rpc("computeRewindRPC", pos, rot);
+	// ── Respawn ───────────────────────────────────────────────────────────────
 
-		}
-		Position = (Vector3)pos;
-		Rotation = (Vector3)rot;
-		Rpc("computeRewindRPC", pos, rot);
-	}
-[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true,
-		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-	public void computeRewindRPC( Vector3 pos, Vector3 rot)
+	/// <summary>Export slot — drag a RespawnSound AudioStreamPlayer3D onto the player
+	/// in the editor. Played on all peers when this player respawns.</summary>
+	[Export] public AudioStreamPlayer3D RespawnSound;
+
+	private const float RespawnDelay = 5f;
+
+	/// <summary>Called by the server the first frame hp hits 0.
+	/// Sets the respawn latch so no second timer can be queued, then starts the countdown.</summary>
+	private void NotifyDied()
 	{
+		_respawnPending = true;   // latch: blocks all death re-entry until DoRespawn clears it
+		ResetMultiplier();
+		GD.Print($"[Player] {PlayerDisplayName} died — respawning in {RespawnDelay}s");
+		var t = GetTree().CreateTimer(RespawnDelay);
+		t.Timeout += DoRespawn;
+	}
+
+	private void DoRespawn()
+	{
+		// Guard: if somehow a stale callback fires after the latch was already cleared, ignore it.
+		if (!_respawnPending)
+		{
+			GD.PrintErr($"[Player] DoRespawn: stale timer on {PlayerDisplayName} — ignored.");
+			return;
+		}
+
+		var marker = GetTree().Root.FindChild("StatueRespawnPoint", true, false) as Marker3D;
+		Vector3 pos = marker != null
+			? marker.GlobalPosition
+			: GetFallbackStatuePosition();
+
+		// Clear the latch BEFORE touching hp/position so the revive-check can't fire early
+		_respawnPending       = false;
+		hp                    = maxHp;
+		GlobalPosition        = pos;
+		SyncedVelocity        = Vector3.Zero;
+		_isDead               = true;   // keep dead during immunity window
+		_respawnImmunityTimer = 3f;
+
+		GD.Print($"[Player] {PlayerDisplayName} respawning at {pos}");
+		Rpc(MethodName.PlayRespawnSFX);
+	}
+
+	private static Vector3 GetFallbackStatuePosition()
+	{
+		// Hard-coded fallback: just in front of Statue2's known world position
+		return new Vector3(-171.5f, 2f, 233f);
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true,
+		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public void PlayRespawnSFX()
+	{
+		RespawnSound?.Play();
+	}
+
+	// ── Score ─────────────────────────────────────────────────────────────────
+
+	/// <summary>Called by Enemy when this player's bullet deals damage.</summary>
+	public void NotifyDamageDealt(int amount)
+	{
+		// 0.5 score per damage point, scaled by current multiplier
+		Score          += Mathf.RoundToInt(amount * DamageScorePerPoint * Multiplier);
+		Multiplier      = Mathf.Min(Multiplier + 0.05f, 4f);
+		_noDamageTimer  = 0f;
+		// Push updated values to all peers so the HUD stays in sync
+		Rpc(MethodName.SyncScoreRpc, Score, Multiplier);
+	}
+
+	/// <summary>Called by Enemy.Die() when this player's bullet lands the kill.</summary>
+	public void NotifyKill()
+	{
+		Score          += Mathf.RoundToInt(KillScoreBase * Multiplier);
+		Multiplier      = Mathf.Min(Multiplier + 0.25f, 4f);
+		_noDamageTimer  = 0f;
+		// Push updated values to all peers so the HUD stays in sync
+		Rpc(MethodName.SyncScoreRpc, Score, Multiplier);
+	}
+
+	public void ResetMultiplier()
+	{
+		Multiplier     = 1f;
+		_noDamageTimer = 0f;
+		// Only the server (authority) may broadcast SyncScoreRpc
 		if (GenericCore.Instance.IsServer)
-		{
-			SyncedVelocity = (Vector3)((Godot.Collections.Array)rewindValues["velocity"]).First();
-			Position = pos;
-			Rotation = rot;
-		}
+			Rpc(MethodName.SyncScoreRpc, Score, Multiplier);
 	}
 
-	public void upgrade(string[] splitOpt)
+	/// <summary>
+	/// Sent by the server to every peer whenever Score or Multiplier changes.
+	/// CallLocal = true so the server's own HUD also reflects the change.
+	/// Uses Unreliable transfer — a missed packet is fine, the next update will correct it.
+	/// </summary>
+	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true,
+		 TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
+	private void SyncScoreRpc(int score, float multiplier)
 	{
-		GD.Print(splitOpt[0]);
-		if(splitOpt[0] == "AC")
-		{
-			UltimateCooldownMax -= 2.5f*splitOpt[1].ToInt();
-		}
-
-		else if(splitOpt[0] == "PC")
-		{
-			maxTimer -= .5f*splitOpt[1].ToInt();
-		}
-
-		else if(splitOpt[0] == "MH")
-		{
-			maxHp += 5*splitOpt[1].ToInt();
-		}
-
-		else
-		{
-			Rpc("upgradeRpc", splitOpt);
-		}
+		Score      = score;
+		Multiplier = multiplier;
 	}
 
-	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false,
-		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-	public void upgradeRpc(string[] splitOpt)
+	// ── Rewind ────────────────────────────────────────────────────────────────
+
+	public virtual void rewind()
 	{
-		if(splitOpt[0] == "D")
+		// Begin rewind — computeRewind() will step through stored frames
+		rewinding = true;
+	}
+
+	public virtual void computeRewind()
+	{
+		var positions  = (Godot.Collections.Array)rewindValues["position"];
+		var rotations  = (Godot.Collections.Array)rewindValues["rotation"];
+		var velocities = (Godot.Collections.Array)rewindValues["velocity"];
+
+		if (positions.Count == 0)
 		{
-			damage += splitOpt[1].ToInt();
+			rewinding = false;
+			return;
 		}
 
-		else if(splitOpt[0] == "AP")
-		{
-			burstCount += splitOpt[1].ToInt();
-		}
+		int last = positions.Count - 1;
+		GlobalPosition = (Vector3)positions[last];
+		Rotation       = (Vector3)rotations[last];
+		SyncedVelocity = (Vector3)velocities[last];
+
+		positions.RemoveAt(last);
+		rotations.RemoveAt(last);
+		velocities.RemoveAt(last);
+
+		if (positions.Count == 0)
+			rewinding = false;
 	}
 }

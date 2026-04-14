@@ -16,6 +16,9 @@ public partial class Enemy : CharacterBody3D
 	private const float DamageCooldownTime = 0.5f;
 	private Player      _contactPlayer    = null;
 
+	// Track who last shot us so Die() can award the kill
+	private Player _lastShooter = null;
+
 	public override void _Ready()
 	{
 		AddToGroup("enemy");
@@ -39,6 +42,9 @@ public partial class Enemy : CharacterBody3D
 		{
 			_contactPlayer.hp = Mathf.Max(_contactPlayer.hp - damage, 0);
 			_damageCooldown   = DamageCooldownTime;
+
+			// Contact damage counts as "damage dealt" for score purposes
+			_contactPlayer.NotifyDamageDealt(damage);
 		}
 
 		UpdateHealthBar();
@@ -116,8 +122,6 @@ public partial class Enemy : CharacterBody3D
 
 	private void OnPlayerBodyEntered(Node3D body)
 	{
-		// No IsServer check here — _contactPlayer must be set on the server
-		// so the damage tick in _PhysicsProcess can fire correctly.
 		if (body is not Player player) return;
 		_contactPlayer = player;
 	}
@@ -128,8 +132,15 @@ public partial class Enemy : CharacterBody3D
 			_contactPlayer = null;
 	}
 
-	public virtual void TakeDamage(int amount)
+	// shooter = the Player whose bullet hit us (may be null for contact damage)
+	public virtual void TakeDamage(int amount, Player shooter = null)
 	{
+		if (shooter != null)
+		{
+			_lastShooter = shooter;
+			shooter.NotifyDamageDealt(amount);
+		}
+
 		hp -= amount;
 		if (hp <= 0)
 			Die();
@@ -137,11 +148,12 @@ public partial class Enemy : CharacterBody3D
 
 	protected virtual void Die()
 	{
+		_lastShooter?.NotifyKill();
 		QueueFree();
 	}
 
-	public void OnHitByBullet(int amount)
+	public void OnHitByBullet(int amount, Player shooter = null)
 	{
-		TakeDamage(amount);
+		TakeDamage(amount, shooter);
 	}
 }

@@ -5,6 +5,13 @@ public partial class MainGame : Node3D
 {
 	[Export] public Node3D[] EnemySpawners;
 
+	/// <summary>
+	/// Place a Marker3D node in the editor in front of Statue2, then drag it
+	/// into this slot. Players will respawn here on death.
+	/// If left empty the code falls back to a hard-coded position near the statue.
+	/// </summary>
+	[Export] public Marker3D StatueRespawnPoint;
+
 	private Timer  _spawnTimer;
 	private double _elapsedSec = 0.0;
 	private bool   _started    = false;   // true once we're visible and running

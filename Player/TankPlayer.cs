@@ -138,7 +138,8 @@ public partial class TankPlayer : Player
 
 			if (obj is Bullet b)
 			{
-				b.damage = damage;
+				b.damage  = damage;
+				b.Shooter = this;
 				Buls.Add(b);
 			}
 				
@@ -179,6 +180,8 @@ public partial class TankPlayer : Player
 
 			// Reset pooled state BEFORE Show() so collision is re-enabled.
 			bul.Reset();
+			bul.damage  = damage;
+			bul.Shooter = this;
 			bul.Show();
 			bul.CollisionLayer = 4;
 			bul.CollisionMask  = 1;

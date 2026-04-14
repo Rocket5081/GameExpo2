@@ -146,7 +146,7 @@ public partial class SupportPlayer : Player
 		// Use a direct C# cast — Call() cannot reliably find methods inherited from
 		// a C# base class through Godot's scripting reflection layer.
 		if (result["collider"].As<Node>() is Enemy hitEnemy && IsInstanceValid(hitEnemy))
-			hitEnemy.OnHitByBullet((int)dmg);
+			hitEnemy.OnHitByBullet((int)dmg, this);
 	}
 
 	// ── Support Ultimate: Healing Circle ──────────────────────────────────────

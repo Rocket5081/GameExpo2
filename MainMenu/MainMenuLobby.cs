@@ -18,7 +18,10 @@ public partial class MainMenuLobby : Control
 	[Export] public Label PlayerCountLabel;
 	[Export] public Control ControlsOverlay;
 	[Export] public Control DevelopersOverlay;
-	[Export] public AudioStreamPlayer MenuMusic;  
+	[Export] public AudioStreamPlayer MenuMusic;
+
+	// Stats label — wired up in code, no scene export needed
+	private RichTextLabel _statsLabel;
 
 	public string PlayerName  = "Player";
 	public int    ClassChoice = 0;
@@ -37,6 +40,52 @@ public partial class MainMenuLobby : Control
 	private readonly Dictionary<int, string> _readyPlayerNames = new();
 	private readonly Dictionary<int, int>    _readyRelics      = new();
 	private bool _musicShouldPlay = false;
+
+	// ── Per-class stats data ──────────────────────────────────────────────────
+	private struct ClassStats
+	{
+		public string ClassName;
+		public string Role;
+		public Color  Color;
+		public string Damage;
+		public string Health;
+		public string Ultimate;
+		public string Description;
+	}
+
+	private static readonly ClassStats[] Stats = new ClassStats[]
+	{
+		new ClassStats
+		{
+			ClassName   = "Cowboy",
+			Role        = "DPS",
+			Color       = new Color("ff4444"),
+			Damage      = "★★★★☆  High",
+			Health      = "★★☆☆☆  Low",
+			Ultimate    = "Triple Shot — fires 3 rapid bullets",
+			Description = "High-risk, high-reward gunslinger. Shreds enemies fast but dies quick."
+		},
+		new ClassStats
+		{
+			ClassName   = "Pirate",
+			Role        = "Tank",
+			Color       = new Color("4488ff"),
+			Damage      = "★★☆☆☆  Low",
+			Health      = "★★★★★  Very High",
+			Ultimate    = "Bubble Shield — blocks all incoming damage",
+			Description = "Soaks damage for the team. Slow to kill but slow to deal damage."
+		},
+		new ClassStats
+		{
+			ClassName   = "Priest",
+			Role        = "Support",
+			Color       = new Color("44cc66"),
+			Damage      = "★★★☆☆  Medium",
+			Health      = "★★★☆☆  Medium",
+			Ultimate    = "Laser Beam — sustained beam damages all enemies in line",
+			Description = "Keeps allies alive with relic healing. Versatile and team-focused."
+		},
+	};
 
 	public override void _Ready()
 	{
@@ -58,9 +107,6 @@ public partial class MainMenuLobby : Control
 		ItemDropdown.ItemSelected  += OnItemSelected;
 		ConnectButton.Pressed      += OnConnectPressed;
 
-
-		// Duplicate the stream so we get a private copy whose Loop flag we can set
-		// without touching the shared imported resource.
 		if (MenuMusic != null && MenuMusic.Stream != null)
 		{
 			var loopedStream = (AudioStream)MenuMusic.Stream.Duplicate();
@@ -76,10 +122,58 @@ public partial class MainMenuLobby : Control
 		OfflinePanel.Visible = true;
 		OnlinePanel.Visible  = false;
 
+		BuildStatsLabel();
 		RefreshClassDisplay(0);
 
 		if (PlayerCountLabel != null)
 			PlayerCountLabel.Text = $"Players: 0 / {RequiredPlayers}";
+	}
+
+	// ── Build the stats label and attach it to the preview area ──────────────
+	private void BuildStatsLabel()
+	{
+		_statsLabel = new RichTextLabel();
+		_statsLabel.BbcodeEnabled   = true;
+		_statsLabel.FitContent      = true;
+		_statsLabel.ScrollActive    = false;
+		_statsLabel.MouseFilter     = MouseFilterEnum.Ignore;
+
+		// Position it at the bottom of the CharacterPreviewArea
+		_statsLabel.LayoutMode      = 1;
+		_statsLabel.AnchorLeft      = 0f;
+		_statsLabel.AnchorTop       = 0.72f;
+		_statsLabel.AnchorRight     = 1f;
+		_statsLabel.AnchorBottom    = 1f;
+
+		// Semi-transparent dark background panel via stylebox
+		var style = new StyleBoxFlat();
+		style.BgColor              = new Color(0f, 0f, 0f, 0.55f);
+		style.CornerRadiusTopLeft  = 8;
+		style.CornerRadiusTopRight = 8;
+		style.ContentMarginLeft    = 14f;
+		style.ContentMarginRight   = 14f;
+		style.ContentMarginTop     = 10f;
+		style.ContentMarginBottom  = 10f;
+		_statsLabel.AddThemeStyleboxOverride("normal", style);
+		_statsLabel.AddThemeFontSizeOverride("normal_font_size", 15);
+
+		CharacterPreviewArea.AddChild(_statsLabel);
+	}
+
+	// ── Write BBCode stats for the selected class ─────────────────────────────
+	private void UpdateStatsLabel(int classIndex)
+	{
+		if (_statsLabel == null) return;
+
+		var s   = Stats[classIndex];
+		var hex = s.Color.ToHtml(false);
+
+		_statsLabel.Text = 
+			$"[color=#{hex}][b]{s.ClassName}[/b]  —  {s.Role}[/color]\n" +
+			$"[color=white]⚔  Damage   [/color][color=orange]{s.Damage}[/color]\n" +
+			$"[color=white]❤  Health    [/color][color=orange]{s.Health}[/color]\n" +
+			$"[color=white]⚡  Ultimate  [/color][color=#{hex}]{s.Ultimate}[/color]\n" +
+			$"[color=gray][i]{s.Description}[/i][/color]";
 	}
 
 	public override void _ExitTree()
@@ -91,13 +185,10 @@ public partial class MainMenuLobby : Control
 		_musicShouldPlay = false;
 	}
 
-	// Watchdog: loops music while in menus; force-stops it the moment MainGame is visible.
 	public override void _Process(double delta)
 	{
 		if (_musicShouldPlay)
 		{
-			// Kill music immediately if the game world has become visible
-			// (catches edge cases where StartGame RPC fires slightly late)
 			var gameRoot = GetParent();
 			var mainGame = gameRoot?.GetNodeOrNull<Node3D>("MainGame");
 			if (mainGame != null && mainGame.Visible)
@@ -107,7 +198,6 @@ public partial class MainMenuLobby : Control
 				return;
 			}
 
-			// Normal loop: restart if the track ended
 			if (MenuMusic != null && !MenuMusic.Playing)
 				MenuMusic.Play();
 		}
@@ -121,7 +211,7 @@ public partial class MainMenuLobby : Control
 		RefreshNameLabel();
 		Rpc(MethodName.NameRPC, newText);
 	}
-	
+
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false,
 		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void NameRPC(string name)
@@ -130,6 +220,7 @@ public partial class MainMenuLobby : Control
 		PlayerName     = name;
 		NameEntry.Text = name;
 	}
+
 	private void OnClassSelected(long index)
 	{
 		ClassChoice = (int)index;
@@ -156,6 +247,7 @@ public partial class MainMenuLobby : Control
 	{
 		ShowPreview(classIndex);
 		RefreshNameLabel();
+		UpdateStatsLabel(classIndex);
 	}
 
 	private void RefreshNameLabel()
@@ -219,14 +311,8 @@ public partial class MainMenuLobby : Control
 		if (_readyPlayers.Count >= RequiredPlayers)
 		{
 			GD.Print("[MainMenuLobby] FIRING StartGame RPC now!");
-
-			// Stop menu music on every connected peer immediately — before the
-			// one-frame delay so there's no gap where music plays over the transition.
 			Rpc(MethodName.StopMenuMusicRpc);
-
-			// Wait one frame so all peers finish processing before StartGame fires
 			await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-
 			Rpc(MethodName.StartGame);
 		}
 		else
@@ -235,11 +321,6 @@ public partial class MainMenuLobby : Control
 		}
 	}
 
-
-
-	// ── Music stop RPC ───────────────────────────────────────────────────────
-	// Fired by the server as soon as all players click ready, before StartGame.
-	// CallLocal = true so the host also stops its own music without a separate call.
 	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true,
 		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	private void StopMenuMusicRpc()
@@ -249,56 +330,51 @@ public partial class MainMenuLobby : Control
 		GD.Print($"[MainMenuLobby] Menu music stopped on peer {Multiplayer.GetUniqueId()}");
 	}
 
-	// ── StartGame RPC ─────────────────────────────────────────────────────────
-private bool _gameStarted = false;
-[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true,
-	 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-private void StartGame()
-{
-	if (_gameStarted) return;
-	_gameStarted = true;
+	private bool _gameStarted = false;
 
-	GD.Print($"[MainMenuLobby] StartGame fired on peer {Multiplayer.GetUniqueId()}");
-
-	// Hide menu panels
-	OfflinePanel.Visible = false;
-	OnlinePanel.Visible  = false;
-	Visible = false;
-
-	// Navigate up: MainMenu → GameRoot → AbsoluteRoot
-	var gameRoot     = GetParent();           // GameRoot (Node)
-	var absoluteRoot = gameRoot.GetParent();  // AbsoluteRoot (Node)
-
-	// Hide the generic lobby CanvasLayer (sibling of GameRoot under AbsoluteRoot)
-	var genericLobby = absoluteRoot.GetNodeOrNull<CanvasLayer>("GenericLobbySystem");
-	if (genericLobby != null)
-		genericLobby.Visible = false;
-	else
-		GD.PrintErr("[MainMenuLobby] GenericLobbySystem not found under AbsoluteRoot!");
-
-	// Stop menu music before the game world becomes visible.
-	_musicShouldPlay = false;
-	MenuMusic?.Stop();
-
-	// Show MainGame (sibling of MainMenu under GameRoot) and activate its camera
-	var mainGame = gameRoot.GetNodeOrNull<Node3D>("MainGame");
-	if (mainGame != null)
-		mainGame.Visible = true;
-	else
-		GD.PrintErr("[MainMenuLobby] MainGame not found under GameRoot!");
-
-	var camera = gameRoot.GetNodeOrNull<Camera3D>("MainGame/Camera3D");
-	if (camera != null)
+	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true,
+		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	private void StartGame()
 	{
-		camera.MakeCurrent();
-		GD.Print("[MainMenuLobby] Camera3D activated.");
-	}
-	else
-		GD.PrintErr("[MainMenuLobby] Camera3D not found at GameRoot/MainGame/Camera3D!");
+		if (_gameStarted) return;
+		_gameStarted = true;
 
-	if (GenericCore.Instance.IsServer)
-		ServerSpawnWithDelay();
-}
+		GD.Print($"[MainMenuLobby] StartGame fired on peer {Multiplayer.GetUniqueId()}");
+
+		OfflinePanel.Visible = false;
+		OnlinePanel.Visible  = false;
+		Visible = false;
+
+		var gameRoot     = GetParent();
+		var absoluteRoot = gameRoot.GetParent();
+
+		var genericLobby = absoluteRoot.GetNodeOrNull<CanvasLayer>("GenericLobbySystem");
+		if (genericLobby != null)
+			genericLobby.Visible = false;
+		else
+			GD.PrintErr("[MainMenuLobby] GenericLobbySystem not found under AbsoluteRoot!");
+
+		_musicShouldPlay = false;
+		MenuMusic?.Stop();
+
+		var mainGame = gameRoot.GetNodeOrNull<Node3D>("MainGame");
+		if (mainGame != null)
+			mainGame.Visible = true;
+		else
+			GD.PrintErr("[MainMenuLobby] MainGame not found under GameRoot!");
+
+		var camera = gameRoot.GetNodeOrNull<Camera3D>("MainGame/Camera3D");
+		if (camera != null)
+		{
+			camera.MakeCurrent();
+			GD.Print("[MainMenuLobby] Camera3D activated.");
+		}
+		else
+			GD.PrintErr("[MainMenuLobby] Camera3D not found at GameRoot/MainGame/Camera3D!");
+
+		if (GenericCore.Instance.IsServer)
+			ServerSpawnWithDelay();
+	}
 
 	// ── Spawn ─────────────────────────────────────────────────────────────────
 
@@ -337,10 +413,6 @@ private void StartGame()
 
 			var spawnedNode = characterSpawner.NetCreateObject(classChoice, pos, Quaternion.Identity, peerId);
 
-			// Set the display name directly on the server-side node.
-			// PlayerDisplayName is in the SceneReplicationConfig (spawn=true, on_change),
-			// so the value propagates to all clients automatically on the next sync tick —
-			// no RPC race condition with the spawn packet.
 			if (spawnedNode is Player spawnedPlayer)
 			{
 				string displayName = _readyPlayerNames.TryGetValue(peerId, out string n) ? n : "Player";
@@ -348,23 +420,12 @@ private void StartGame()
 
 				spawnedPlayer.PlayerDisplayName = displayName;
 
-				// The dropdown has no "None" entry, so its indices are:
-				//   0 = Relic of Health  → RelicType.Health  (enum value 1)
-				//   1 = Relic of Cooldown→ RelicType.Cooldown(enum value 2)
-				// Shift by +1 to align with the enum.
 				int relicEnumValue = relicChoice + 1;
-
-				// Apply relic immediately on the server so health regen / cooldown
-				// reduction starts from the very first frame of gameplay.
 				spawnedPlayer.SyncRelicChosen(relicEnumValue);
 
-				// Wait for replication before sending RPCs to clients
 				await ToSignal(GetTree().CreateTimer(1.0f), SceneTreeTimer.SignalName.Timeout);
 
 				spawnedPlayer.Rpc(Player.MethodName.SetDisplayName, displayName);
-
-				// Broadcast to clients. The guard in SyncRelicChosen (ChosenRelic != None)
-				// prevents the server from double-applying.
 				spawnedPlayer.Rpc("SyncRelicChosen", relicEnumValue);
 			}
 			else
@@ -392,20 +453,20 @@ private void StartGame()
 			ConnectButton.Text = $"Waiting... {current}/{required}";
 	}
 
-	// ── Overlay panels ───────────────────────────────────────────────────────────
+	// ── Overlay panels ────────────────────────────────────────────────────────
 
 	public void ShowControlsPanel()
 	{
-		OfflinePanel.Visible      = false;
-		OnlinePanel.Visible       = false;
+		OfflinePanel.Visible = false;
+		OnlinePanel.Visible  = false;
 		if (DevelopersOverlay != null) DevelopersOverlay.Visible = false;
 		if (ControlsOverlay   != null) ControlsOverlay.Visible   = true;
 	}
 
 	public void ShowDevelopersPanel()
 	{
-		OfflinePanel.Visible      = false;
-		OnlinePanel.Visible       = false;
+		OfflinePanel.Visible = false;
+		OnlinePanel.Visible  = false;
 		if (ControlsOverlay   != null) ControlsOverlay.Visible   = false;
 		if (DevelopersOverlay != null) DevelopersOverlay.Visible = true;
 	}
@@ -427,9 +488,9 @@ private void StartGame()
 		OnlinePanel.Visible    = false;
 		ConnectButton.Disabled = false;
 		ConnectButton.Text     = "Connect";
-		
+
 		LastPort = 0;
-		
+
 		GenericCore.Instance.SetPort("7000");
 		HP    = 100;
 		Score = 0;
