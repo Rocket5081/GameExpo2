@@ -37,8 +37,10 @@ public partial class DpsPlayer : Player
 		if (!_ultraActive) return;
 
 		_ultraTimer -= (float)delta;
-		if (_ultraTimer <= 0f)
+		if (_ultraTimer <= 0f){
 			_ultraActive = false;
+			SpecialActive = false; 
+		} 
 		else
 			canShoot = true;
 	}
@@ -68,6 +70,7 @@ public partial class DpsPlayer : Player
 		if (!GenericCore.Instance.IsServer) return;
 
 		_ultraActive = true;
+		SpecialActive = true;
 		_ultraTimer  = 5f;   // 5-second rapid-fire window
 	}
 }

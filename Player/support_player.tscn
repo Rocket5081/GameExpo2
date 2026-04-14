@@ -78,6 +78,7 @@ FootstepPlayer = NodePath("Footsteps")
 FootstepInterval = 5.93
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.062176645, 0)
 shape = SubResource("BoxShape3D_km5gb")
 
 [node name="BulletSpawn" type="Marker3D" parent="."]

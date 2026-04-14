@@ -33,6 +33,12 @@ public partial class Player : CharacterBody3D
 	[Export] public bool SyncedIsOnFloor = true;
 	[Export] public bool SyncedIsJumping = false;
 
+	[Export] public bool SpecialActive = false;
+
+	private bool _isAttacking = false;
+
+	[Export] public AnimationTree myAnimTree;
+
 	private float _mouseDeltaX  = 0f;
 	private bool  _mouseCaptured = false;
 
@@ -78,6 +84,10 @@ public partial class Player : CharacterBody3D
 		GD.Print(myId.IsLocal);
 		base._Ready();
 		AddToGroup("Players");
+
+		if (myAnimTree != null){
+    		myAnimTree.Active = true;
+		}
 
 		// Register the "ability" (Q) action at runtime so it works without
 		// needing to be added manually in Project Settings → Input Map.
@@ -275,29 +285,32 @@ public partial class Player : CharacterBody3D
 
 	private void UpdateAnimation()
 	{
-		if (myAnimation == null) return;
+    	if (myAnimation == null) return;
 
-		if (myAnimation.CurrentAnimation == "Attack" && myAnimation.IsPlaying()) return;
+        if (myAnimation.CurrentAnimation == "Attack" && myAnimation.IsPlaying())
+            return;
 
-		Vector3 horizVel   = new Vector3(SyncedVelocity.X, 0f, SyncedVelocity.Z);
-		bool isMovingHoriz = horizVel.Length() > 0.5f;
-		bool shouldWalk    = isMovingHoriz && SyncedIsOnFloor;
-
-		if (shouldWalk)
-		{
-			if (myAnimation.CurrentAnimation != "Walk" || !myAnimation.IsPlaying())
-				myAnimation.Play("Walk");
-		}
-		else
-		{
-			if (myAnimation.CurrentAnimation == "Walk" && myAnimation.IsPlaying())
-				myAnimation.Stop();
-		}
+        if (SyncedIsJumping)
+        {
+            myAnimation.Play("Falling");
+        }
+        else
+        {
+            Vector3 flatVel = new Vector3(SyncedVelocity.X, 0, SyncedVelocity.Z);
+            if (flatVel.Length() > 0.15f)
+                myAnimation.Play("WalkCycle");
+            else
+                myAnimation.Play("BaseStance");
+        }
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true,
 		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-	public void PlayAttackAnimation() { }
+	public void PlayAttackAnimation()
+	{
+		if (myAnimation == null) return;
+        myAnimation.Play("Shoot");
+	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false,
 		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]

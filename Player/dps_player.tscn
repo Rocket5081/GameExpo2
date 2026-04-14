@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://bfxq16gxvblha"]
+[gd_scene load_steps=26 format=3 uid="uid://bfxq16gxvblha"]
 
 [ext_resource type="Script" uid="uid://yo2i7m3b6pph" path="res://NetworkCore/NetID.cs" id="1_7ks6i"]
 [ext_resource type="Script" uid="uid://fy4vxbxhv0ql" path="res://Player/DpsPlayer.cs" id="1_k2htt"]
@@ -52,21 +52,112 @@ properties/11/replication_mode = 2
 properties/12/path = NodePath(".:maxHp")
 properties/12/spawn = true
 properties/12/replication_mode = 2
+properties/13/path = NodePath(".:SpecialActive")
+properties/13/spawn = true
+properties/13/replication_mode = 2
 
-[node name="DPS_Player" type="CharacterBody3D" node_paths=PackedStringArray("ShootSoundPlayer", "UltimateSound", "myId", "BulletSpawn", "ReticleLayer", "NameLabel", "FootstepPlayer") groups=["Players"]]
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_yrita"]
+animation = &"Falling"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_6f1m7"]
+animation = &"Landing"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_3ylyi"]
+animation = &"Idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_rp76e"]
+animation = &"WalkCycleW_Aim"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_fyr37"]
+animation = &"Shoot"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_dxb2b"]
+animation = &"SpecialIntro"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_boeg3"]
+animation = &"SpecialAttack"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_5cd77"]
+animation = &"JumpI"
+
+[sub_resource type="AnimationNodeBlend3" id="AnimationNodeBlend3_12nkl"]
+
+[sub_resource type="AnimationNodeTransition" id="AnimationNodeTransition_hlqjo"]
+input_0/name = "IsGrounded"
+input_0/auto_advance = false
+input_0/break_loop_at_end = false
+input_0/reset = true
+input_1/name = "IsAeriel"
+input_1/auto_advance = false
+input_1/break_loop_at_end = false
+input_1/reset = true
+
+[sub_resource type="AnimationNodeOneShot" id="AnimationNodeOneShot_bvwx2"]
+
+[sub_resource type="AnimationNodeTransition" id="AnimationNodeTransition_qjjj6"]
+input_0/name = "Atk"
+input_0/auto_advance = false
+input_0/break_loop_at_end = false
+input_0/reset = true
+input_1/name = "SpAtk"
+input_1/auto_advance = false
+input_1/break_loop_at_end = false
+input_1/reset = true
+
+[sub_resource type="AnimationNodeBlend2" id="AnimationNodeBlend2_s8v7y"]
+
+[sub_resource type="AnimationNodeBlend2" id="AnimationNodeBlend2_ue2gr"]
+
+[sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_phdsh"]
+graph_offset = Vector2(-931.83264, 117.31943)
+nodes/output/position = Vector2(560, 340)
+nodes/JumpBlend/node = SubResource("AnimationNodeBlend3_12nkl")
+nodes/JumpBlend/position = Vector2(-840, -160)
+nodes/Animation/node = SubResource("AnimationNodeAnimation_5cd77")
+nodes/Animation/position = Vector2(-1160, -240)
+"nodes/Animation 2/node" = SubResource("AnimationNodeAnimation_yrita")
+"nodes/Animation 2/position" = Vector2(-1160, -40)
+"nodes/Animation 3/node" = SubResource("AnimationNodeAnimation_6f1m7")
+"nodes/Animation 3/position" = Vector2(-1160, 180)
+nodes/WalkBlend/node = SubResource("AnimationNodeBlend2_ue2gr")
+nodes/WalkBlend/position = Vector2(-840, 480)
+"nodes/Animation 4/node" = SubResource("AnimationNodeAnimation_3ylyi")
+"nodes/Animation 4/position" = Vector2(-1160, 400)
+"nodes/Animation 5/node" = SubResource("AnimationNodeAnimation_rp76e")
+"nodes/Animation 5/position" = Vector2(-1160, 620)
+nodes/JumpWalk/node = SubResource("AnimationNodeTransition_hlqjo")
+nodes/JumpWalk/position = Vector2(-340, 220)
+nodes/OneShot/node = SubResource("AnimationNodeOneShot_bvwx2")
+nodes/OneShot/position = Vector2(60, 260)
+nodes/Shooting/node = SubResource("AnimationNodeTransition_qjjj6")
+nodes/Shooting/position = Vector2(-340, 700)
+"nodes/Animation 8/node" = SubResource("AnimationNodeAnimation_boeg3")
+"nodes/Animation 8/position" = Vector2(-1200, 1260)
+"nodes/Animation 6/node" = SubResource("AnimationNodeAnimation_fyr37")
+"nodes/Animation 6/position" = Vector2(-1140, 840)
+"nodes/Animation 7/node" = SubResource("AnimationNodeAnimation_dxb2b")
+"nodes/Animation 7/position" = Vector2(-1180, 1060)
+nodes/SpecialBlend/node = SubResource("AnimationNodeBlend2_s8v7y")
+nodes/SpecialBlend/position = Vector2(-820, 1080)
+node_connections = [&"output", 0, &"OneShot", &"JumpBlend", 0, &"Animation", &"JumpBlend", 1, &"Animation 2", &"JumpBlend", 2, &"Animation 3", &"WalkBlend", 0, &"Animation 4", &"WalkBlend", 1, &"Animation 5", &"JumpWalk", 0, &"WalkBlend", &"JumpWalk", 1, &"JumpBlend", &"OneShot", 0, &"JumpWalk", &"OneShot", 1, &"Shooting", &"Shooting", 0, &"Animation 6", &"Shooting", 1, &"SpecialBlend", &"SpecialBlend", 0, &"Animation 7", &"SpecialBlend", 1, &"Animation 8"]
+
+[node name="DPS_Player" type="CharacterBody3D" node_paths=PackedStringArray("ShootSoundPlayer", "UltimateSound", "myAnimation", "myId", "BulletSpawn", "ReticleLayer", "NameLabel", "FootstepPlayer", "myAnimTree") groups=["Players"]]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
 collision_layer = 2
 script = ExtResource("1_k2htt")
 ShootSoundPlayer = NodePath("Shooting")
 UltimateSound = NodePath("Ultimate")
+myAnimation = NodePath("DPS/AnimationPlayer")
 myId = NodePath("MultiplayerSynchronizer")
 BulletSpawn = NodePath("BulletSpawn")
 ReticleLayer = NodePath("ReticleLayer")
 NameLabel = NodePath("NameLabel")
 FootstepPlayer = NodePath("Footsteps")
 FootstepInterval = 5.93
+myAnimTree = NodePath("DPS/AnimationTree")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1936655, 0)
 shape = SubResource("BoxShape3D_wsqot")
 
 [node name="BulletSpawn" type="Marker3D" parent="."]
@@ -113,3 +204,43 @@ volume_db = -10.0
 
 [node name="DPS" parent="." instance=ExtResource("8_yrita")]
 transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, -0.10930401, -0.80604434, -0.013012826)
+
+[node name="Skeleton3D" parent="DPS/DPS Player" index="0"]
+bones/1/rotation = Quaternion(6.663965e-08, 1.0041667e-08, -0.13824697, 0.9903978)
+bones/2/position = Vector3(-7.898886e-17, -0.17786717, 0.19955821)
+bones/2/rotation = Quaternion(-7.54979e-08, 1.6763906e-23, 1, -6.8964377e-38)
+bones/3/rotation = Quaternion(-1.7342849e-07, 1.1036127e-07, 0.7071068, 0.7071068)
+bones/4/position = Vector3(-4.0457715e-17, -0.18220532, -0.19522)
+bones/4/rotation = Quaternion(0.99995714, -1.09989697e-16, -1.09989405e-16, -0.0092580635)
+bones/5/rotation = Quaternion(-4.609812e-09, -4.609812e-09, -0.7071068, 0.7071068)
+bones/6/rotation = Quaternion(0.88515854, 4.4373425e-07, 8.4415217e-07, 0.46528956)
+bones/7/rotation = Quaternion(0.4026943, -0.39750347, -0.23383944, 0.79066265)
+bones/8/rotation = Quaternion(0.884699, 0.0026731575, 0.0014299618, -0.46615306)
+bones/9/rotation = Quaternion(-0.404599, 0.39488992, -0.235178, 0.7906029)
+
+[node name="Head_2" parent="DPS/DPS Player/Skeleton3D" index="0"]
+transform = Transform3D(0.96177536, 0.27383894, 1.4650305e-09, -0.27383894, 0.96177536, -1.3477596e-07, -3.831594e-08, 1.2922304e-07, 0.9999999, 0, 0.9999999, 0)
+
+[node name="RHand_2" parent="DPS/DPS Player/Skeleton3D" index="1"]
+transform = Transform3D(0.574621, 0.049633007, -0.81691307, 0.028554976, -0.99876726, -0.040596128, -0.8179212, 6.2584877e-07, -0.57533, 2.0615616e-14, 0.53581, 0.674339)
+
+[node name="LHand_2" parent="DPS/DPS Player/Skeleton3D" index="2"]
+transform = Transform3D(0.57328725, 0.05569566, 0.817459, 0.034825563, -0.99844146, 0.04360321, 0.8186137, 0.0034713447, -0.57433367, 0.004963574, 0.53713846, -0.67523336)
+
+[node name="AnimationTree" type="AnimationTree" parent="DPS"]
+tree_root = SubResource("AnimationNodeBlendTree_phdsh")
+anim_player = NodePath("../AnimationPlayer")
+parameters/JumpBlend/blend_amount = 0.0
+parameters/WalkBlend/blend_amount = 0.0
+parameters/JumpWalk/current_state = "IsGrounded"
+parameters/JumpWalk/transition_request = ""
+parameters/JumpWalk/current_index = 0
+parameters/OneShot/active = false
+parameters/OneShot/internal_active = false
+parameters/OneShot/request = 0
+parameters/Shooting/current_state = "Atk"
+parameters/Shooting/transition_request = "Atk"
+parameters/Shooting/current_index = 0
+parameters/SpecialBlend/blend_amount = 0.0
+
+[editable path="DPS"]
