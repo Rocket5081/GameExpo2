@@ -6,6 +6,7 @@ public partial class ChoosingUpgrade : MenuButton
 
 	public void OnOptionPressed()
 	{
+		string[] splitOpt = opt.Split(':');
 		// Find the local player
 		Player localPlayer = null;
 		foreach (Node n in GetTree().GetNodesInGroup("Players"))
@@ -21,7 +22,7 @@ public partial class ChoosingUpgrade : MenuButton
 		{
 			// Send to the server — it applies the stat change authoritatively and
 			// broadcasts the result back to all peers via SyncUpgradeRpc.
-			localPlayer.RpcId(1, Player.MethodName.ServerApplyUpgrade, opt);
+			localPlayer.upgrade(splitOpt);
 		}
 
 		// Close the upgrade UI and return to gameplay

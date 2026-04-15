@@ -1,4 +1,5 @@
 using Godot;
+using System.Collections.Generic;
 using System;
 
 public partial class MainGame : Node3D
@@ -17,6 +18,12 @@ public partial class MainGame : Node3D
 	private bool   _started    = false;   // true once we're visible and running
 
 	private readonly int[] LevelWeights = { 50, 30, 5, 1 };
+
+	public float RoundTimer = 15f;
+	public float waitTimer = 0f;
+	public bool upgrading = false;
+
+	public List<Enemy> Enms     = new List<Enemy>();
 
 	public override void _Ready()
 	{
@@ -64,6 +71,26 @@ public partial class MainGame : Node3D
 			if (!Mathf.IsEqualApprox(_spawnTimer.WaitTime, newInterval))
 				_spawnTimer.WaitTime = newInterval;
 		}
+
+		Enms.RemoveAll(b => !IsInstanceValid(b));
+		if(RoundTimer > 0f)
+			RoundTimer -= (float)delta;
+		else if(RoundTimer <= 0f && Enms.Count == 0){
+			if(!upgrading){
+				foreach (Player player in GetTree().GetNodesInGroup("Players"))
+				{
+					player.ShowUpgradeUI();
+				}
+				upgrading = true;
+			}
+			if(waitTimer <= 0f){
+				waitTimer = 10f;
+				RoundTimer = 45f;
+				upgrading = false;
+			}
+			else
+			waitTimer -= (float)delta;
+		}
 	}
 
 	// ── Spawn helpers ─────────────────────────────────────────────────────────
@@ -72,7 +99,8 @@ public partial class MainGame : Node3D
 	{
 		// Only the server spawns enemies.
 		if (!GenericCore.Instance.IsServer) return;
-		SpawnEnemyRPC();
+		if(RoundTimer > 0f)
+			SpawnEnemyRPC();
 	}
 
 	private void SpawnEnemyRPC()

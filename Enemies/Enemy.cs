@@ -28,6 +28,8 @@ public partial class Enemy : CharacterBody3D
 
 		if (GenericCore.Instance != null && GenericCore.Instance.IsServer)
 			SetupContactArea();
+
+		GetParent().GetParent<MainGame>().Enms.Add(this);
 	}
 
 	public override void _PhysicsProcess(double delta)

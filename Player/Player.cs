@@ -83,6 +83,7 @@ public partial class Player : CharacterBody3D
 	public float burstDelay = 0.1f;
 
 	public bool rewinding = false;
+	
 
 	public Godot.Collections.Dictionary rewindValues = new Godot.Collections.Dictionary
 	{
@@ -111,7 +112,6 @@ public partial class Player : CharacterBody3D
 			ev.Keycode = Key.Q;
 			InputMap.ActionAddEvent("ability", ev);
 		}
-		GD.Print(myId.IsLocal);
 	}
 
 	public override void _Input(InputEvent @event)
@@ -295,6 +295,8 @@ public partial class Player : CharacterBody3D
 
 		if (!GenericCore.Instance.IsServer)
 			UpdateAnimation();
+
+			
 
 	}
 
@@ -487,9 +489,6 @@ public partial class Player : CharacterBody3D
 
 	public async void ShootBullet(int count, float cooldown)
 	{
-		// Purge any freed bullets before reusing
-		Buls.RemoveAll(b => !IsInstanceValid(b));
-		if (Buls.Count == 0) { SpawnBullet(count, cooldown); return; }
 
 		for (int i = 0; i < count; i++)
 		{
@@ -595,20 +594,10 @@ public partial class Player : CharacterBody3D
 		_noDamageTimer  = 0f;
 		Rpc(MethodName.SyncScoreRpc, Score, Multiplier);
 
-		// Every KillsPerUpgrade kills, show the upgrade picker on the owning client
-		_killsSinceUpgrade++;
-		if (_killsSinceUpgrade >= KillsPerUpgrade)
-		{
-			_killsSinceUpgrade = 0;
-			Rpc(MethodName.ShowUpgradeUIRpc);
-		}
 	}
 
-	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true,
-		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-	private void ShowUpgradeUIRpc()
+	public void ShowUpgradeUI()
 	{
-		// Only the local peer shows the UI; other clients ignore this call
 		if (myId == null || !myId.IsLocal) return;
 		GetNodeOrNull<Upgrades>("Upgrades")
 			?.GetNodeOrNull<Options>("Options")
@@ -640,17 +629,10 @@ public partial class Player : CharacterBody3D
 	/// upgrade to the server. The server applies the stat change authoritatively,
 	/// then broadcasts the new values back to all peers so every display stays in sync.
 	/// </summary>
-	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false,
-		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-	public void ServerApplyUpgrade(string opt)
+	public void upgrade(string[] splitOpt)
 	{
-		if (!GenericCore.Instance.IsServer) return;
-
-		string[] parts = opt.Split(':');
-		string   type  = parts.Length > 0 ? parts[0] : "";
-		int      level = parts.Length > 1 && int.TryParse(parts[1], out int lv) ? lv : 1;
-
-		switch (type)
+		int level = splitOpt[1].ToInt();
+		switch (splitOpt[0])
 		{
 			case "AC":
 				float acReduction     = level * 2.5f;
@@ -669,7 +651,7 @@ public partial class Player : CharacterBody3D
 				break;
 
 			case "D":
-				damage += level * 2f;
+				damage += level * 5f;
 				break;
 
 			case "AP":
@@ -682,7 +664,7 @@ public partial class Player : CharacterBody3D
 			UltimateCooldownMax, UltimateCooldownTimer);
 	}
 
-	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true,
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true,
 		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	private void SyncUpgradeRpc(int newMaxHp, int newHp, float newDamage, float newMaxTimer,
 								int newBurstCount, float newUltMax, float newUltTimer)
@@ -698,34 +680,43 @@ public partial class Player : CharacterBody3D
 
 	// ── Rewind ────────────────────────────────────────────────────────────────
 
-	public virtual void rewind()
-	{
-		// Begin rewind — computeRewind() will step through stored frames
-		rewinding = true;
-	}
+	//RPC REWIND NEEDS TO EXSIST SO THAT THE SERVER WILL UPDATE POSITION OF THE PLAYER WHILE REWINDING
 
-	public virtual void computeRewind()
-	{
-		var positions  = (Godot.Collections.Array)rewindValues["position"];
-		var rotations  = (Godot.Collections.Array)rewindValues["rotation"];
-		var velocities = (Godot.Collections.Array)rewindValues["velocity"];
+	public void rewind()
+    {
+        rewinding = true;
+    }
 
-		if (positions.Count == 0)
-		{
-			rewinding = false;
-			return;
-		}
+    //https://www.youtube.com/watch?v=XoETrCrSkks a link for a complete description of rewind feature: 1:12 - 3:44
+    public void computeRewind()
+    {
+        var pos = ((Godot.Collections.Array)rewindValues["position"]).Last();
+        var rot = ((Godot.Collections.Array)rewindValues["rotation"]).Last();
+        ((Godot.Collections.Array)rewindValues["position"]).RemoveAt(((Godot.Collections.Array)rewindValues["position"]).Count -1);
+        ((Godot.Collections.Array)rewindValues["rotation"]).RemoveAt(((Godot.Collections.Array)rewindValues["rotation"]).Count -1);
+        if(((Godot.Collections.Array)rewindValues["position"]).Count == 0)
+        {
+            GetNode<CollisionShape3D>("CollisionShape3D").SetDeferred("disabled", false);
+            rewinding = false;
+            Position = (Vector3)pos;
+            Rotation = (Vector3)rot;
+            SyncedVelocity = (Vector3)((Godot.Collections.Array)rewindValues["velocity"]).First();
+            Rpc("computeRewindRPC", pos, rot);
 
-		int last = positions.Count - 1;
-		GlobalPosition = (Vector3)positions[last];
-		Rotation       = (Vector3)rotations[last];
-		SyncedVelocity = (Vector3)velocities[last];
-
-		positions.RemoveAt(last);
-		rotations.RemoveAt(last);
-		velocities.RemoveAt(last);
-
-		if (positions.Count == 0)
-			rewinding = false;
-	}
+        }
+        Position = (Vector3)pos;
+        Rotation = (Vector3)rot;
+        Rpc("computeRewindRPC", pos, rot);
+    }
+[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true,
+         TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+    public void computeRewindRPC( Vector3 pos, Vector3 rot)
+    {
+        if (GenericCore.Instance.IsServer)
+        {
+            SyncedVelocity = (Vector3)((Godot.Collections.Array)rewindValues["velocity"]).First();
+            Position = pos;
+            Rotation = rot;
+        }
+    }
 }
