@@ -78,8 +78,6 @@ ReticleLayer = NodePath("ReticleLayer")
 NameLabel = NodePath("NameLabel")
 FootstepPlayer = NodePath("Footsteps")
 FootstepInterval = 5.93
-burstCount = null
-burstDelay = null
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.062176645, 0)

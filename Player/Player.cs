@@ -37,7 +37,7 @@ public partial class Player : CharacterBody3D
 
 	private bool _isAttacking = false;
 
-	[Export] public AnimationTree myAnimTree;
+	//[Export] public AnimationTree myAnimTree;
 
 	private float _mouseDeltaX  = 0f;
 	private bool  _mouseCaptured = false;
@@ -99,9 +99,9 @@ public partial class Player : CharacterBody3D
 		base._Ready();
 		AddToGroup("Players");
 
-		if (myAnimTree != null){
-			myAnimTree.Active = true;
-		}
+		//if (myAnimTree != null){
+		//	myAnimTree.Active = true;
+		//}
 
 		// Register the "ability" (Q) action at runtime so it works without
 		// needing to be added manually in Project Settings → Input Map.
@@ -316,11 +316,11 @@ public partial class Player : CharacterBody3D
 	}
 
 
-	private void UpdateAnimation()
+	protected virtual void UpdateAnimation()
 	{
 		if (myAnimation == null) return;
 
-		if (myAnimation.CurrentAnimation == "Attack" && myAnimation.IsPlaying())
+		if (myAnimation.CurrentAnimation == "Shoot" && myAnimation.IsPlaying())
 			return;
 
 		if (SyncedIsJumping)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3 uid="uid://bfxq16gxvblha"]
+[gd_scene load_steps=27 format=3 uid="uid://bfxq16gxvblha"]
 
 [ext_resource type="Script" uid="uid://yo2i7m3b6pph" path="res://NetworkCore/NetID.cs" id="1_7ks6i"]
 [ext_resource type="Script" uid="uid://fy4vxbxhv0ql" path="res://Player/DpsPlayer.cs" id="1_k2htt"]
@@ -110,7 +110,7 @@ input_1/reset = true
 [sub_resource type="AnimationNodeBlend2" id="AnimationNodeBlend2_ue2gr"]
 
 [sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_phdsh"]
-graph_offset = Vector2(-931.83264, 117.31943)
+graph_offset = Vector2(240, 293)
 nodes/output/position = Vector2(560, 340)
 nodes/JumpBlend/node = SubResource("AnimationNodeBlend3_12nkl")
 nodes/JumpBlend/position = Vector2(-840, -160)
@@ -140,7 +140,7 @@ nodes/Shooting/position = Vector2(-340, 700)
 "nodes/Animation 7/position" = Vector2(-1180, 1060)
 nodes/SpecialBlend/node = SubResource("AnimationNodeBlend2_s8v7y")
 nodes/SpecialBlend/position = Vector2(-820, 1080)
-node_connections = [&"output", 0, &"OneShot", &"JumpBlend", 0, &"Animation", &"JumpBlend", 1, &"Animation 2", &"JumpBlend", 2, &"Animation 3", &"WalkBlend", 0, &"Animation 4", &"WalkBlend", 1, &"Animation 5", &"JumpWalk", 0, &"WalkBlend", &"JumpWalk", 1, &"JumpBlend", &"OneShot", 0, &"JumpWalk", &"OneShot", 1, &"Shooting", &"Shooting", 0, &"Animation 6", &"Shooting", 1, &"SpecialBlend", &"SpecialBlend", 0, &"Animation 7", &"SpecialBlend", 1, &"Animation 8"]
+node_connections = [&"JumpBlend", 0, &"Animation", &"JumpBlend", 1, &"Animation 2", &"JumpBlend", 2, &"Animation 3", &"WalkBlend", 0, &"Animation 4", &"WalkBlend", 1, &"Animation 5", &"JumpWalk", 0, &"WalkBlend", &"JumpWalk", 1, &"JumpBlend", &"OneShot", 0, &"JumpWalk", &"OneShot", 1, &"Shooting", &"Shooting", 0, &"Animation 6", &"Shooting", 1, &"SpecialBlend", &"SpecialBlend", 0, &"Animation 7", &"SpecialBlend", 1, &"Animation 8"]
 
 [node name="DPS_Player" type="CharacterBody3D" node_paths=PackedStringArray("ShootSoundPlayer", "UltimateSound", "myAnimation", "myId", "BulletSpawn", "ReticleLayer", "NameLabel", "FootstepPlayer", "myAnimTree") groups=["Players"]]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
@@ -208,26 +208,26 @@ volume_db = -10.0
 transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, -0.10930401, -0.80604434, -0.013012826)
 
 [node name="Skeleton3D" parent="DPS/DPS Player" index="0"]
-bones/1/rotation = Quaternion(6.663965e-08, 1.0041667e-08, -0.13824697, 0.9903978)
+bones/1/rotation = Quaternion(6.663965e-08, 1.0041667e-08, -0.13824695, 0.9903978)
 bones/2/position = Vector3(-7.898886e-17, -0.17786717, 0.19955821)
 bones/2/rotation = Quaternion(-7.54979e-08, 1.6763906e-23, 1, -6.8964377e-38)
 bones/3/rotation = Quaternion(-1.7342849e-07, 1.1036127e-07, 0.7071068, 0.7071068)
 bones/4/position = Vector3(-4.0457715e-17, -0.18220532, -0.19522)
-bones/4/rotation = Quaternion(0.99995714, -1.09989697e-16, -1.09989405e-16, -0.0092580635)
+bones/4/rotation = Quaternion(0.9999572, -1.099897e-16, -1.0998941e-16, -0.009258064)
 bones/5/rotation = Quaternion(-4.609812e-09, -4.609812e-09, -0.7071068, 0.7071068)
-bones/6/rotation = Quaternion(0.88515854, 4.4373425e-07, 8.4415217e-07, 0.46528956)
-bones/7/rotation = Quaternion(0.4026943, -0.39750347, -0.23383944, 0.79066265)
-bones/8/rotation = Quaternion(0.884699, 0.0026731575, 0.0014299618, -0.46615306)
-bones/9/rotation = Quaternion(-0.404599, 0.39488992, -0.235178, 0.7906029)
+bones/6/rotation = Quaternion(0.8851585, 4.437342e-07, 8.4415217e-07, 0.4652896)
+bones/7/rotation = Quaternion(0.40411896, -0.39894474, -0.2311752, 0.78999305)
+bones/8/rotation = Quaternion(0.8851585, -9.148699e-18, -9.1487e-18, -0.4652896)
+bones/9/rotation = Quaternion(-0.4041187, 0.39894497, -0.23117608, 0.7899928)
 
 [node name="Head_2" parent="DPS/DPS Player/Skeleton3D" index="0"]
-transform = Transform3D(0.96177536, 0.27383894, 1.4650305e-09, -0.27383894, 0.96177536, -1.3477596e-07, -3.831594e-08, 1.2922304e-07, 0.9999999, 0, 0.9999999, 0)
+transform = Transform3D(0.96177536, 0.2738389, 1.4650323e-09, -0.2738389, 0.96177536, -1.3477596e-07, -3.831594e-08, 1.2922304e-07, 0.9999999, 0, 0.9999999, 0)
 
 [node name="RHand_2" parent="DPS/DPS Player/Skeleton3D" index="1"]
-transform = Transform3D(0.574621, 0.049633007, -0.81691307, 0.028554976, -0.99876726, -0.040596128, -0.8179212, 6.2584877e-07, -0.57533, 2.0615616e-14, 0.53581, 0.674339)
+transform = Transform3D(0.57480305, 0.0428129, -0.8171709, 0.024631083, -0.9990828, -0.03501782, -0.81792074, 7.748604e-07, -0.5753305, -7.245535e-14, 0.5358101, 0.674339)
 
 [node name="LHand_2" parent="DPS/DPS Player/Skeleton3D" index="2"]
-transform = Transform3D(0.57328725, 0.05569566, 0.817459, 0.034825563, -0.99844146, 0.04360321, 0.8186137, 0.0034713447, -0.57433367, 0.004963574, 0.53713846, -0.67523336)
+transform = Transform3D(0.57480097, 0.042812638, 0.81717235, 0.024631143, -0.9990828, 0.03501755, 0.8179222, -2.0861626e-07, -0.5753284, -2.0228849e-17, 0.5358101, -0.67433906)
 
 [node name="AnimationTree" type="AnimationTree" parent="DPS"]
 tree_root = SubResource("AnimationNodeBlendTree_phdsh")
@@ -245,7 +245,8 @@ parameters/Shooting/transition_request = "Atk"
 parameters/Shooting/current_index = 0
 parameters/SpecialBlend/blend_amount = 0.0
 
-[editable path="DPS"]
 [node name="RespawnSound" type="AudioStreamPlayer3D" parent="."]
 stream = ExtResource("9_6f1m7")
 volume_db = -20.0
+
+[editable path="DPS"]

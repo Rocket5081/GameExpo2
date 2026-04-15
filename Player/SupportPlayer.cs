@@ -10,6 +10,8 @@ public partial class SupportPlayer : Player
 	private const float LaserRange = 40f;
 	private bool  _wasPressingFire  = false;
 
+	private bool pressing = false;
+
 	
 	private float _laserDamageTimer  = 0f;
 	private const float LaserDamageInterval = 0.15f; // seconds between laser ticks
@@ -55,6 +57,34 @@ public partial class SupportPlayer : Player
 		UltimateSound?.Play();
 	}
 
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true,
+     TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public new void PlayAttackAnimation()
+	{
+	    if (myAnimation == null) return;
+	    myAnimation.Play("Shoot");
+	}
+
+	protected override void UpdateAnimation()
+	{
+		if (myAnimation == null) return;
+
+		if (pressing)
+    	{
+        	// Freeze on last frame while holding
+        	myAnimation.Play("Shoot");
+        	myAnimation.Seek(myAnimation.CurrentAnimationLength, true);
+        	myAnimation.Pause();
+        	return;
+    	}
+
+    	// Released — let the base handle walk/idle/jump as normal
+    	if (myAnimation.CurrentAnimation == "Shoot")
+        	myAnimation.Play("BaseStance");
+
+		base.UpdateAnimation();
+	}
+
 	public override void _Process(double delta)
 	{
 		base._Process(delta);
@@ -63,7 +93,7 @@ public partial class SupportPlayer : Player
 
 		if (myId.IsLocal)
 		{
-			bool pressing = Input.IsActionPressed("primary");
+			pressing = Input.IsActionPressed("primary");
 
 			
 			if (LaserBeam != null)
