@@ -8263,7 +8263,7 @@ _subresources={
 "slice_99/start_frame": 0,
 "slices/amount": 0
 },
-"WalkAim": {
+"WalkB": {
 "save_to_file/enabled": false,
 "save_to_file/fallback_path": "",
 "save_to_file/keep_custom_tracks": "",
@@ -10319,7 +10319,7 @@ _subresources={
 "slice_99/start_frame": 0,
 "slices/amount": 0
 },
-"WalkB": {
+"WalkCycle": {
 "save_to_file/enabled": false,
 "save_to_file/fallback_path": "",
 "save_to_file/keep_custom_tracks": "",

@@ -1,11 +1,10 @@
 [gd_scene load_steps=7 format=3 uid="uid://58ejfhqucfn5"]
 
 [ext_resource type="Script" uid="uid://damevuw5y8p1" path="res://Player/Bullet.cs" id="1_ayd6b"]
+[ext_resource type="PackedScene" uid="uid://c7dq4pcv1otxc" path="res://Assets/Bullet.glb" id="2_ft26q"]
 [ext_resource type="Script" uid="uid://yo2i7m3b6pph" path="res://NetworkCore/NetID.cs" id="2_netid"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_x3e43"]
-
-[sub_resource type="SphereMesh" id="SphereMesh_ayd6b"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_4s4u5"]
 
@@ -25,9 +24,13 @@ properties/3/replication_mode = 1
 properties/4/path = NodePath("MultiplayerSynchronizer:OwnerId")
 properties/4/spawn = true
 properties/4/replication_mode = 1
+properties/5/path = NodePath(".:rotation")
+properties/5/spawn = true
+properties/5/replication_mode = 2
 
-[node name="Bullet" type="RigidBody3D"]
+[node name="Bullet" type="RigidBody3D" node_paths=PackedStringArray("myId")]
 script = ExtResource("1_ayd6b")
+myId = NodePath("MultiplayerSynchronizer")
 
 [node name="Area3D" type="Area3D" parent="."]
 transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, 0, 0)
@@ -35,8 +38,8 @@ transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, 0, 0)
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
 shape = SubResource("SphereShape3D_x3e43")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-mesh = SubResource("SphereMesh_ayd6b")
+[node name="Bullet" parent="." instance=ExtResource("2_ft26q")]
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0.28808743, 0, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("SphereShape3D_4s4u5")
