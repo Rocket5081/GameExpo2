@@ -28,6 +28,8 @@ public partial class TankPlayer : Player
 	protected override void OnLocalUltimateActivated()
 	{
 		UltimateSound?.Play();
+		if (!GenericCore.Instance.IsServer)
+			myAnimation?.Play("SpecialAttackI");
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false,

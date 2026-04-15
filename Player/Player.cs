@@ -323,6 +323,12 @@ public partial class Player : CharacterBody3D
 		if (myAnimation.CurrentAnimation == "Shoot" && myAnimation.IsPlaying())
 			return;
 
+		if (myAnimation.CurrentAnimation == "SpecialIntro" && myAnimation.IsPlaying())
+			return;
+
+		if (myAnimation.CurrentAnimation == "SpecialAttackI" && myAnimation.IsPlaying())
+			return;
+
 		if (SyncedIsJumping)
 		{
 			myAnimation.Play("Falling");

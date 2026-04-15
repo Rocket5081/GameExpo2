@@ -55,6 +55,8 @@ public partial class SupportPlayer : Player
 	protected override void OnLocalUltimateActivated()
 	{
 		UltimateSound?.Play();
+		if (!GenericCore.Instance.IsServer)
+			myAnimation?.Play("Special");
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true,
@@ -82,6 +84,8 @@ public partial class SupportPlayer : Player
     	if (myAnimation.CurrentAnimation == "Shoot")
         	myAnimation.Play("BaseStance");
 
+
+		if(myAnimation.CurrentAnimation == "Special" && myAnimation.IsPlaying() == true)return;
 		base.UpdateAnimation();
 	}
 

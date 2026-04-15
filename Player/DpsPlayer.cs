@@ -27,6 +27,8 @@ public partial class DpsPlayer : Player
 	protected override void OnLocalUltimateActivated()
 	{
 		UltimateSound?.Play();
+		if (!GenericCore.Instance.IsServer)
+			myAnimation?.Play("SpecialIntro");
 	}
 
 	public override void _Process(double delta)
