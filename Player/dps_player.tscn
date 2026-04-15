@@ -110,7 +110,7 @@ input_1/reset = true
 [sub_resource type="AnimationNodeBlend2" id="AnimationNodeBlend2_ue2gr"]
 
 [sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_phdsh"]
-graph_offset = Vector2(240, 293)
+graph_offset = Vector2(-640.9646, -166.87375)
 nodes/output/position = Vector2(560, 340)
 nodes/JumpBlend/node = SubResource("AnimationNodeBlend3_12nkl")
 nodes/JumpBlend/position = Vector2(-840, -160)
@@ -142,7 +142,7 @@ nodes/SpecialBlend/node = SubResource("AnimationNodeBlend2_s8v7y")
 nodes/SpecialBlend/position = Vector2(-820, 1080)
 node_connections = [&"JumpBlend", 0, &"Animation", &"JumpBlend", 1, &"Animation 2", &"JumpBlend", 2, &"Animation 3", &"WalkBlend", 0, &"Animation 4", &"WalkBlend", 1, &"Animation 5", &"JumpWalk", 0, &"WalkBlend", &"JumpWalk", 1, &"JumpBlend", &"OneShot", 0, &"JumpWalk", &"OneShot", 1, &"Shooting", &"Shooting", 0, &"Animation 6", &"Shooting", 1, &"SpecialBlend", &"SpecialBlend", 0, &"Animation 7", &"SpecialBlend", 1, &"Animation 8"]
 
-[node name="DPS_Player" type="CharacterBody3D" node_paths=PackedStringArray("ShootSoundPlayer", "UltimateSound", "myAnimation", "myId", "BulletSpawn", "ReticleLayer", "NameLabel", "FootstepPlayer", "myAnimTree") groups=["Players"]]
+[node name="DPS_Player" type="CharacterBody3D" node_paths=PackedStringArray("ShootSoundPlayer", "UltimateSound", "myAnimation", "myId", "BulletSpawn", "ReticleLayer", "NameLabel", "FootstepPlayer") groups=["Players"]]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
 collision_layer = 2
 script = ExtResource("1_k2htt")
@@ -155,8 +155,6 @@ ReticleLayer = NodePath("ReticleLayer")
 NameLabel = NodePath("NameLabel")
 FootstepPlayer = NodePath("Footsteps")
 FootstepInterval = 5.93
-myAnimTree = NodePath("DPS/AnimationTree")
-RespawnSound = NodePath("RespawnSound")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1936655, 0)
@@ -213,21 +211,21 @@ bones/2/position = Vector3(-7.898886e-17, -0.17786717, 0.19955821)
 bones/2/rotation = Quaternion(-7.54979e-08, 1.6763906e-23, 1, -6.8964377e-38)
 bones/3/rotation = Quaternion(-1.7342849e-07, 1.1036127e-07, 0.7071068, 0.7071068)
 bones/4/position = Vector3(-4.0457715e-17, -0.18220532, -0.19522)
-bones/4/rotation = Quaternion(0.9999572, -1.099897e-16, -1.0998941e-16, -0.009258064)
+bones/4/rotation = Quaternion(0.99995714, -1.09989697e-16, -1.09989405e-16, -0.0092580635)
 bones/5/rotation = Quaternion(-4.609812e-09, -4.609812e-09, -0.7071068, 0.7071068)
-bones/6/rotation = Quaternion(0.8851585, 4.437342e-07, 8.4415217e-07, 0.4652896)
-bones/7/rotation = Quaternion(0.40411896, -0.39894474, -0.2311752, 0.78999305)
+bones/6/rotation = Quaternion(0.8996336, 4.1641727e-07, 8.579566e-07, 0.43664563)
+bones/7/rotation = Quaternion(0.3765688, -0.40723243, -0.21496007, 0.8038345)
 bones/8/rotation = Quaternion(0.8851585, -9.148699e-18, -9.1487e-18, -0.4652896)
-bones/9/rotation = Quaternion(-0.4041187, 0.39894497, -0.23117608, 0.7899928)
+bones/9/rotation = Quaternion(-0.4041187, 0.39894494, -0.23117611, 0.7899928)
 
 [node name="Head_2" parent="DPS/DPS Player/Skeleton3D" index="0"]
 transform = Transform3D(0.96177536, 0.2738389, 1.4650323e-09, -0.2738389, 0.96177536, -1.3477596e-07, -3.831594e-08, 1.2922304e-07, 0.9999999, 0, 0.9999999, 0)
 
 [node name="RHand_2" parent="DPS/DPS Player/Skeleton3D" index="1"]
-transform = Transform3D(0.57480305, 0.0428129, -0.8171709, 0.024631083, -0.9990828, -0.03501782, -0.81792074, 7.748604e-07, -0.5753305, -7.245535e-14, 0.5358101, 0.674339)
+transform = Transform3D(0.5759087, 0.03888407, -0.81658864, 0.016393572, -0.9992164, -0.03601855, -0.81734943, 0.007356733, -0.576095, 6.715105e-14, 0.49350983, 0.6431743)
 
 [node name="LHand_2" parent="DPS/DPS Player/Skeleton3D" index="2"]
-transform = Transform3D(0.57480097, 0.042812638, 0.81717235, 0.024631143, -0.9990828, 0.03501755, 0.8179222, -2.0861626e-07, -0.5753284, -2.0228849e-17, 0.5358101, -0.67433906)
+transform = Transform3D(0.57480097, 0.042812727, 0.8171723, 0.024631262, -0.9990828, 0.03501755, 0.8179222, -1.4901161e-07, -0.5753284, -2.0228849e-17, 0.5358101, -0.67433906)
 
 [node name="AnimationTree" type="AnimationTree" parent="DPS"]
 tree_root = SubResource("AnimationNodeBlendTree_phdsh")

@@ -155,7 +155,8 @@ public partial class Player : CharacterBody3D
 			_mouseCaptured = true;
 		}
 
-		if (!myId.IsNetworkReady) return;
+		//added or part cause he said so. if it breaks something just remove it.
+		if (!myId.IsNetworkReady || !GenericCore.Instance.IsGenericCoreConnected) return;
 
 		// ── Shoot cooldown ────────────────────────────────────────────────────
 		if (!canShoot)
@@ -272,7 +273,7 @@ public partial class Player : CharacterBody3D
 
 			if (Input.IsActionPressed("primary") && canShoot)
 			{
-				canShoot = false;
+				//canShoot = false;
 				RpcId(1, "Fire");
 				Rpc("PlayAttackAnimation");
 			}
@@ -296,8 +297,6 @@ public partial class Player : CharacterBody3D
 		if (!GenericCore.Instance.IsServer)
 			UpdateAnimation();
 
-			
-
 	}
 
 	public override void _PhysicsProcess(double delta)
@@ -320,8 +319,10 @@ public partial class Player : CharacterBody3D
 	{
 		if (myAnimation == null) return;
 
-		if (myAnimation.CurrentAnimation == "Shoot" && myAnimation.IsPlaying())
+		if (myAnimation.CurrentAnimation == "Shoot" && myAnimation.IsPlaying()){
+			GD.Print("Playing shoot animation: " + myAnimation.IsPlaying());
 			return;
+		}
 
 		if (myAnimation.CurrentAnimation == "SpecialIntro" && myAnimation.IsPlaying())
 			return;
