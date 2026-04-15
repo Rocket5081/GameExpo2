@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://crynxmhfqxpn2"]
+[gd_scene load_steps=15 format=3 uid="uid://crynxmhfqxpn2"]
 
 [ext_resource type="Script" uid="uid://lo1q22j2v18t" path="res://Player/TankPlayer.cs" id="1_pm5gu"]
 [ext_resource type="Script" uid="uid://yo2i7m3b6pph" path="res://NetworkCore/NetID.cs" id="2_bwhdg"]
@@ -8,6 +8,7 @@
 [ext_resource type="AudioStream" uid="uid://cj8irjfvrrw5k" path="res://Sounds/blunderbuss-shot.mp3" id="5_8hwvg"]
 [ext_resource type="AudioStream" uid="uid://ppjebi50m8yd" path="res://Sounds/Footstep SFX.mp3" id="6_8hwvg"]
 [ext_resource type="PackedScene" uid="uid://b3umo383v0otl" path="res://Assets/Pirate/Tank.glb" id="8_a30e7"]
+[ext_resource type="PackedScene" uid="uid://l5qklon8275i" path="res://Player/ShotParticles.tscn" id="9_6kt7u"]
 [ext_resource type="AudioStream" uid="uid://v85a56osk0cx" path="res://Sounds/Revive sound.mp3" id="9_o6woj"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_nxeor"]
@@ -54,12 +55,19 @@ properties/12/path = NodePath(".:maxHp")
 properties/12/spawn = true
 properties/12/replication_mode = 2
 
-[node name="Tank_Player" type="CharacterBody3D" node_paths=PackedStringArray("ShootSoundPlayer", "UltimateSound", "myAnimation", "myId", "BulletSpawn", "ReticleLayer", "NameLabel", "FootstepPlayer") groups=["Players"]]
+[sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_o6woj"]
+
+[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_6kt7u"]
+states/BlendTree/node = SubResource("AnimationNodeBlendTree_o6woj")
+states/BlendTree/position = Vector2(510, 132)
+
+[node name="Tank_Player" type="CharacterBody3D" node_paths=PackedStringArray("ShootSoundPlayer", "UltimateSound", "gunFlash", "myAnimation", "myId", "BulletSpawn", "ReticleLayer", "NameLabel", "FootstepPlayer") groups=["Players"]]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
 collision_layer = 2
 script = ExtResource("1_pm5gu")
 ShootSoundPlayer = NodePath("Shooting")
 UltimateSound = NodePath("Ultimate")
+gunFlash = NodePath("Tank/Pirate/Skeleton3D/Blunderbuss/BlunderBuss/GPUParticles3D")
 myAnimation = NodePath("Tank/AnimationPlayer")
 myId = NodePath("MultiplayerSynchronizer")
 BulletSpawn = NodePath("BulletSpawn")
@@ -67,8 +75,6 @@ ReticleLayer = NodePath("ReticleLayer")
 NameLabel = NodePath("NameLabel")
 FootstepPlayer = NodePath("Footsteps")
 FootstepInterval = 5.93
-burstCount = null
-burstDelay = null
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.16210938, 0)
@@ -119,44 +125,12 @@ volume_db = -15.0
 [node name="Tank" parent="." instance=ExtResource("8_a30e7")]
 transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0.007922649, -1.0139239, 0.023831487)
 
-[node name="Skeleton3D" parent="Tank/Pirate" index="0"]
-bones/1/rotation = Quaternion(0.004716824, 1.1920788e-07, 5.6228866e-10, 0.999989)
-bones/2/rotation = Quaternion(-0.004716824, 6.039759e-14, -1.1245777e-09, 0.999989)
-bones/3/rotation = Quaternion(0.7442618, 0.27881628, -0.43263823, 0.42562908)
-bones/4/rotation = Quaternion(-0.072007, 0.11785829, -0.49350065, 0.8587093)
-bones/5/position = Vector3(0.13509487, 0.46655113, -0.20372699)
-bones/5/rotation = Quaternion(-0.20746219, 0.93601924, -0.1859897, 0.21502388)
-bones/6/rotation = Quaternion(0.5740424, 0.40371758, 0.5083529, -0.49906397)
-bones/7/rotation = Quaternion(-0.46828234, -0.8735257, -0.116410874, 0.06413383)
-bones/8/rotation = Quaternion(-0.58382803, 0.39527088, 0.5872311, 0.39757466)
-bones/9/position = Vector3(1.785013e-14, -0.50500417, 0.48439264)
-bones/9/rotation = Quaternion(-4.3303186e-07, -0.020819824, 0.9997833, 9.0176e-09)
-bones/10/position = Vector3(-1.0755661e-16, -0.50500417, -0.48439267)
-bones/10/rotation = Quaternion(0.9999036, -1.1255318e-16, -1.125578e-16, 0.0138848685)
+[node name="GPUParticles3D" parent="Tank/Pirate/Skeleton3D/Blunderbuss/BlunderBuss" index="0" instance=ExtResource("9_6kt7u")]
+transform = Transform3D(-4.3711385e-08, 1, 0, -0.99999994, -4.371139e-08, 0, 0, 0, 1, -1.1920929e-07, -1.8241826, 0)
 
-[node name="Hat_2" parent="Tank/Pirate/Skeleton3D" index="0"]
-transform = Transform3D(1, 0, 2.3841847e-07, 3.1427633e-16, 0.9999998, 0, -2.3841852e-07, 0, 0.9999998, 2.0851161e-10, 2.9454708, 0.010306214)
-
-[node name="Head_2" parent="Tank/Pirate/Skeleton3D" index="1"]
-transform = Transform3D(1, 2.2204459e-16, 2.3841837e-07, 2.2491295e-09, 0.9999554, -0.0094335405, -2.3840778e-07, 0.0094335405, 0.9999554, 0, 1.8530124, 0)
-
-[node name="Blunderbuss" parent="Tank/Pirate/Skeleton3D" index="2"]
-transform = Transform3D(-0.004392877, 0.9791971, -0.20286375, -0.18770146, 0.19845259, 0.9619692, 0.98221624, 0.042303875, 0.18292496, 1.8298032, 1.2265868, 0.49211037)
-
-[node name="RightHand" parent="Tank/Pirate/Skeleton3D" index="3"]
-transform = Transform3D(-0.3956835, 0.8817529, -0.25680023, 0.5544469, 0.006439209, -0.8321943, -0.73213625, -0.4716674, -0.49143308, 1.419558, 0.97913915, 0.710957)
-
-[node name="LeftHand" parent="Tank/Pirate/Skeleton3D" index="4"]
-transform = Transform3D(0.7328017, 0.6756024, 0.08101402, 0.10041777, 0.01038146, -0.9948914, -0.6729918, 0.73719305, -0.060234867, 1.7595218, 1.534247, -0.2945014)
-
-[node name="Sword_2" parent="Tank/Pirate/Skeleton3D" index="5"]
-transform = Transform3D(-0.002158642, -0.9284768, -0.37138447, 0.005395979, -0.37139085, 0.92846096, -0.9999832, 2.6822093e-07, 0.005811751, 0.6699036, 0.535923, -0.60806644)
-
-[node name="RightLeg" parent="Tank/Pirate/Skeleton3D" index="6"]
-transform = Transform3D(-0.9999999, 3.5527145e-15, -8.6625204e-07, 3.606258e-08, -0.9991332, -0.041630648, -8.655004e-07, -0.04163063, 0.99913377, 1.785013e-14, -0.50500417, 0.48439264)
-
-[node name="LeftLeg" parent="Tank/Pirate/Skeleton3D" index="7"]
-transform = Transform3D(1, -2.2195895e-16, -2.282195e-16, -2.2821037e-16, -0.9996144, -0.027767064, -2.2196832e-16, 0.027767058, -0.9996146, -1.0755661e-16, -0.50500417, -0.48439267)
+[node name="AnimationTree" type="AnimationTree" parent="Tank"]
+tree_root = SubResource("AnimationNodeStateMachine_6kt7u")
+anim_player = NodePath("../AnimationPlayer")
 
 [node name="RespawnSound" type="AudioStreamPlayer3D" parent="."]
 stream = ExtResource("9_o6woj")

@@ -6,6 +6,8 @@ public partial class DpsPlayer : Player
 	[Export] public AudioStreamPlayer3D ShootSoundPlayer;
 	[Export] public AudioStreamPlayer3D UltimateSound;
 
+	[Export] public GpuParticles3D gunFlash;
+
 	// ── Ultra state (server-side) ─────────────────────────────────────────────
 	private bool  _ultraActive = false;
 	private float _ultraTimer  = 0f;
@@ -30,6 +32,17 @@ public partial class DpsPlayer : Player
 		if (!GenericCore.Instance.IsServer)
 			myAnimation?.Play("SpecialIntro");
 	}
+
+	private async void PlayBurstFlash(int count, float delay)
+    {
+        if (gunFlash == null) return;
+
+        for (int i = 0; i < count; i++)
+        {
+            gunFlash.Restart(); // emits one burst
+            await ToSignal(GetTree().CreateTimer(delay), SceneTreeTimer.SignalName.Timeout);
+        }
+    }
 
 	public override void _Process(double delta)
 	{
@@ -58,6 +71,7 @@ public partial class DpsPlayer : Player
 		timer    = maxTimer;
 
 		ShootSoundPlayer?.Play();
+		PlayBurstFlash(burstCount, burstDelay);
 		
 		if (Buls.Count < 60)
 			SpawnBullet(burstCount, burstDelay);

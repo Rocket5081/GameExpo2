@@ -8,6 +8,8 @@ public partial class TankPlayer : Player
 
 	[Export] public AudioStreamPlayer3D UltimateSound;
 
+	[Export] public GpuParticles3D gunFlash;
+
 	private static readonly float[] SpreadAngles = { 0.5f, 0.3f, 0.1f, -0.1f, -0.3f, -0.5f };
 
 	public override void _Ready()
@@ -43,6 +45,7 @@ public partial class TankPlayer : Player
 		timer    = 0.5f;
 
 		ShootSoundPlayer?.Play();
+		gunFlash?.Restart();
 
 		int count = SpreadAngles.Length;
 

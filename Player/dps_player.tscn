@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3 uid="uid://bfxq16gxvblha"]
+[gd_scene load_steps=28 format=3 uid="uid://bfxq16gxvblha"]
 
 [ext_resource type="Script" uid="uid://yo2i7m3b6pph" path="res://NetworkCore/NetID.cs" id="1_7ks6i"]
 [ext_resource type="Script" uid="uid://fy4vxbxhv0ql" path="res://Player/DpsPlayer.cs" id="1_k2htt"]
@@ -8,6 +8,7 @@
 [ext_resource type="AudioStream" uid="uid://dx2stp6nyc40f" path="res://Sounds/Dps Triple Shot.mp3" id="5_f4wrp"]
 [ext_resource type="AudioStream" uid="uid://ppjebi50m8yd" path="res://Sounds/Footstep SFX.mp3" id="6_f4wrp"]
 [ext_resource type="PackedScene" uid="uid://br1l666tmqbyw" path="res://Assets/Cowboy/DPS.glb" id="8_yrita"]
+[ext_resource type="PackedScene" uid="uid://l5qklon8275i" path="res://Player/ShotParticles.tscn" id="9_3ylyi"]
 [ext_resource type="AudioStream" uid="uid://v85a56osk0cx" path="res://Sounds/Revive sound.mp3" id="9_6f1m7"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_wsqot"]
@@ -56,6 +57,9 @@ properties/12/replication_mode = 2
 properties/13/path = NodePath(".:SpecialActive")
 properties/13/spawn = true
 properties/13/replication_mode = 2
+properties/14/path = NodePath("DPS/DPS Player/Skeleton3D/RHand_2/RHand/Revovler/GPUParticles3D:emitting")
+properties/14/spawn = true
+properties/14/replication_mode = 2
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_yrita"]
 animation = &"Falling"
@@ -110,7 +114,7 @@ input_1/reset = true
 [sub_resource type="AnimationNodeBlend2" id="AnimationNodeBlend2_ue2gr"]
 
 [sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_phdsh"]
-graph_offset = Vector2(-640.9646, -166.87375)
+graph_offset = Vector2(-864.709, 62.158722)
 nodes/output/position = Vector2(560, 340)
 nodes/JumpBlend/node = SubResource("AnimationNodeBlend3_12nkl")
 nodes/JumpBlend/position = Vector2(-840, -160)
@@ -142,12 +146,13 @@ nodes/SpecialBlend/node = SubResource("AnimationNodeBlend2_s8v7y")
 nodes/SpecialBlend/position = Vector2(-820, 1080)
 node_connections = [&"JumpBlend", 0, &"Animation", &"JumpBlend", 1, &"Animation 2", &"JumpBlend", 2, &"Animation 3", &"WalkBlend", 0, &"Animation 4", &"WalkBlend", 1, &"Animation 5", &"JumpWalk", 0, &"WalkBlend", &"JumpWalk", 1, &"JumpBlend", &"OneShot", 0, &"JumpWalk", &"OneShot", 1, &"Shooting", &"Shooting", 0, &"Animation 6", &"Shooting", 1, &"SpecialBlend", &"SpecialBlend", 0, &"Animation 7", &"SpecialBlend", 1, &"Animation 8"]
 
-[node name="DPS_Player" type="CharacterBody3D" node_paths=PackedStringArray("ShootSoundPlayer", "UltimateSound", "myAnimation", "myId", "BulletSpawn", "ReticleLayer", "NameLabel", "FootstepPlayer") groups=["Players"]]
+[node name="DPS_Player" type="CharacterBody3D" node_paths=PackedStringArray("ShootSoundPlayer", "UltimateSound", "gunFlash", "myAnimation", "myId", "BulletSpawn", "ReticleLayer", "NameLabel", "FootstepPlayer") groups=["Players"]]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
 collision_layer = 2
 script = ExtResource("1_k2htt")
 ShootSoundPlayer = NodePath("Shooting")
 UltimateSound = NodePath("Ultimate")
+gunFlash = NodePath("DPS/DPS Player/Skeleton3D/RHand_2/RHand/Revovler/GPUParticles3D")
 myAnimation = NodePath("DPS/AnimationPlayer")
 myId = NodePath("MultiplayerSynchronizer")
 BulletSpawn = NodePath("BulletSpawn")
@@ -206,26 +211,29 @@ volume_db = -10.0
 transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, -0.10930401, -0.80604434, -0.013012826)
 
 [node name="Skeleton3D" parent="DPS/DPS Player" index="0"]
-bones/1/rotation = Quaternion(6.663965e-08, 1.0041667e-08, -0.13824695, 0.9903978)
+bones/1/rotation = Quaternion(6.478957e-08, -3.2122578e-09, -0.13824695, 0.9903978)
 bones/2/position = Vector3(-7.898886e-17, -0.17786717, 0.19955821)
-bones/2/rotation = Quaternion(-7.54979e-08, 1.6763906e-23, 1, -6.8964377e-38)
-bones/3/rotation = Quaternion(-1.7342849e-07, 1.1036127e-07, 0.7071068, 0.7071068)
+bones/2/rotation = Quaternion(-7.549033e-08, 1.0707532e-09, 0.99989945, 0.01418263)
+bones/3/rotation = Quaternion(-1.9745302e-07, 8.751375e-08, 0.7149756, 0.6991495)
 bones/4/position = Vector3(-4.0457715e-17, -0.18220532, -0.19522)
-bones/4/rotation = Quaternion(0.99995714, -1.09989697e-16, -1.09989405e-16, -0.0092580635)
-bones/5/rotation = Quaternion(-4.609812e-09, -4.609812e-09, -0.7071068, 0.7071068)
-bones/6/rotation = Quaternion(0.8996336, 4.1641727e-07, 8.579566e-07, 0.43664563)
-bones/7/rotation = Quaternion(0.3765688, -0.40723243, -0.21496007, 0.8038345)
-bones/8/rotation = Quaternion(0.8851585, -9.148699e-18, -9.1487e-18, -0.4652896)
-bones/9/rotation = Quaternion(-0.4041187, 0.39894494, -0.23117611, 0.7899928)
+bones/4/rotation = Quaternion(0.999802, -0.01761569, 0.00016309325, -0.009256626)
+bones/5/rotation = Quaternion(0.00016457867, -0.00016458787, -0.71593845, 0.6981634)
+bones/6/rotation = Quaternion(0.7607712, 0.48801416, -0.2832137, 0.320717)
+bones/7/rotation = Quaternion(-0.038973637, -0.047541864, -0.21607365, 0.97443986)
+bones/8/rotation = Quaternion(0.5102922, 0.20608716, 0.63096184, -0.54682463)
+bones/9/rotation = Quaternion(0.3335986, 0.86062586, 0.10823474, 0.3692161)
 
 [node name="Head_2" parent="DPS/DPS Player/Skeleton3D" index="0"]
-transform = Transform3D(0.96177536, 0.2738389, 1.4650323e-09, -0.2738389, 0.96177536, -1.3477596e-07, -3.831594e-08, 1.2922304e-07, 0.9999999, 0, 0.9999999, 0)
+transform = Transform3D(0.96177536, 0.2738389, -2.4276744e-08, -0.2738389, 0.96177536, -1.274467e-07, -1.1551092e-08, 1.2922303e-07, 0.9999999, 0, 0.9999999, 0)
 
 [node name="RHand_2" parent="DPS/DPS Player/Skeleton3D" index="1"]
-transform = Transform3D(0.5759087, 0.03888407, -0.81658864, 0.016393572, -0.9992164, -0.03601855, -0.81734943, 0.007356733, -0.576095, 6.715105e-14, 0.49350983, 0.6431743)
+transform = Transform3D(-0.0709626, 0.9959417, -0.055356078, 0.5549822, -0.006691519, -0.8318351, -0.8288299, -0.08975075, -0.5522549, 0.7566039, 0.73969376, 0.17319573)
+
+[node name="GPUParticles3D" parent="DPS/DPS Player/Skeleton3D/RHand_2/RHand/Revovler" index="0" instance=ExtResource("9_3ylyi")]
+transform = Transform3D(-1.682852, -0.04954321, 0.03855998, 0.047452945, -0.32657662, 1.6513716, -0.04110485, 1.6513106, 0.32774565, -5.2776623, -0.038753033, 0.8161793)
 
 [node name="LHand_2" parent="DPS/DPS Player/Skeleton3D" index="2"]
-transform = Transform3D(0.57480097, 0.042812727, 0.8171723, 0.024631262, -0.9990828, 0.03501755, 0.8179222, -1.4901161e-07, -0.5753284, -2.0228849e-17, 0.5358101, -0.67433906)
+transform = Transform3D(0.2932067, 0.91870403, -0.26459837, -0.42608047, -0.12218863, -0.89639556, -0.8558532, 0.37556952, 0.35561544, 0.7371059, 0.7404665, -0.24397272)
 
 [node name="AnimationTree" type="AnimationTree" parent="DPS"]
 tree_root = SubResource("AnimationNodeBlendTree_phdsh")

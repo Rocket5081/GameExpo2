@@ -1,0 +1,35 @@
+[gd_scene load_steps=6 format=3 uid="uid://l5qklon8275i"]
+
+[sub_resource type="Gradient" id="Gradient_0tkt2"]
+colors = PackedColorArray(1, 0.4862745, 0, 1, 1, 1, 0, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_wineb"]
+gradient = SubResource("Gradient_0tkt2")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_qigqo"]
+spread = 60.0
+initial_velocity_min = 1.0
+initial_velocity_max = 25.0
+gravity = Vector3(0, 0, 0)
+scale_min = 0.5
+color_ramp = SubResource("GradientTexture1D_wineb")
+turbulence_enabled = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_eb4dg"]
+albedo_color = Color(1, 1, 0.4862745, 1)
+emission_enabled = true
+emission = Color(0.99215686, 1, 0.33333334, 1)
+emission_energy_multiplier = 10.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_n8iqf"]
+material = SubResource("StandardMaterial3D_eb4dg")
+size = Vector3(0.1, 0.1, 0.1)
+
+[node name="GPUParticles3D" type="GPUParticles3D"]
+emitting = false
+amount = 100
+lifetime = 0.09999999999999999
+one_shot = true
+explosiveness = 1.0
+process_material = SubResource("ParticleProcessMaterial_qigqo")
+draw_pass_1 = SubResource("BoxMesh_n8iqf")

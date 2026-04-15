@@ -320,7 +320,6 @@ public partial class Player : CharacterBody3D
 		if (myAnimation == null) return;
 
 		if (myAnimation.CurrentAnimation == "Shoot" && myAnimation.IsPlaying()){
-			GD.Print("Playing shoot animation: " + myAnimation.IsPlaying());
 			return;
 		}
 
