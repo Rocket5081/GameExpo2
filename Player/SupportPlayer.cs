@@ -60,11 +60,11 @@ public partial class SupportPlayer : Player
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true,
-     TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public new void PlayAttackAnimation()
 	{
-	    if (myAnimation == null) return;
-	    myAnimation.Play("Shoot");
+		if (myAnimation == null) return;
+		myAnimation.Play("Shoot");
 	}
 
 	protected override void UpdateAnimation()
@@ -72,17 +72,17 @@ public partial class SupportPlayer : Player
 		if (myAnimation == null) return;
 
 		if (pressing)
-    	{
-        	// Freeze on last frame while holding
-        	myAnimation.Play("Shoot");
-        	myAnimation.Seek(myAnimation.CurrentAnimationLength, true);
-        	myAnimation.Pause();
-        	return;
-    	}
+		{
+			// Freeze on last frame while holding
+			myAnimation.Play("Shoot");
+			myAnimation.Seek(myAnimation.CurrentAnimationLength, true);
+			myAnimation.Pause();
+			return;
+		}
 
-    	// Released — let the base handle walk/idle/jump as normal
-    	if (myAnimation.CurrentAnimation == "Shoot")
-        	myAnimation.Play("BaseStance");
+		// Released — let the base handle walk/idle/jump as normal
+		if (myAnimation.CurrentAnimation == "Shoot")
+			myAnimation.Play("BaseStance");
 
 
 		if(myAnimation.CurrentAnimation == "Special" && myAnimation.IsPlaying() == true)return;

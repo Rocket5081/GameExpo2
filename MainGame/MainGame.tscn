@@ -526,7 +526,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -134.9, 1, -227.2)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -200.5, 1, -160.3)
 
 [node name="EnemySpawner" type="MultiplayerSpawner" parent="."]
-_spawnable_scenes = PackedStringArray("uid://bg3r7c8qcwvpc", "uid://di61ig18jknfo")
+_spawnable_scenes = PackedStringArray("uid://bg3r7c8qcwvpc", "uid://di61ig18jknfo", "uid://povwdj2ypf2u")
 spawn_path = NodePath("../EnemySpawns")
 script = ExtResource("6_8e541")
 
