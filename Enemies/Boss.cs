@@ -54,9 +54,9 @@ public partial class Boss : Enemy
 		if (myAnimation == null) return;
 
 		if (SyncedIsMoving)
-			myAnimation.Play("FastMove");
+			myAnimation.Play("SmashLeft");
 		else
-			myAnimation.Play("SlowMove");
+			myAnimation.Play("SmashLeft"); 
 	}
 
 	private Node3D FindNextLocation()
@@ -68,9 +68,15 @@ public partial class Boss : Enemy
 			if(child[i].Name == curLocation)
 			{
 				if(i != 3)
+				{
+					curLocation = child[i+1].Name;
 					return (Node3D)child[i+1];
+				}
 				else
+				{
+					curLocation = child[0].Name;
 					return(Node3D)child[0];
+				}	
 			}
 		}
 		return null;
