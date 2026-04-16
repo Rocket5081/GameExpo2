@@ -101,6 +101,30 @@ public partial class MainGame : Node3D
 		if (!GenericCore.Instance.IsServer) return;
 		if(RoundTimer > 0f)
 			SpawnEnemyRPC();
+			SpawnBossRPC();
+	}
+
+	private void SpawnBossRPC()
+	{
+		var spawnPoint = GetNode<Node3D>("BossLocations").GetChildren()[0];
+
+		// Guard: the array is built once in _Ready from static marker nodes so this
+		// should never be stale, but protect against any edge-case disposal.
+		if (!IsInstanceValid(spawnPoint))
+		{
+			GD.PushWarning("[MainGame] Spawn point reference is no longer valid — skipping tick.");
+			return;
+		}
+
+		var spawner    = GetTree().Root.FindChild("BossSpawner", true, false) as NetworkCore;
+		if (spawner == null)
+		{
+			GD.PrintErr("[MainGame] EnemySpawner NetworkCore not found!");
+			return;
+		}
+
+		spawner.NetCreateObject(0, ((Node3D)spawnPoint).GlobalPosition, Quaternion.Identity, 1);
+	
 	}
 
 	private void SpawnEnemyRPC()

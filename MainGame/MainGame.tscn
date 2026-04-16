@@ -897,3 +897,18 @@ skeleton = NodePath("../../..")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="NavigationRegion3D/Ground"]
 shape = SubResource("BoxShape3D_ground")
+
+[node name="BossSpawner" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("uid://povwdj2ypf2u")
+spawn_path = NodePath("../BossLocations")
+script = ExtResource("6_8e541")
+
+[node name="BossLocations" type="Node3D" parent="."]
+
+[node name="BossL1" type="Node3D" parent="BossLocations"]
+
+[node name="BossL2" type="Node3D" parent="BossLocations"]
+
+[node name="BossL3" type="Node3D" parent="BossLocations"]
+
+[node name="BossL4" type="Node3D" parent="BossLocations"]
