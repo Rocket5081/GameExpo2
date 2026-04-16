@@ -36,8 +36,8 @@ public partial class Bat : Enemy
 			else
 			{
 				navAgent.TargetPosition = target.GlobalPosition;
-                MoveToward();
-                SyncedIsMoving = true;
+				MoveToward();
+				SyncedIsMoving = true;
 			}
 		}
 		
@@ -48,14 +48,14 @@ public partial class Bat : Enemy
 	}
 
 	private void UpdateAnimation()
-    {
-        if (myAnimation == null) return;
+	{
+		if (myAnimation == null) return;
 
-        if (SyncedIsMoving)
-            myAnimation.Play("Fly");
-        else
-            myAnimation.Play("Fly");
-    }
+		if (SyncedIsMoving)
+			myAnimation.Play("Fly");
+		else
+			myAnimation.Play("Fly");
+	}
 
 	private Player FindNearestPlayer()
 	{
@@ -73,20 +73,20 @@ public partial class Bat : Enemy
 	private void MoveToward()
 	{
 		Vector3 destination = navAgent.GetNextPathPosition();
-        Vector3 direction = (destination - GlobalPosition).Normalized();
+		Vector3 direction = (destination - GlobalPosition).Normalized();
 
-        float currentY = Velocity.Y;
-        Velocity = new Vector3(direction.X * speed, currentY, direction.Z * speed);
+		float currentY = Velocity.Y;
+		Velocity = new Vector3(direction.X * speed, currentY, direction.Z * speed);
 
-        Vector3 flatDirection = new Vector3(direction.X, 0, direction.Z).Normalized();
-        if (flatDirection.Length() > 0.1f)
-        {
-            Transform3D t = Transform;
-            t.Basis = Basis.LookingAt(flatDirection, Vector3.Up).Rotated(Vector3.Up, Mathf.DegToRad(0));
-            Transform = t;
-        }
+		Vector3 flatDirection = new Vector3(direction.X, 0, direction.Z).Normalized();
+		if (flatDirection.Length() > 0.1f)
+		{
+			Transform3D t = Transform;
+			t.Basis = Basis.LookingAt(flatDirection, Vector3.Up).Rotated(Vector3.Up, Mathf.DegToRad(0));
+			Transform = t;
+		}
 
-        MoveAndSlide();
+		MoveAndSlide();
 
 		if (GlobalPosition.Y > MaxFlyHeight)
 		{

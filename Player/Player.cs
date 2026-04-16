@@ -689,40 +689,40 @@ public partial class Player : CharacterBody3D
 	//RPC REWIND NEEDS TO EXSIST SO THAT THE SERVER WILL UPDATE POSITION OF THE PLAYER WHILE REWINDING
 
 	public void rewind()
-    {
-        rewinding = true;
-    }
+	{
+		rewinding = true;
+	}
 
-    //https://www.youtube.com/watch?v=XoETrCrSkks a link for a complete description of rewind feature: 1:12 - 3:44
-    public void computeRewind()
-    {
-        var pos = ((Godot.Collections.Array)rewindValues["position"]).Last();
-        var rot = ((Godot.Collections.Array)rewindValues["rotation"]).Last();
-        ((Godot.Collections.Array)rewindValues["position"]).RemoveAt(((Godot.Collections.Array)rewindValues["position"]).Count -1);
-        ((Godot.Collections.Array)rewindValues["rotation"]).RemoveAt(((Godot.Collections.Array)rewindValues["rotation"]).Count -1);
-        if(((Godot.Collections.Array)rewindValues["position"]).Count == 0)
-        {
-            GetNode<CollisionShape3D>("CollisionShape3D").SetDeferred("disabled", false);
-            rewinding = false;
-            Position = (Vector3)pos;
-            Rotation = (Vector3)rot;
-            SyncedVelocity = (Vector3)((Godot.Collections.Array)rewindValues["velocity"]).First();
-            Rpc("computeRewindRPC", pos, rot);
+	//https://www.youtube.com/watch?v=XoETrCrSkks a link for a complete description of rewind feature: 1:12 - 3:44
+	public void computeRewind()
+	{
+		var pos = ((Godot.Collections.Array)rewindValues["position"]).Last();
+		var rot = ((Godot.Collections.Array)rewindValues["rotation"]).Last();
+		((Godot.Collections.Array)rewindValues["position"]).RemoveAt(((Godot.Collections.Array)rewindValues["position"]).Count -1);
+		((Godot.Collections.Array)rewindValues["rotation"]).RemoveAt(((Godot.Collections.Array)rewindValues["rotation"]).Count -1);
+		if(((Godot.Collections.Array)rewindValues["position"]).Count == 0)
+		{
+			GetNode<CollisionShape3D>("CollisionShape3D").SetDeferred("disabled", false);
+			rewinding = false;
+			Position = (Vector3)pos;
+			Rotation = (Vector3)rot;
+			SyncedVelocity = (Vector3)((Godot.Collections.Array)rewindValues["velocity"]).First();
+			Rpc("computeRewindRPC", pos, rot);
 
-        }
-        Position = (Vector3)pos;
-        Rotation = (Vector3)rot;
-        Rpc("computeRewindRPC", pos, rot);
-    }
+		}
+		Position = (Vector3)pos;
+		Rotation = (Vector3)rot;
+		Rpc("computeRewindRPC", pos, rot);
+	}
 [Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true,
-         TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-    public void computeRewindRPC( Vector3 pos, Vector3 rot)
-    {
-        if (GenericCore.Instance.IsServer)
-        {
-            SyncedVelocity = (Vector3)((Godot.Collections.Array)rewindValues["velocity"]).First();
-            Position = pos;
-            Rotation = rot;
-        }
-    }
+		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public void computeRewindRPC( Vector3 pos, Vector3 rot)
+	{
+		if (GenericCore.Instance.IsServer)
+		{
+			SyncedVelocity = (Vector3)((Godot.Collections.Array)rewindValues["velocity"]).First();
+			Position = pos;
+			Rotation = rot;
+		}
+	}
 }

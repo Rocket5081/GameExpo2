@@ -34,15 +34,15 @@ public partial class DpsPlayer : Player
 	}
 
 	private async void PlayBurstFlash(int count, float delay)
-    {
-        if (gunFlash == null) return;
+	{
+		if (gunFlash == null) return;
 
-        for (int i = 0; i < count; i++)
-        {
-            gunFlash.Restart(); // emits one burst
-            await ToSignal(GetTree().CreateTimer(delay), SceneTreeTimer.SignalName.Timeout);
-        }
-    }
+		for (int i = 0; i < count; i++)
+		{
+			gunFlash.Restart(); // emits one burst
+			await ToSignal(GetTree().CreateTimer(delay), SceneTreeTimer.SignalName.Timeout);
+		}
+	}
 
 	public override void _Process(double delta)
 	{
@@ -73,7 +73,7 @@ public partial class DpsPlayer : Player
 		ShootSoundPlayer?.Play();
 		PlayBurstFlash(burstCount, burstDelay);
 		
-		if (Buls.Count < 60)
+		if (Buls.Count < 6)
 			SpawnBullet(burstCount, burstDelay);
 		else
 			ShootBullet(burstCount, burstDelay);

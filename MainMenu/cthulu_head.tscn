@@ -4,7 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://cvhhfw6pt4r8f" path="res://Assets/Boss/Boss.glb" id="1_xy8l6"]
 
 [node name="CthuluHead" type="Node3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2597.6104, 266.77142, -323.40543)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2977.226, -2906.3872, -323.40543)
 script = ExtResource("1_gichg")
 
 [node name="Camera3D" type="Camera3D" parent="."]

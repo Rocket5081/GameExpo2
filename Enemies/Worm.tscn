@@ -31,7 +31,7 @@ properties/6/spawn = true
 properties/6/replication_mode = 2
 properties/7/path = NodePath(".:SyncedIsMoving")
 properties/7/spawn = true
-properties/7/replication_mode = 2
+properties/7/replication_mode = 1
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_vy3xu"]
 

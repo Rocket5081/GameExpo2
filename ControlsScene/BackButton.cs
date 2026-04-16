@@ -42,7 +42,7 @@ public partial class BackButton : Button
 
 	private void OnMouseEntered() { PivotOffset = Size / 2.0f; AnimateTo(HoverScale); }
 	private void OnMouseExited()  { AnimateTo(1.0f); }
-	private void OnPressed()      { GetTree().ChangeSceneToFile("res://MainMenu/main_menu_lobby.tscn"); }
+	private async void OnPressed() { await SceneTransition.Instance.TransitionTo("res://MainMenu/main_menu_lobby.tscn"); }
 
 	private void AnimateTo(float target)
 	{

@@ -14,6 +14,10 @@ config/name="GameExpo2"
 run/main_scene="uid://dufyvricl5qqi"
 config/features=PackedStringArray("4.5", "C#", "Forward Plus")
 
+[autoload]
+
+SceneTransition="*res://SceneTransition/scene_transition.tscn"
+
 [dotnet]
 
 project/assembly_name="GameExpo2"
@@ -29,6 +33,7 @@ folder_colors={
 "res://MainMenu/": "red",
 "res://NetworkCore/": "blue",
 "res://Player/": "yellow",
+"res://SceneTransition/": "gray",
 "res://Sounds/": "pink",
 "res://Upgrades/": "green"
 }

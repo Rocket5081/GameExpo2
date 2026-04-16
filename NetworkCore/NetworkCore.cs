@@ -111,7 +111,9 @@ public partial class NetworkCore : MultiplayerSpawner
 			Godot.Collections.Array<int> badObjs = new();
 			foreach (var i in GenericCore.Instance._netObjects.Keys)
 			{
-				if (GenericCore.Instance._netObjects[i].OwnerId != peerId) continue;
+				var obj = GenericCore.Instance._netObjects[i];
+				if (!GodotObject.IsInstanceValid(obj)) { badObjs.Add(i); continue; }
+				if (obj.OwnerId != peerId) continue;
 				badObjs.Add(i);
 			}
 

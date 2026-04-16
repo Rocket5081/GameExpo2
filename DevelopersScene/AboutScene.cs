@@ -2,8 +2,8 @@ using Godot;
 
 public partial class AboutScene : Control
 {
-    public void OnBackPressed()
+    public async void OnBackPressed()
     {
-        GetTree().ChangeSceneToFile("res://MainMenu/main_menu_lobby.tscn");
+        await SceneTransition.Instance.TransitionTo("res://MainMenu/main_menu_lobby.tscn");
     }
 }

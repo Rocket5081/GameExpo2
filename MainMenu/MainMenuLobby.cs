@@ -62,7 +62,7 @@ public partial class MainMenuLobby : Control
 			Color       = new Color("ff4444"),
 			Damage      = "★★★★☆  High",
 			Health      = "★★☆☆☆  Low",
-			Ultimate    = "Triple Shot — fires 3 rapid bullets",
+			Ultimate    = "Rapid Shot: fires unlimited bullets for 5 seconds",
 			Description = "High-risk, high-reward gunslinger. Shreds enemies fast but dies quick."
 		},
 		new ClassStats
@@ -72,7 +72,7 @@ public partial class MainMenuLobby : Control
 			Color       = new Color("4488ff"),
 			Damage      = "★★☆☆☆  Low",
 			Health      = "★★★★★  Very High",
-			Ultimate    = "Bubble Shield — blocks all incoming damage",
+			Ultimate    = "Bubble Shield: blocks all incoming damage",
 			Description = "Soaks damage for the team. Slow to kill but slow to deal damage."
 		},
 		new ClassStats
@@ -82,8 +82,8 @@ public partial class MainMenuLobby : Control
 			Color       = new Color("44cc66"),
 			Damage      = "★★★☆☆  Medium",
 			Health      = "★★★☆☆  Medium",
-			Ultimate    = "Laser Beam — sustained beam damages all enemies in line",
-			Description = "Keeps allies alive with relic healing. Versatile and team-focused."
+			Ultimate    = "Healing Pool: Creates a healing pool beneath him that heals all allies that stand in it",
+			Description = "Keeps allies alive with healing. Versatile and team-focused."
 		},
 	};
 
@@ -270,7 +270,7 @@ public partial class MainMenuLobby : Control
 
 	// ── Connect ───────────────────────────────────────────────────────────────
 
-	private void OnConnectPressed()
+	private async void OnConnectPressed()
 	{
 		if (!GenericCore.Instance.IsGenericCoreConnected)
 		{
@@ -281,13 +281,17 @@ public partial class MainMenuLobby : Control
 		ConnectButton.Disabled = true;
 		ConnectButton.Text     = "Waiting for players...";
 
-		OfflinePanel.Visible = false;
-		OnlinePanel.Visible  = true;
-
+		// Fire network calls immediately — same timing as before, no async delay.
 		if (GenericCore.Instance.IsServer)
 			ServerRegisterPlayer(1, ClassChoice, PlayerName, ItemChoice);
 		else
 			RpcId(1, MethodName.ClientSendReady, ClassChoice, PlayerName, ItemChoice);
+
+		// Visual-only: wipe the panel swap, network is already in flight.
+		await SceneTransition.Instance.WipeIn();
+		OfflinePanel.Visible = false;
+		OnlinePanel.Visible  = true;
+		await SceneTransition.Instance.WipeOut();
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
@@ -334,12 +338,14 @@ public partial class MainMenuLobby : Control
 
 	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true,
 		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-	private void StartGame()
+	private async void StartGame()
 	{
 		if (_gameStarted) return;
 		_gameStarted = true;
 
 		GD.Print($"[MainMenuLobby] StartGame fired on peer {Multiplayer.GetUniqueId()}");
+
+		await SceneTransition.Instance.WipeIn();
 
 		OfflinePanel.Visible = false;
 		OnlinePanel.Visible  = false;
@@ -374,6 +380,8 @@ public partial class MainMenuLobby : Control
 
 		if (GenericCore.Instance.IsServer)
 			ServerSpawnWithDelay();
+
+		await SceneTransition.Instance.WipeOut();
 	}
 
 	// ── Spawn ─────────────────────────────────────────────────────────────────
@@ -455,28 +463,34 @@ public partial class MainMenuLobby : Control
 
 	// ── Overlay panels ────────────────────────────────────────────────────────
 
-	public void ShowControlsPanel()
+	public async void ShowControlsPanel()
 	{
+		await SceneTransition.Instance.WipeIn();
 		OfflinePanel.Visible = false;
 		OnlinePanel.Visible  = false;
 		if (DevelopersOverlay != null) DevelopersOverlay.Visible = false;
 		if (ControlsOverlay   != null) ControlsOverlay.Visible   = true;
+		await SceneTransition.Instance.WipeOut();
 	}
 
-	public void ShowDevelopersPanel()
+	public async void ShowDevelopersPanel()
 	{
+		await SceneTransition.Instance.WipeIn();
 		OfflinePanel.Visible = false;
 		OnlinePanel.Visible  = false;
 		if (ControlsOverlay   != null) ControlsOverlay.Visible   = false;
 		if (DevelopersOverlay != null) DevelopersOverlay.Visible = true;
+		await SceneTransition.Instance.WipeOut();
 	}
 
-	public void ShowMainPanel()
+	public async void ShowMainPanel()
 	{
+		await SceneTransition.Instance.WipeIn();
 		if (ControlsOverlay   != null) ControlsOverlay.Visible   = false;
 		if (DevelopersOverlay != null) DevelopersOverlay.Visible = false;
 		OfflinePanel.Visible = true;
 		OnlinePanel.Visible  = false;
+		await SceneTransition.Instance.WipeOut();
 	}
 
 	// ── Disconnect ────────────────────────────────────────────────────────────

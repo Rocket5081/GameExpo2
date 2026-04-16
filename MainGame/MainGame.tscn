@@ -194,7 +194,7 @@ process_material = ExtResource("1_6bbl1")
 draw_pass_1 = SubResource("SphereMesh_8e541")
 
 [node name="VoidParticles2" type="GPUParticles3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1367.1658, 3267.9856, -520)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -101.392334, 1295.2349, -520)
 amount = 3000
 lifetime = 84.88000000000001
 speed_scale = 20.13

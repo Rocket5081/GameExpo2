@@ -28,6 +28,9 @@ public partial class LobbySystemAgent : Control
 	{
 		GD.Print("Agent Created!");
 		base._Ready();
+		// Hide immediately so clients never see a join button with gamePort = 0
+		// while SlowStart() is still resolving asynchronously.
+		GameButton.Visible = false;
 		SlowStart();
 	}
 
@@ -86,12 +89,16 @@ public partial class LobbySystemAgent : Control
 
 	public void Click()
 	{
+		if (gamePort <= 0)
+		{
+			GD.PrintErr("[LobbySystemAgent] Cannot join: gamePort is not set yet.");
+			return;
+		}
 		if(GenericCore.Instance.IsGenericCoreConnected == false)
 		{
 			GenericCore.Instance.SetPort(gamePort.ToString());
 			GenericCore.Instance.SetIP(LobbyStreamlined.Instance.LobbyServerIP.ToString());
 			GenericCore.Instance.JoinGame();
-
 		}
 	}
 

@@ -1,12 +1,82 @@
-[gd_scene load_steps=8 format=3 uid="uid://dufyvricl5qqi"]
+[gd_scene load_steps=15 format=3 uid="uid://dufyvricl5qqi"]
 
 [ext_resource type="Script" uid="uid://buq7bi58l3fu1" path="res://NetworkCore/WanLobbySystem/BetterLobby/LobbyStreamlined.cs" id="1_nacce"]
 [ext_resource type="Script" uid="uid://b2fb80xs807f4" path="res://NetworkCore/NetworkCore.cs" id="2_nacce"]
 [ext_resource type="PackedScene" uid="uid://dueebmf0c7uio" path="res://MainMenu/main_menu_lobby.tscn" id="3_nacce"]
 [ext_resource type="Script" uid="uid://n2h3r5cr70se" path="res://NetworkCore/GenericCore.cs" id="3_p6o7m"]
+[ext_resource type="PackedScene" uid="uid://lptd167x2g0q" path="res://MainMenu/cthulu_head.tscn" id="4_6xoqk"]
 [ext_resource type="PackedScene" uid="uid://dkloqt2lomuxg" path="res://MainGame/MainGame.tscn" id="5_dijh2"]
 [ext_resource type="PackedScene" uid="uid://dson7ns4dmdqx" path="res://DevelopersScene/Developers.tscn" id="6_hhjdl"]
 [ext_resource type="PackedScene" uid="uid://8dpidvgmemaq" path="res://ControlsScene/controls.tscn" id="7_uaj2d"]
+[ext_resource type="Script" uid="uid://c7nsnbdai3iki" path="res://NetworkCore/WanLobbySystem/TitleScreenFX.cs" id="8_fx"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_left"]
+bg_color = Color(0.07, 0.02, 0.13, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.62, 0.16, 0.92, 0.85)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0.48, 0.05, 0.78, 0.38)
+shadow_size = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_input"]
+bg_color = Color(0.04, 0.01, 0.09, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.42, 0.12, 0.62, 0.75)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn"]
+bg_color = Color(0.32, 0.07, 0.56, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.9, 0.7, 0.12, 0.9)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(0.5, 0.08, 0.85, 0.45)
+shadow_size = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_hover"]
+bg_color = Color(0.44, 0.1, 0.72, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.86, 0.22, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(0.62, 0.1, 1, 0.55)
+shadow_size = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_right"]
+bg_color = Color(0.1, 0.02, 0.05, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.78, 0.12, 0.18, 0.85)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0.65, 0.05, 0.1, 0.38)
+shadow_size = 14
 
 [node name="AbsoluteRoot" type="Node"]
 
@@ -15,91 +85,207 @@ script = ExtResource("1_nacce")
 PublicIP = "127.0.0.1"
 PrivateIP = "127.0.0.1"
 PortMinimum = 9000
-AgentSpawner = NodePath("HBoxContainer/ColorRect2/ActiveGames/ActiveGames/MultiplayerSpawner")
-GameNameBox = NodePath("HBoxContainer/ColorRect/MarginContainer/LeftMenu/GameName")
+AgentSpawner = NodePath("UI/Columns/Right/Pad/GamesList/Scroll/AgentList/MultiplayerSpawner")
+GameNameBox = NodePath("UI/Columns/Left/Pad/Form/GameName")
 MaxGameTime = 500.0
 
-[node name="HBoxContainer" type="HBoxContainer" parent="GenericLobbySystem"]
+[node name="UI" type="Control" parent="GenericLobbySystem"]
+layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-alignment = 1
+script = ExtResource("8_fx")
 
-[node name="ColorRect" type="ColorRect" parent="GenericLobbySystem/HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-color = Color(0, 0.6, 0, 1)
-
-[node name="MarginContainer" type="MarginContainer" parent="GenericLobbySystem/HBoxContainer/ColorRect"]
-custom_minimum_size = Vector2(200, 200)
+[node name="BG" type="ColorRect" parent="GenericLobbySystem/UI"]
 layout_mode = 1
-anchors_preset = -1
-anchor_right = 1.005
+anchors_preset = 15
+anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 1.0
-offset_top = -4.0
-offset_right = 0.13000488
-offset_bottom = -4.0
-size_flags_horizontal = 3
-theme_override_constants/margin_left = 4
-theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 4
-theme_override_constants/margin_bottom = 4
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.008, 0.003, 0.022, 1)
 
-[node name="LeftMenu" type="VBoxContainer" parent="GenericLobbySystem/HBoxContainer/ColorRect/MarginContainer"]
-layout_mode = 2
+[node name="TitleBlock" type="VBoxContainer" parent="GenericLobbySystem/UI"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 3.0
+offset_bottom = 141.0
+grow_horizontal = 2
+theme_override_constants/separation = 2
 alignment = 1
 
-[node name="Label" type="Label" parent="GenericLobbySystem/HBoxContainer/ColorRect/MarginContainer/LeftMenu"]
+[node name="Glyph" type="Label" parent="GenericLobbySystem/UI/TitleBlock"]
 layout_mode = 2
-text = "REALLY COOL LOBBY SYSTEM"
+theme_override_colors/font_color = Color(0.5, 0.14, 0.72, 0.55)
+theme_override_font_sizes/font_size = 15
+text = "⊗  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ⊗"
 horizontal_alignment = 1
 
-[node name="GameName" type="TextEdit" parent="GenericLobbySystem/HBoxContainer/ColorRect/MarginContainer/LeftMenu"]
-custom_minimum_size = Vector2(0, 64)
+[node name="Title" type="RichTextLabel" parent="GenericLobbySystem/UI/TitleBlock"]
 layout_mode = 2
-placeholder_text = "Enter Game Name"
+theme_override_colors/default_color = Color(0.93, 0.79, 0.2, 1)
+theme_override_colors/font_outline_color = Color(0.96, 0.58, 0.02, 0.35)
+theme_override_constants/outline_size = 7
+theme_override_font_sizes/normal_font_size = 56
+bbcode_enabled = true
+text = "[center][wave amp=5.0 freq=0.8 connected=1]EYES OF THE ELDRITCH[/wave][/center]"
+fit_content = true
+scroll_active = false
 
-[node name="Button" type="Button" parent="GenericLobbySystem/HBoxContainer/ColorRect/MarginContainer/LeftMenu"]
+[node name="Tagline" type="Label" parent="GenericLobbySystem/UI/TitleBlock"]
+visible = false
 layout_mode = 2
-text = "Create Game"
+theme_override_colors/font_color = Color(0.38, 0.24, 0.5, 1)
+theme_override_font_sizes/font_size = 13
+text = "~ What gazes back has no name ~"
+horizontal_alignment = 1
 
-[node name="ColorRect2" type="ColorRect" parent="GenericLobbySystem/HBoxContainer"]
-custom_minimum_size = Vector2(200, 200)
+[node name="GlyphBottom" type="Label" parent="GenericLobbySystem/UI/TitleBlock"]
 layout_mode = 2
-size_flags_horizontal = 3
-color = Color(0.03529412, 1, 0.050980393, 1)
+theme_override_colors/font_color = Color(0.5, 0.14, 0.72, 0.55)
+theme_override_font_sizes/font_size = 15
+text = "⊛  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ⊛"
+horizontal_alignment = 1
 
-[node name="ActiveGames" type="MarginContainer" parent="GenericLobbySystem/HBoxContainer/ColorRect2"]
+[node name="Columns" type="HBoxContainer" parent="GenericLobbySystem/UI"]
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 2.0
+anchors_preset = -1
+anchor_left = 0.04
+anchor_top = 0.22
+anchor_right = 0.96
+anchor_bottom = 0.94
 grow_horizontal = 2
 grow_vertical = 2
-size_flags_horizontal = 3
-theme_override_constants/margin_left = 4
-theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 4
-theme_override_constants/margin_bottom = 4
+theme_override_constants/separation = 22
 
-[node name="ActiveGames" type="VBoxContainer" parent="GenericLobbySystem/HBoxContainer/ColorRect2/ActiveGames"]
+[node name="Left" type="PanelContainer" parent="GenericLobbySystem/UI/Columns"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_left")
+
+[node name="Pad" type="MarginContainer" parent="GenericLobbySystem/UI/Columns/Left"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 28
+
+[node name="Form" type="VBoxContainer" parent="GenericLobbySystem/UI/Columns/Left/Pad"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="HostHeader" type="Label" parent="GenericLobbySystem/UI/Columns/Left/Pad/Form"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.52, 1, 1)
+theme_override_font_sizes/font_size = 20
+text = "⟁   HOST A GAME   ⟁"
+horizontal_alignment = 1
+
+[node name="Sep1" type="HSeparator" parent="GenericLobbySystem/UI/Columns/Left/Pad/Form"]
 layout_mode = 2
 
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="GenericLobbySystem/HBoxContainer/ColorRect2/ActiveGames/ActiveGames"]
+[node name="NameHint" type="Label" parent="GenericLobbySystem/UI/Columns/Left/Pad/Form"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.52, 0.35, 0.68, 1)
+theme_override_font_sizes/font_size = 14
+text = "GAME NAME"
+
+[node name="GameName" type="TextEdit" parent="GenericLobbySystem/UI/Columns/Left/Pad/Form"]
+custom_minimum_size = Vector2(0, 58)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.74, 1, 1)
+theme_override_colors/font_placeholder_color = Color(0.32, 0.2, 0.42, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_input")
+placeholder_text = "  Enter game name..."
+
+[node name="CreateBtn" type="Button" parent="GenericLobbySystem/UI/Columns/Left/Pad/Form"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.86, 0.44, 1)
+theme_override_colors/font_hover_color = Color(1, 0.96, 0.72, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
+text = "CREATE GAME"
+
+[node name="Right" type="PanelContainer" parent="GenericLobbySystem/UI/Columns"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_right")
+
+[node name="Pad" type="MarginContainer" parent="GenericLobbySystem/UI/Columns/Right"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 28
+
+[node name="GamesList" type="VBoxContainer" parent="GenericLobbySystem/UI/Columns/Right/Pad"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="GamesHeader" type="Label" parent="GenericLobbySystem/UI/Columns/Right/Pad/GamesList"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.42, 0.46, 1)
+theme_override_font_sizes/font_size = 20
+text = "◈   ACTIVE GAMES   ◈"
+horizontal_alignment = 1
+
+[node name="Sep2" type="HSeparator" parent="GenericLobbySystem/UI/Columns/Right/Pad/GamesList"]
+layout_mode = 2
+
+[node name="Scroll" type="ScrollContainer" parent="GenericLobbySystem/UI/Columns/Right/Pad/GamesList"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="AgentList" type="VBoxContainer" parent="GenericLobbySystem/UI/Columns/Right/Pad/GamesList/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="GenericLobbySystem/UI/Columns/Right/Pad/GamesList/Scroll/AgentList"]
 _spawnable_scenes = PackedStringArray("uid://cs7s4kaurdy11")
 spawn_path = NodePath("..")
 script = ExtResource("2_nacce")
 SpawnInexZeroOnConnect = true
 
+[node name="CthuluBackground" type="SubViewportContainer" parent="GenericLobbySystem/UI"]
+layout_mode = 0
+offset_left = -284.0
+offset_top = -260.0
+offset_right = 1463.0
+offset_bottom = 353.0
+mouse_filter = 2
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="GenericLobbySystem/UI/CthuluBackground"]
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(1747, 613)
+render_target_update_mode = 4
+
+[node name="CthuluHead" parent="GenericLobbySystem/UI/CthuluBackground/SubViewport" instance=ExtResource("4_6xoqk")]
+
 [node name="GameRoot" type="Node" parent="." node_paths=PackedStringArray("MainNetworkCore")]
 script = ExtResource("3_p6o7m")
 MainNetworkCore = NodePath("MainGame/PlayerSpawner")
-_portMaximum = 7000
-_portMinimum = 7010
+_portMaximum = 7010
+_portMinimum = 7000
 _localPort = 7000
 _serverAddress = "127.0.0.1"
 _maxConnections = 4
@@ -115,6 +301,7 @@ visible = false
 [node name="ControlsScene" parent="GameRoot" instance=ExtResource("7_uaj2d")]
 visible = false
 
-[connection signal="pressed" from="GenericLobbySystem/HBoxContainer/ColorRect/MarginContainer/LeftMenu/Button" to="GenericLobbySystem" method="CreatNewGameServer"]
+[connection signal="pressed" from="GenericLobbySystem/UI/Columns/Left/Pad/Form/CreateBtn" to="GenericLobbySystem" method="CreatNewGameServer"]
 
+[editable path="GameRoot/MainMenu"]
 [editable path="GameRoot/MainGame"]

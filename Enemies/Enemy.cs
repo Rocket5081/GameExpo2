@@ -31,7 +31,7 @@ public partial class Enemy : CharacterBody3D
 		BuildHealthBar();
 
 		navAgent = GetNode<NavigationAgent3D>("NavigationAgent3D");
-        navAgent.PathPostprocessing = NavigationPathQueryParameters3D.PathPostProcessing.Edgecentered;
+		navAgent.PathPostprocessing = NavigationPathQueryParameters3D.PathPostProcessing.Corridorfunnel;
 
 		if (GenericCore.Instance != null && GenericCore.Instance.IsServer)
 			SetupContactArea();

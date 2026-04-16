@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=3 uid="uid://7ibyw12mkwbn"]
+
+[ext_resource type="Script" uid="uid://bjglhop1u5h38" path="res://SceneTransition/SceneTransition.cs" id="1_trans"]
+[ext_resource type="Script" uid="uid://cwutjxtinu7f0" path="res://SceneTransition/RuneFlood.cs" id="2_flood"]
+[ext_resource type="AudioStream" uid="uid://bv2m80jabim0a" path="res://Sounds/Scene Trannsition SFX.mp3" id="3_g1n73"]
+
+[node name="SceneTransition" type="CanvasLayer"]
+layer = 128
+script = ExtResource("1_trans")
+
+[node name="RuneFlood" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_flood")
+
+[node name="SFX" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_g1n73")
+volume_db = -12.0

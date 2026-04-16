@@ -40,13 +40,13 @@ shader_parameter/glow_color = Color(0.8, 0, 0.050980393, 1)
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_jnayt"]
 properties/0/path = NodePath("MultiplayerSynchronizer:IsNetworkReady")
 properties/0/spawn = true
-properties/0/replication_mode = 1
+properties/0/replication_mode = 2
 properties/1/path = NodePath("MultiplayerSynchronizer:IsSynced")
 properties/1/spawn = true
-properties/1/replication_mode = 1
+properties/1/replication_mode = 2
 properties/2/path = NodePath("MultiplayerSynchronizer:OwnerId")
 properties/2/spawn = true
-properties/2/replication_mode = 1
+properties/2/replication_mode = 2
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_jnayt"]
 shader = ExtResource("2_l1scf")
