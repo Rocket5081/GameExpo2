@@ -60,6 +60,12 @@ properties/13/replication_mode = 2
 properties/14/path = NodePath("DPS/DPS Player/Skeleton3D/RHand_2/RHand/Revovler/GPUParticles3D:emitting")
 properties/14/spawn = true
 properties/14/replication_mode = 2
+properties/15/path = NodePath("DPS/DPS Player/Skeleton3D/RHand_2/RHand/Revovler/GPUParticles3D:position")
+properties/15/spawn = true
+properties/15/replication_mode = 2
+properties/16/path = NodePath("DPS/DPS Player/Skeleton3D/RHand_2/RHand/Revovler/GPUParticles3D:rotation")
+properties/16/spawn = true
+properties/16/replication_mode = 2
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_yrita"]
 animation = &"Falling"

@@ -26,14 +26,19 @@ properties/4/replication_mode = 2
 properties/5/path = NodePath(".:hp")
 properties/5/spawn = true
 properties/5/replication_mode = 2
-properties/6/path = NodePath("Bat(Animated)/AnimationPlayer:current_animation")
+properties/6/path = NodePath(".:SyncedVelocity")
 properties/6/spawn = true
 properties/6/replication_mode = 2
+properties/7/path = NodePath(".:SyncedIsMoving")
+properties/7/spawn = true
+properties/7/replication_mode = 1
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_vy3xu"]
 
-[node name="Enemy1" type="CharacterBody3D" groups=["enemy"]]
+[node name="Enemy1" type="CharacterBody3D" node_paths=PackedStringArray("myId", "myAnimation") groups=["enemy"]]
 script = ExtResource("1_ngmul")
+myId = NodePath("MultiplayerSynchronizer")
+myAnimation = NodePath("Bat(Animated)/AnimationPlayer")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(-4.371139e-08, 0, 15.583252, 0, 2.4181361, 0, -1, 0, -6.811656e-07, 0.08218035, 2.7895548, 2.1038163)

@@ -10,6 +10,8 @@ public partial class Enemy : CharacterBody3D
 
 	[Export] public AnimationPlayer myAnimation;
 
+	protected NavigationAgent3D navAgent;
+
 	private Node3D         _healthBarRoot;
 	private MeshInstance3D _barBg;
 	private MeshInstance3D _barFill;
@@ -27,6 +29,9 @@ public partial class Enemy : CharacterBody3D
 		base._Ready();
 
 		BuildHealthBar();
+
+		navAgent = GetNode<NavigationAgent3D>("NavigationAgent3D");
+        navAgent.PathPostprocessing = NavigationPathQueryParameters3D.PathPostProcessing.Edgecentered;
 
 		if (GenericCore.Instance != null && GenericCore.Instance.IsServer)
 			SetupContactArea();

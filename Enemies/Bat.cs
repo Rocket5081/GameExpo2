@@ -26,16 +26,21 @@ public partial class Bat : Enemy
 		// MUST call base so Enemy._PhysicsProcess runs the damage tick
 		base._PhysicsProcess(delta);
 
-		var target = FindNearestPlayer();
-		if (target == null)
-		{
-			Velocity       = Vector3.Zero;
-			SyncedIsMoving = false;
+		if(GenericCore.Instance.IsServer){
+			var target = FindNearestPlayer();
+			if (target == null)
+			{
+				Velocity       = Vector3.Zero;
+				SyncedIsMoving = false;
+			}
+			else
+			{
+				navAgent.TargetPosition = target.GlobalPosition;
+                MoveToward();
+                SyncedIsMoving = true;
+			}
 		}
-		else
-		{
-			MoveToward(target);
-		}
+		
 
 		if (!GenericCore.Instance.IsServer) 
 			UpdateAnimation();
@@ -65,23 +70,23 @@ public partial class Bat : Enemy
 		return nearest;
 	}
 
-	private void MoveToward(Player target)
+	private void MoveToward()
 	{
-		float yPull = GlobalPosition.Y > MaxFlyHeight ? -30f : -5f;
+		Vector3 destination = navAgent.GetNextPathPosition();
+        Vector3 direction = (destination - GlobalPosition).Normalized();
 
-		Vector3 dir = new Vector3(
-			target.GlobalPosition.X - GlobalPosition.X,
-			yPull,
-			target.GlobalPosition.Z - GlobalPosition.Z
-		).Normalized();
+        float currentY = Velocity.Y;
+        Velocity = new Vector3(direction.X * speed, currentY, direction.Z * speed);
 
-		SyncedVelocity = dir * speed;
-		SyncedIsMoving = true;
+        Vector3 flatDirection = new Vector3(direction.X, 0, direction.Z).Normalized();
+        if (flatDirection.Length() > 0.1f)
+        {
+            Transform3D t = Transform;
+            t.Basis = Basis.LookingAt(flatDirection, Vector3.Up).Rotated(Vector3.Up, Mathf.DegToRad(0));
+            Transform = t;
+        }
 
-		if (GlobalPosition.DistanceTo(target.GlobalPosition) > 0.5f)
-			LookAt(target.GlobalPosition, Vector3.Up);
-
-		MoveAndSlide();
+        MoveAndSlide();
 
 		if (GlobalPosition.Y > MaxFlyHeight)
 		{

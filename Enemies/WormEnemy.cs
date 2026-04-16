@@ -26,24 +26,38 @@ public partial class WormEnemy : Enemy
 
 		if (!GenericCore.Instance.IsServer) return;
 
-		if (!IsOnFloor())
-		{
-			var vel = Velocity;
-			vel.Y  -= 20f * (float)delta;
-			Velocity = vel;
-		}
+		if(GenericCore.Instance.IsServer){
 
-		var target = FindNearestPlayer();
-		if (target == null)
-		{
-			Velocity       = Vector3.Zero;
-			SyncedIsMoving = false;
-		}
-		else
-		{
-			MoveToward(target);
+			if (!IsOnFloor())
+			{
+				var vel = Velocity;
+				vel.Y  -= 20f * (float)delta;
+				Velocity = vel;
+			}
+			var target = FindNearestPlayer();
+			if (target == null)
+			{
+				Velocity       = Vector3.Zero;
+				SyncedIsMoving = false;
+			}
+			else
+			{
+				navAgent.TargetPosition = target.GlobalPosition;
+                MoveToward();
+                SyncedIsMoving = true;
+			}
 		}
 	}
+
+	private void UpdateAnimation()
+    {
+        if (myAnimation == null) return;
+
+        if (SyncedIsMoving)
+            myAnimation.Play("Move");
+        else
+            myAnimation.Play("Move");
+    }
 
 	private Player FindNearestPlayer()
 	{
@@ -58,20 +72,22 @@ public partial class WormEnemy : Enemy
 		return nearest;
 	}
 
-	private void MoveToward(Player target)
+	private void MoveToward()
 	{
-		Vector3 dir = new Vector3(
-			target.GlobalPosition.X - GlobalPosition.X,
-			-5f,
-			target.GlobalPosition.Z - GlobalPosition.Z
-		).Normalized();
+		Vector3 destination = navAgent.GetNextPathPosition();
+        Vector3 direction = (destination - GlobalPosition).Normalized();
 
-		SyncedVelocity = dir * speed;
-		SyncedIsMoving = true;
+        float currentY = Velocity.Y;
+        Velocity = new Vector3(direction.X * speed, currentY, direction.Z * speed);
 
-		if (GlobalPosition.DistanceTo(target.GlobalPosition) > 0.5f)
-			LookAt(target.GlobalPosition, Vector3.Up);
+        Vector3 flatDirection = new Vector3(direction.X, 0, direction.Z).Normalized();
+        if (flatDirection.Length() > 0.1f)
+        {
+            Transform3D t = Transform;
+            t.Basis = Basis.LookingAt(flatDirection, Vector3.Up).Rotated(Vector3.Up, Mathf.DegToRad(0));
+            Transform = t;
+        }
 
-		MoveAndSlide();
+        MoveAndSlide();
 	}
 }
