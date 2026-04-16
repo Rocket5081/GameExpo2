@@ -12,8 +12,8 @@ public partial class Boss : Enemy
 
 	public int speed = 5;
 
+	public float waitTime = 8f;
 	public string curLocation = "BossL1";
-	public bool isMoving = false;
 	public bool phaseTwo = false;
 	Node3D target = null;
 
@@ -31,19 +31,14 @@ public partial class Boss : Enemy
 		base._PhysicsProcess(delta);
 
 		if (GenericCore.Instance.IsServer){
-
-		//if (!IsOnFloor())
-		//{
-			//var vel = Velocity;
-			//vel.Y  += 20f * (float)delta;
-			//Velocity = vel;
-		//}
 			
-			if (!isMoving)
+			if (!SyncedIsMoving && waitTime <= 0f)
 			{
 				target = FindNextLocation();
-				isMoving = true;
+				SyncedIsMoving = true;
 			}
+			else
+				waitTime -= (float)delta;
 			MoveToNext(target);
 		
 		}
@@ -83,14 +78,17 @@ public partial class Boss : Enemy
 
 	private void MoveToNext(Node3D target)
 	{
-	
+	if(target == null) return;
 	if (GlobalPosition.DistanceTo(target.GlobalPosition) > 5.0f) {
 		LookAt(new Vector3(0,0,0));
 		GlobalPosition += GlobalPosition.DirectionTo(target.GlobalPosition) * speed;
-	} 
-	// else {
-	// 	Velocity = Vector3.Zero;
-	// }
+		waitTime = 8f;
+	}
+	else
+	{
+		SyncedIsMoving = false;
+		GD.Print(SyncedIsMoving);
+	}
 	}
 
 	
