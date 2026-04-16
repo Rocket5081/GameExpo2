@@ -906,9 +906,13 @@ script = ExtResource("6_8e541")
 [node name="BossLocations" type="Node3D" parent="."]
 
 [node name="BossL1" type="Node3D" parent="BossLocations"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 220, -229.6)
 
 [node name="BossL2" type="Node3D" parent="BossLocations"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 229.6, 220, 0)
 
 [node name="BossL3" type="Node3D" parent="BossLocations"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 220, 229.6)
 
 [node name="BossL4" type="Node3D" parent="BossLocations"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -229.6, 220, 0)

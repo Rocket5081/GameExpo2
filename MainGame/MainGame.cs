@@ -35,6 +35,7 @@ public partial class MainGame : Node3D
 		// Do NOT start any timer here.
 		// MainGame is loaded hidden inside generic_lobby_system.tscn while the main
 		// menu is shown. Spawning must not begin until the scene is actually visible.
+		
 	}
 
 	public override void _Process(double delta)
