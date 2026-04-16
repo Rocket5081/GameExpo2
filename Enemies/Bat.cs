@@ -12,6 +12,7 @@ public partial class Bat : Enemy
 	public int speed = 10;
 	[Export] public float MaxFlyHeight = 12f;
 
+
 	public override void _Ready()
 	{
 		maxHP  = 20;
@@ -25,8 +26,6 @@ public partial class Bat : Enemy
 		// MUST call base so Enemy._PhysicsProcess runs the damage tick
 		base._PhysicsProcess(delta);
 
-		if (!GenericCore.Instance.IsServer) return;
-
 		var target = FindNearestPlayer();
 		if (target == null)
 		{
@@ -37,7 +36,21 @@ public partial class Bat : Enemy
 		{
 			MoveToward(target);
 		}
+
+		if (!GenericCore.Instance.IsServer) 
+			UpdateAnimation();
+			
 	}
+
+	private void UpdateAnimation()
+    {
+        if (myAnimation == null) return;
+
+        if (SyncedIsMoving)
+            myAnimation.Play("Fly");
+        else
+            myAnimation.Play("Fly");
+    }
 
 	private Player FindNearestPlayer()
 	{

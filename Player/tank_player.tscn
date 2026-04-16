@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://crynxmhfqxpn2"]
+[gd_scene load_steps=13 format=3 uid="uid://crynxmhfqxpn2"]
 
 [ext_resource type="Script" uid="uid://lo1q22j2v18t" path="res://Player/TankPlayer.cs" id="1_pm5gu"]
 [ext_resource type="Script" uid="uid://yo2i7m3b6pph" path="res://NetworkCore/NetID.cs" id="2_bwhdg"]
@@ -54,12 +54,9 @@ properties/11/replication_mode = 2
 properties/12/path = NodePath(".:maxHp")
 properties/12/spawn = true
 properties/12/replication_mode = 2
-
-[sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_o6woj"]
-
-[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_6kt7u"]
-states/BlendTree/node = SubResource("AnimationNodeBlendTree_o6woj")
-states/BlendTree/position = Vector2(510, 132)
+properties/13/path = NodePath("Tank/Pirate/Skeleton3D/Blunderbuss/BlunderBuss/GPUParticles3D:emitting")
+properties/13/spawn = true
+properties/13/replication_mode = 2
 
 [node name="Tank_Player" type="CharacterBody3D" node_paths=PackedStringArray("ShootSoundPlayer", "UltimateSound", "gunFlash", "myAnimation", "myId", "BulletSpawn", "ReticleLayer", "NameLabel", "FootstepPlayer") groups=["Players"]]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
@@ -125,12 +122,47 @@ volume_db = -15.0
 [node name="Tank" parent="." instance=ExtResource("8_a30e7")]
 transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0.007922649, -1.0139239, 0.023831487)
 
+[node name="Skeleton3D" parent="Tank/Pirate" index="0"]
+bones/1/rotation = Quaternion(0.004716824, 1.1920788e-07, 5.6228866e-10, 0.999989)
+bones/2/rotation = Quaternion(-0.004716824, 6.039759e-14, -1.1245777e-09, 0.999989)
+bones/3/rotation = Quaternion(0.85095835, 0.12450196, -0.23351854, 0.45369413)
+bones/4/rotation = Quaternion(-6.893566e-08, -7.857832e-08, -0.7071068, 0.7071068)
+bones/5/position = Vector3(0.13509464, 0.46655098, -0.20372717)
+bones/5/rotation = Quaternion(0.42140272, 0.89259416, 0.07982796, 0.1390076)
+bones/6/rotation = Quaternion(0.773716, 0.10227758, 0.18051985, -0.59859467)
+bones/7/rotation = Quaternion(-0.77071476, -0.61790854, -0.1514007, 0.035578337)
+bones/8/rotation = Quaternion(-0.58382803, 0.39527088, 0.5872311, 0.39757466)
+bones/9/position = Vector3(1.785013e-14, -0.50500417, 0.48439264)
+bones/9/rotation = Quaternion(-4.3303186e-07, -0.020819824, 0.9997833, 9.0176e-09)
+bones/10/position = Vector3(-1.0755661e-16, -0.50500417, -0.48439267)
+bones/10/rotation = Quaternion(0.9999036, -1.1255318e-16, -1.125578e-16, 0.0138848685)
+
+[node name="Hat_2" parent="Tank/Pirate/Skeleton3D" index="0"]
+transform = Transform3D(1, 0, 2.3841847e-07, 3.1427633e-16, 0.9999998, 0, -2.3841852e-07, 0, 0.9999998, 2.0851161e-10, 2.9454708, 0.010306214)
+
+[node name="Head_2" parent="Tank/Pirate/Skeleton3D" index="1"]
+transform = Transform3D(1, 2.2204459e-16, 2.3841837e-07, 2.2491295e-09, 0.9999554, -0.0094335405, -2.3840778e-07, 0.0094335405, 0.9999554, 0, 1.8530124, 0)
+
+[node name="Blunderbuss" parent="Tank/Pirate/Skeleton3D" index="2"]
+transform = Transform3D(0.9743469, 0.16029756, 0.15796354, -0.18766461, 0.19129646, 0.963425, 0.124216914, -0.9683544, 0.21647131, 1.1699085, 1.0874496, 1.0570055)
+
 [node name="GPUParticles3D" parent="Tank/Pirate/Skeleton3D/Blunderbuss/BlunderBuss" index="0" instance=ExtResource("9_6kt7u")]
 transform = Transform3D(-4.3711385e-08, 1, 0, -0.99999994, -4.371139e-08, 0, 0, 0, 1, -1.1920929e-07, -1.8241826, 0)
 
-[node name="AnimationTree" type="AnimationTree" parent="Tank"]
-tree_root = SubResource("AnimationNodeStateMachine_6kt7u")
-anim_player = NodePath("../AnimationPlayer")
+[node name="RightHand" parent="Tank/Pirate/Skeleton3D" index="3"]
+transform = Transform3D(-0.42378402, 0.8599367, -0.2844574, 0.5573218, -4.1124885e-08, -0.83029675, -0.71400267, -0.51040065, -0.47926143, 0.7680034, 0.84300435, 1.2939528)
+
+[node name="LeftHand" parent="Tank/Pirate/Skeleton3D" index="4"]
+transform = Transform3D(0.5701969, 0.8135077, 0.114371955, 0.008972406, 0.13304666, -0.9910696, -0.8214592, 0.566131, 0.0685637, 0.6784784, 1.3773912, -1.6117417)
+
+[node name="Sword_2" parent="Tank/Pirate/Skeleton3D" index="5"]
+transform = Transform3D(-0.002158642, -0.9284768, -0.37138447, 0.005395979, -0.37139085, 0.92846096, -0.9999832, 2.6822093e-07, 0.005811751, 0.6699036, 0.535923, -0.60806644)
+
+[node name="RightLeg" parent="Tank/Pirate/Skeleton3D" index="6"]
+transform = Transform3D(-0.9999999, 3.5527145e-15, -8.6625204e-07, 3.606258e-08, -0.9991332, -0.041630648, -8.655004e-07, -0.04163063, 0.99913377, 1.785013e-14, -0.50500417, 0.48439264)
+
+[node name="LeftLeg" parent="Tank/Pirate/Skeleton3D" index="7"]
+transform = Transform3D(1, -2.2195895e-16, -2.282195e-16, -2.2821037e-16, -0.9996144, -0.027767064, -2.2196832e-16, 0.027767058, -0.9996146, -1.0755661e-16, -0.50500417, -0.48439267)
 
 [node name="RespawnSound" type="AudioStreamPlayer3D" parent="."]
 stream = ExtResource("9_o6woj")

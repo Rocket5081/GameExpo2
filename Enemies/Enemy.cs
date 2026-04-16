@@ -8,6 +8,8 @@ public partial class Enemy : CharacterBody3D
 	[Export] public int maxHP;
 	[Export] public NetID myId;
 
+	[Export] public AnimationPlayer myAnimation;
+
 	private Node3D         _healthBarRoot;
 	private MeshInstance3D _barBg;
 	private MeshInstance3D _barFill;
@@ -157,5 +159,6 @@ public partial class Enemy : CharacterBody3D
 	public void OnHitByBullet(int amount, Player shooter = null)
 	{
 		TakeDamage(amount, shooter);
+		myAnimation?.Play("Hurt");
 	}
 }

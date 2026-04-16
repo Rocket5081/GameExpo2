@@ -26,6 +26,9 @@ properties/4/replication_mode = 2
 properties/5/path = NodePath(".:hp")
 properties/5/spawn = true
 properties/5/replication_mode = 2
+properties/6/path = NodePath("Bat(Animated)/AnimationPlayer:current_animation")
+properties/6/spawn = true
+properties/6/replication_mode = 2
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_vy3xu"]
 
@@ -50,3 +53,5 @@ shape = SubResource("BoxShape3D_vy3xu")
 
 [node name="Bat(Animated)" parent="." instance=ExtResource("3_ngmul")]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 0, 0)
+
+[editable path="Bat(Animated)"]

@@ -31,7 +31,7 @@ public partial class TankPlayer : Player
 	{
 		UltimateSound?.Play();
 		if (!GenericCore.Instance.IsServer)
-			myAnimation?.Play("SpecialAttackI");
+			myAnimation?.Play("SpAttack");
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false,
@@ -60,7 +60,9 @@ public partial class TankPlayer : Player
 		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public override void UseUltimate()
 	{
-		if (!GenericCore.Instance.IsServer) return;
+		if (!GenericCore.Instance.IsServer){
+			myAnimation?.Play("SpecialAttackI");
+			return;}
 
 		const float BubbleRadius = 18f;
 		Vector3 spawnPos = GlobalPosition + new Vector3(0, BubbleRadius * 0.5f, 0);
