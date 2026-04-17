@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://bqn4egd1x7c21"]
+[gd_scene load_steps=15 format=3 uid="uid://bqn4egd1x7c21"]
 
 [ext_resource type="Script" uid="uid://yo2i7m3b6pph" path="res://NetworkCore/NetID.cs" id="1_acfcq"]
 [ext_resource type="Script" uid="uid://c2xotdccp4f3r" path="res://Player/SupportPlayer.cs" id="1_q1xqf"]
@@ -9,6 +9,7 @@
 [ext_resource type="AudioStream" uid="uid://ppjebi50m8yd" path="res://Sounds/Footstep SFX.mp3" id="6_tuikc"]
 [ext_resource type="PackedScene" uid="uid://cefr484mm864e" path="res://Assets/Bishop/Support.glb" id="8_s6hfy"]
 [ext_resource type="AudioStream" uid="uid://v85a56osk0cx" path="res://Sounds/Revive sound.mp3" id="9_05rq7"]
+[ext_resource type="PackedScene" uid="uid://dri7otxm0mjyx" path="res://Player/blood_splatter.tscn" id="10_p5oyt"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_km5gb"]
 size = Vector3(1, 2, 1)
@@ -63,8 +64,11 @@ properties/11/replication_mode = 2
 properties/12/path = NodePath(".:maxHp")
 properties/12/spawn = true
 properties/12/replication_mode = 2
+properties/13/path = NodePath("BloodSplatter:emitting")
+properties/13/spawn = true
+properties/13/replication_mode = 2
 
-[node name="Support_Player" type="CharacterBody3D" node_paths=PackedStringArray("LaserBeam", "ShootSoundPlayer", "UltimateSound", "myAnimation", "myId", "BulletSpawn", "ReticleLayer", "NameLabel", "FootstepPlayer", "RespawnSound") groups=["Players"]]
+[node name="Support_Player" type="CharacterBody3D" node_paths=PackedStringArray("LaserBeam", "ShootSoundPlayer", "UltimateSound", "myAnimation", "myId", "BulletSpawn", "ReticleLayer", "NameLabel", "FootstepPlayer", "bloodSplatter", "RespawnSound") groups=["Players"]]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
 collision_layer = 2
 script = ExtResource("1_q1xqf")
@@ -78,6 +82,7 @@ ReticleLayer = NodePath("ReticleLayer")
 NameLabel = NodePath("NameLabel")
 FootstepPlayer = NodePath("Footsteps")
 FootstepInterval = 5.93
+bloodSplatter = NodePath("BloodSplatter")
 RespawnSound = NodePath("RespawnSound")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
@@ -171,5 +176,8 @@ transform = Transform3D(-0.9385973, -0.34501576, 4.898788e-08, 0.34501585, -0.93
 [node name="RespawnSound" type="AudioStreamPlayer3D" parent="."]
 stream = ExtResource("9_05rq7")
 volume_db = -20.0
+
+[node name="BloodSplatter" parent="." instance=ExtResource("10_p5oyt")]
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0.22960013, 0.12193364, 0)
 
 [editable path="Support2"]

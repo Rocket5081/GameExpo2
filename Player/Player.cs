@@ -50,6 +50,8 @@ public partial class Player : CharacterBody3D
 	[Export] public int hp;
 	[Export] public int maxHp;
 
+	[Export] protected GpuParticles3D bloodSplatter;
+
 	// ── Ultimate ability ─────────────────────────────────────────────────────
 	public float UltimateCooldownMax   = 30f;
 	public float UltimateCooldownTimer = 30f;   // counts down to 0; 0 = ready
@@ -447,6 +449,7 @@ public partial class Player : CharacterBody3D
 	public void PlayHitSfx()
 	{
 		_hitSoundPlayer?.Play();
+		bloodSplatter.Restart();
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false,

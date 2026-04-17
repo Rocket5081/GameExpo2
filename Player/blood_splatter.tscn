@@ -1,0 +1,44 @@
+[gd_scene load_steps=8 format=3 uid="uid://dri7otxm0mjyx"]
+
+[sub_resource type="Gradient" id="Gradient_1wr6u"]
+colors = PackedColorArray(1, 0, 0, 1, 0.5686275, 0, 0, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_phqco"]
+gradient = SubResource("Gradient_1wr6u")
+
+[sub_resource type="Curve" id="Curve_d0yxf"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_pydoj"]
+curve = SubResource("Curve_d0yxf")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_5n8vk"]
+spread = 180.0
+initial_velocity_min = 1.0
+initial_velocity_max = 15.0
+gravity = Vector3(0, -25, 0)
+scale_min = 0.5
+scale_max = 2.0
+scale_curve = SubResource("CurveTexture_pydoj")
+color = Color(0.88235295, 0, 0, 1)
+color_ramp = SubResource("GradientTexture1D_phqco")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4ns8u"]
+albedo_color = Color(0.7882353, 0, 0, 1)
+roughness = 0.15
+clearcoat_roughness = 1.0
+
+[sub_resource type="SphereMesh" id="SphereMesh_mea23"]
+material = SubResource("StandardMaterial3D_4ns8u")
+radius = 0.2
+height = 0.4
+
+[node name="BloodSplatter" type="GPUParticles3D"]
+emitting = false
+amount = 80
+lifetime = 0.5
+one_shot = true
+explosiveness = 1.0
+process_material = SubResource("ParticleProcessMaterial_5n8vk")
+draw_pass_1 = SubResource("SphereMesh_mea23")

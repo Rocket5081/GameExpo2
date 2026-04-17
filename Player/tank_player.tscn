@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://crynxmhfqxpn2"]
+[gd_scene load_steps=13 format=3 uid="uid://crynxmhfqxpn2"]
 
 [ext_resource type="Script" uid="uid://lo1q22j2v18t" path="res://Player/TankPlayer.cs" id="1_pm5gu"]
 [ext_resource type="Script" uid="uid://yo2i7m3b6pph" path="res://NetworkCore/NetID.cs" id="2_bwhdg"]
@@ -9,6 +9,7 @@
 [ext_resource type="AudioStream" uid="uid://ppjebi50m8yd" path="res://Sounds/Footstep SFX.mp3" id="6_8hwvg"]
 [ext_resource type="PackedScene" uid="uid://b3umo383v0otl" path="res://Assets/Pirate/Tank.glb" id="8_a30e7"]
 [ext_resource type="PackedScene" uid="uid://l5qklon8275i" path="res://Player/ShotParticles.tscn" id="9_o6woj"]
+[ext_resource type="PackedScene" uid="uid://dri7otxm0mjyx" path="res://Player/blood_splatter.tscn" id="10_6kt7u"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_nxeor"]
 size = Vector3(0.8, 1.6757813, 0.8)
@@ -62,8 +63,11 @@ properties/14/replication_mode = 2
 properties/15/path = NodePath("Tank/Pirate/Skeleton3D/Blunderbuss/BlunderBuss/GPUParticles3D:rotation")
 properties/15/spawn = true
 properties/15/replication_mode = 2
+properties/16/path = NodePath("BloodSplatter:emitting")
+properties/16/spawn = true
+properties/16/replication_mode = 2
 
-[node name="Tank_Player" type="CharacterBody3D" node_paths=PackedStringArray("ShootSoundPlayer", "UltimateSound", "gunFlash", "myAnimation", "myId", "BulletSpawn", "ReticleLayer", "NameLabel", "FootstepPlayer") groups=["Players"]]
+[node name="Tank_Player" type="CharacterBody3D" node_paths=PackedStringArray("ShootSoundPlayer", "UltimateSound", "gunFlash", "myAnimation", "myId", "BulletSpawn", "ReticleLayer", "NameLabel", "FootstepPlayer", "bloodSplatter") groups=["Players"]]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
 collision_layer = 2
 script = ExtResource("1_pm5gu")
@@ -77,6 +81,7 @@ ReticleLayer = NodePath("ReticleLayer")
 NameLabel = NodePath("NameLabel")
 FootstepPlayer = NodePath("Footsteps")
 FootstepInterval = 5.93
+bloodSplatter = NodePath("BloodSplatter")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.16210938, 0)
@@ -128,5 +133,8 @@ transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0.007922649, -1.0139239
 
 [node name="GPUParticles3D" parent="Tank/Pirate/Skeleton3D/Blunderbuss/BlunderBuss" index="0" instance=ExtResource("9_o6woj")]
 transform = Transform3D(0.08042502, 0.99676055, -4.685322e-08, -0.9967605, 0.08042503, -9.424758e-08, -9.017417e-08, 5.4281294e-08, 1, 0.14431474, -1.6464673, 0)
+
+[node name="BloodSplatter" parent="." instance=ExtResource("10_6kt7u")]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0.15054482, 0.119807124, 0)
 
 [editable path="Tank"]

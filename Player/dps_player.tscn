@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3 uid="uid://bfxq16gxvblha"]
+[gd_scene load_steps=28 format=3 uid="uid://bfxq16gxvblha"]
 
 [ext_resource type="Script" uid="uid://yo2i7m3b6pph" path="res://NetworkCore/NetID.cs" id="1_7ks6i"]
 [ext_resource type="Script" uid="uid://fy4vxbxhv0ql" path="res://Player/DpsPlayer.cs" id="1_k2htt"]
@@ -9,6 +9,7 @@
 [ext_resource type="AudioStream" uid="uid://ppjebi50m8yd" path="res://Sounds/Footstep SFX.mp3" id="6_f4wrp"]
 [ext_resource type="PackedScene" uid="uid://br1l666tmqbyw" path="res://Assets/Cowboy/DPS.glb" id="8_yrita"]
 [ext_resource type="PackedScene" uid="uid://l5qklon8275i" path="res://Player/ShotParticles.tscn" id="9_3ylyi"]
+[ext_resource type="PackedScene" uid="uid://dri7otxm0mjyx" path="res://Player/blood_splatter.tscn" id="10_3ylyi"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_wsqot"]
 size = Vector3(1, 2, 1)
@@ -65,6 +66,9 @@ properties/15/replication_mode = 2
 properties/16/path = NodePath("DPS/DPS Player/Skeleton3D/RHand_2/RHand/Revovler/GPUParticles3D:rotation")
 properties/16/spawn = true
 properties/16/replication_mode = 2
+properties/17/path = NodePath("BloodSplatter:emitting")
+properties/17/spawn = true
+properties/17/replication_mode = 2
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_yrita"]
 animation = &"Falling"
@@ -151,7 +155,7 @@ nodes/SpecialBlend/node = SubResource("AnimationNodeBlend2_s8v7y")
 nodes/SpecialBlend/position = Vector2(-820, 1080)
 node_connections = [&"JumpBlend", 0, &"Animation", &"JumpBlend", 1, &"Animation 2", &"JumpBlend", 2, &"Animation 3", &"WalkBlend", 0, &"Animation 4", &"WalkBlend", 1, &"Animation 5", &"JumpWalk", 0, &"WalkBlend", &"JumpWalk", 1, &"JumpBlend", &"OneShot", 0, &"JumpWalk", &"OneShot", 1, &"Shooting", &"Shooting", 0, &"Animation 6", &"Shooting", 1, &"SpecialBlend", &"SpecialBlend", 0, &"Animation 7", &"SpecialBlend", 1, &"Animation 8"]
 
-[node name="DPS_Player" type="CharacterBody3D" node_paths=PackedStringArray("ShootSoundPlayer", "UltimateSound", "gunFlash", "myAnimation", "myId", "BulletSpawn", "ReticleLayer", "NameLabel", "FootstepPlayer") groups=["Players"]]
+[node name="DPS_Player" type="CharacterBody3D" node_paths=PackedStringArray("ShootSoundPlayer", "UltimateSound", "gunFlash", "myAnimation", "myId", "BulletSpawn", "ReticleLayer", "NameLabel", "FootstepPlayer", "bloodSplatter") groups=["Players"]]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
 collision_layer = 2
 script = ExtResource("1_k2htt")
@@ -165,6 +169,7 @@ ReticleLayer = NodePath("ReticleLayer")
 NameLabel = NodePath("NameLabel")
 FootstepPlayer = NodePath("Footsteps")
 FootstepInterval = 5.93
+bloodSplatter = NodePath("BloodSplatter")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1936655, 0)
@@ -255,5 +260,8 @@ parameters/Shooting/current_state = ""
 parameters/Shooting/transition_request = ""
 parameters/Shooting/current_index = -1
 parameters/SpecialBlend/blend_amount = 0.0
+
+[node name="BloodSplatter" parent="." instance=ExtResource("10_3ylyi")]
+transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0.09810674, 0.4776864, 0)
 
 [editable path="DPS"]

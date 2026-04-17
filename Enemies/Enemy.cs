@@ -165,6 +165,7 @@ public partial class Enemy : CharacterBody3D
 		hp -= amount;
 		if (hp <= 0)
 			Die();
+
 	}
 
 	protected virtual void Die()
@@ -204,6 +205,13 @@ public partial class Enemy : CharacterBody3D
 	public void OnHitByBullet(int amount, Player shooter = null)
 	{
 		TakeDamage(amount, shooter);
+		Rpc(nameof(PlayHurtAnimation));
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false,
+		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public void PlayHurtAnimation()
+	{
 		myAnimation?.Play("Hurt");
 	}
 }
