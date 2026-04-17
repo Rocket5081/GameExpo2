@@ -13,9 +13,9 @@ public partial class WormEnemy : Enemy
 
 	public override void _Ready()
 	{
-		maxHP    = 50;
+		maxHP    = 60;
 		hp       = maxHP;
-		damage   = 10;
+		damage   = 20;
 		DeathSfx = GD.Load<AudioStream>("res://Sounds/Dying Worm.mp3");
 		base._Ready();
 		SpawnAmbientSound("res://Sounds/universfield-worm-movement-277577.mp3", volumeDb: -6f, maxDist: 50f);
