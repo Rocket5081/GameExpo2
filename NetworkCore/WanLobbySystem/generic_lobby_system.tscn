@@ -82,8 +82,8 @@ shadow_size = 14
 
 [node name="GenericLobbySystem" type="CanvasLayer" parent="." node_paths=PackedStringArray("AgentSpawner", "GameNameBox")]
 script = ExtResource("1_nacce")
-PublicIP = "127.0.0.1"
-PrivateIP = "127.0.0.1"
+PublicIP = "23.128.112.62"
+PrivateIP = "10.200.208.181"
 PortMinimum = 9000
 AgentSpawner = NodePath("UI/Columns/Right/Pad/GamesList/Scroll/AgentList/MultiplayerSpawner")
 GameNameBox = NodePath("UI/Columns/Left/Pad/Form/GameName")
