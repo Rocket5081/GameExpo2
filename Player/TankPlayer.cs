@@ -10,7 +10,18 @@ public partial class TankPlayer : Player
 
 	[Export] public GpuParticles3D gunFlash;
 
-	private static readonly float[] SpreadAngles = { 0.5f, 0.3f, 0.1f, -0.1f, -0.3f, -0.5f };
+	// Spread angles are generated at fire-time from burstCount so AP upgrades
+	// automatically widen the shotgun blast.  Base burstCount=3 → 6 pellets.
+	private float[] GetSpreadAngles()
+	{
+		int   count     = burstCount * 2;           // 6 base, +2 per AP level
+		float maxSpread = 0.5f;
+		var   angles    = new float[count];
+		if (count == 1) { angles[0] = 0f; return angles; }
+		for (int i = 0; i < count; i++)
+			angles[i] = Mathf.Lerp(maxSpread, -maxSpread, (float)i / (count - 1));
+		return angles;
+	}
 
 	public override void _Ready()
 	{
@@ -47,12 +58,11 @@ public partial class TankPlayer : Player
 		ShootSoundPlayer?.Play();
 		gunFlash?.Restart();
 
-		int count = SpreadAngles.Length;
-
-		if (Buls.Count < count * 4)
-			SpawnBulletSpread();
+		float[] angles = GetSpreadAngles();
+		if (Buls.Count < angles.Length * 4)
+			SpawnBulletSpread(angles);
 		else
-			ShootBulletSpread();
+			ShootBulletSpread(angles);
 	}
 
 	// ── Tank Ultimate: Bubble Shield ──────────────────────────────────────────
@@ -122,9 +132,9 @@ public partial class TankPlayer : Player
 
 	// ── Spread bullets ────────────────────────────────────────────────────────
 
-	private async void SpawnBulletSpread()
+	private async void SpawnBulletSpread(float[] angles)
 	{
-		for (int i = 0; i < SpreadAngles.Length; i++)
+		for (int i = 0; i < angles.Length; i++)
 		{
 			Vector3 spawnPos = GetBulletSpawnPos();
 			var obj = GenericCore.Instance.MainNetworkCore?.NetCreateObject(
@@ -134,7 +144,7 @@ public partial class TankPlayer : Player
 
 			if (obj is RigidBody3D rb)
 			{
-				rb.RotateY(SpreadAngles[i]);
+				rb.RotateY(angles[i]);
 				rb.CollisionLayer = 4;
 				rb.CollisionMask  = 1;
 				rb.LinearVelocity = rb.Transform.Basis.X * 200f;
@@ -146,43 +156,39 @@ public partial class TankPlayer : Player
 				b.Shooter = this;
 				Buls.Add(b);
 			}
-				
 
 			await ToSignal(GetTree().CreateTimer(0f), SceneTreeTimer.SignalName.Timeout);
 		}
 	}
 
-	private async void ShootBulletSpread()
+	private async void ShootBulletSpread(float[] angles)
 	{
 		// Purge any bullet references that were freed unexpectedly.
-		// Normally bullets are pooled (never QueueFree'd), but this is a safety net.
 		Buls.RemoveAll(b => !IsInstanceValid(b));
 
-		// If the pool somehow ran dry, fall back to spawning a fresh batch.
-		if (Buls.Count < SpreadAngles.Length)
+		// If the pool is smaller than this shot's pellet count, grow it.
+		if (Buls.Count < angles.Length)
 		{
-			SpawnBulletSpread();
+			SpawnBulletSpread(angles);
 			return;
 		}
 
 		if (bulCount >= Buls.Count)
 			bulCount = 0;
 
-		for (int i = 0; i < SpreadAngles.Length; i++)
+		for (int i = 0; i < angles.Length; i++)
 		{
-			// Extra validity guard — belt-and-suspenders.
 			if (!IsInstanceValid(Buls[bulCount]))
 			{
 				Buls.RemoveAt(bulCount);
 				if (bulCount >= Buls.Count) bulCount = 0;
-				SpawnBulletSpread();   // pool too small, grow it
+				SpawnBulletSpread(angles);   // pool too small, grow it
 				return;
 			}
 
 			Vector3 spawnPos = GetBulletSpawnPos();
 			var bul = Buls[bulCount];
 
-			// Reset pooled state BEFORE Show() so collision is re-enabled.
 			bul.Reset();
 			bul.damage  = damage;
 			bul.Shooter = this;
@@ -191,7 +197,7 @@ public partial class TankPlayer : Player
 			bul.CollisionMask  = 1;
 			bul.Rotation       = Rotation;
 			bul.GlobalPosition = spawnPos;
-			bul.RotateY(SpreadAngles[i]);
+			bul.RotateY(angles[i]);
 			bul.LinearVelocity = bul.Transform.Basis.X * 200f;
 
 			bulCount++;
