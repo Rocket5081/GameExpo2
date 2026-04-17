@@ -205,13 +205,8 @@ public partial class Enemy : CharacterBody3D
 	public void OnHitByBullet(int amount, Player shooter = null)
 	{
 		TakeDamage(amount, shooter);
-		Rpc(nameof(PlayHurtAnimation));
+		if(IsClass("Bat") || IsClass("WormEnemy"))
+			myAnimation?.Play("Hurt");
 	}
 
-	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false,
-		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-	public void PlayHurtAnimation()
-	{
-		myAnimation?.Play("Hurt");
-	}
 }
