@@ -150,7 +150,6 @@ public partial class Enemy : CharacterBody3D
 			_lastShooter = shooter;
 			shooter.NotifyDamageDealt(amount);
 		}
-
 		hp -= amount;
 		if (hp <= 0)
 			Die();

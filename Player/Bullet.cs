@@ -31,7 +31,7 @@ public partial class Bullet : RigidBody3D
 
 	private void OnAreaEntered(Node body)
 	{
-		GD.Print("hi");
+		
 		if (!GenericCore.Instance.IsServer) return;
 		if (_isDying) return;
 
@@ -39,9 +39,13 @@ public partial class Bullet : RigidBody3D
 
 		if (body is Enemy enemy && IsInstanceValid(enemy))
 		{
-			
 			// Pass the shooter so the enemy can credit score correctly
 			enemy.OnHitByBullet((int)damage, Shooter);
+			HideBullet();
+		}
+		if(body.GetParent().GetParent().GetParent().GetParent().GetParent() is Enemy boss && IsInstanceValid(boss))
+		{
+			boss.OnHitByBullet((int)damage, Shooter);
 			HideBullet();
 		}
 	}

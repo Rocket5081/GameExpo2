@@ -128,6 +128,7 @@ public partial class Boss : Enemy
 	{
 		foreach(Area3D area in GetTree().GetNodesInGroup("enemy"))
 		{
+			GD.Print(area.GetParent().Name);
 			area.SetCollisionLayerValue(1, false);
 			area.SetCollisionMaskValue(1, false);
 			area.SetCollisionLayerValue(8, true);
