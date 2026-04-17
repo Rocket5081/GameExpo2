@@ -124,30 +124,33 @@ public partial class MainGame : Node3D
 				_spawnTimer.WaitTime = newInterval;
 		}
 
-		Enms.RemoveAll(b => !IsInstanceValid(b));
+		// Only the server tracks kills and drives round progression.
+		// When a round ends it RPCs all clients so they advance RoundNum and
+		// show the upgrade UI — clients never touch this block themselves.
+		if (GenericCore.Instance != null && GenericCore.Instance.IsServer)
+		{
+			Enms.RemoveAll(b => !IsInstanceValid(b));
 
-		if (upgrading)
-		{
-			// Count down the inter-round upgrade window, then let play resume.
-			waitTimer -= (float)delta;
-			if (waitTimer <= 0f)
-				upgrading = false;
-		}
-		else if (RoundNum == 0)
-		{
-			// Round 1 ends once every target enemy has been spawned AND killed.
-			int killed = Mathf.Max(0, _enemiesSpawnedThisRound - Enms.Count);
-			if (killed >= GetRoundEnemyTarget() && Enms.Count == 0)
+			if (upgrading)
 			{
-				upgrading = true;
-				waitTimer = 10f;
-				RoundNum  = 1;   // triggers boss sequence on next OnSpawnTick
-				foreach (Player player in GetTree().GetNodesInGroup("Players"))
-					player.ShowUpgradeUI();
-				GD.Print("[MainGame] Round 1 complete — starting upgrade phase.");
+				waitTimer -= (float)delta;
+				if (waitTimer <= 0f)
+					upgrading = false;
+			}
+			else if (RoundNum < 5)
+			{
+				if (_enemiesSpawnedThisRound >= GetRoundEnemyTarget() && Enms.Count == 0)
+				{
+					upgrading = true;
+					waitTimer = 10f;
+					GD.Print($"[MainGame] Round {RoundNum + 1} complete — boss next: {RoundNum + 1 >= 5}");
+					if (Multiplayer.HasMultiplayerPeer())
+						Rpc(nameof(AdvanceRoundRpc));
+					else
+						AdvanceRoundRpc();
+				}
 			}
 		}
-		// RoundNum >= 1: boss round — managed entirely by OnSpawnTick → StartBossSequence.
 	}
 
 	// ── Spawn helpers ─────────────────────────────────────────────────────────
@@ -157,6 +160,20 @@ public partial class MainGame : Node3D
 		if (Instance == this) Instance = null;
 	}
 
+	/// <summary>
+	/// Server calls this RPC to advance the round and show the upgrade UI on
+	/// every peer simultaneously.  CallLocal = true so the server also applies it.
+	/// </summary>
+	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true,
+		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	private void AdvanceRoundRpc()
+	{
+		RoundNum++;
+		_enemiesSpawnedThisRound = 0;
+		_lastTrackedRound        = RoundNum;
+		foreach (Player player in GetTree().GetNodesInGroup("Players"))
+			player.ShowUpgradeUI();
+	}
 
 	public int GetRoundEnemyTarget() => (RoundNum + 1) * 15;
 

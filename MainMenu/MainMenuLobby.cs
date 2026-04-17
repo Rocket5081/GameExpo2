@@ -505,7 +505,7 @@ public partial class MainMenuLobby : Control
 
 		LastPort = 0;
 
-		GenericCore.Instance.SetPort("7000");
+		GenericCore.Instance.SetPort("9000");
 		HP    = 100;
 		Score = 0;
 	}

@@ -42,20 +42,22 @@ public partial class BackButton : Button
 
 	private void OnMouseEntered() { PivotOffset = Size / 2.0f; AnimateTo(HoverScale); }
 	private void OnMouseExited()  { AnimateTo(1.0f); }
+	
 	private void OnPressed()
 	{
 		Node node = GetParent();
 		while (node != null)
 		{
-			if (node is MainMenuLobby lobby)
+			GD.Print(node.Name);
+			if (node.Name == "MainMenu")
 			{
-				lobby.ShowMainPanel();
+				((MainMenuLobby)node).ShowMainPanel();
+				GD.Print("GOOODNESS GRACIOUS!!!!!!!");
 				return;
 			}
+			GD.Print("GOIOOOOGLLLY MOOOGLY!!!!!!!");
 			node = node.GetParent();
 		}
-		// Fallback: only if opened standalone (not as an overlay inside the lobby).
-		_ = SceneTransition.Instance.TransitionTo("res://MainMenu/main_menu_lobby.tscn");
 	}
 
 	private void AnimateTo(float target)

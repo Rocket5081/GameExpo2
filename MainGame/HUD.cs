@@ -50,11 +50,9 @@ public partial class HUD : CanvasLayer
 	private float  _lastMultiplier = 1f;
 
 	// ── Round info widget — middle-left ──────────────────────────────────────
-	private Panel        _roundPanel;
-	private Label        _roundLabel;
-	private ProgressBar  _enemyBar;
-	private StyleBoxFlat _enemyBarFill;
-	private Label        _enemyCountLabel;
+	private Panel _roundPanel;
+	private Label _roundLabel;
+	private Label _enemyAliveLabel;
 
 	// ── Boss HP widget — top-centre ───────────────────────────────────────────
 	private Panel        _bossHpPanel;
@@ -338,20 +336,20 @@ public partial class HUD : CanvasLayer
 	// ─────────────────────────────────────────────────────────────────────────
 	private void BuildRoundWidget()
 	{
-		const float W = 210f, H = 108f, Margin = 18f;
+		const float W = 200f, H = 80f, Margin = 18f;
 
 		var style = new StyleBoxFlat();
-		style.BgColor                  = new Color(0.04f, 0.01f, 0.12f, 0.90f);
-		style.BorderWidthTop           = style.BorderWidthBottom =
-		style.BorderWidthLeft          = style.BorderWidthRight  = 2;
-		style.BorderColor              = new Color(0.62f, 0.18f, 1f,   1f);
-		style.CornerRadiusTopLeft      = style.CornerRadiusTopRight =
-		style.CornerRadiusBottomLeft   = style.CornerRadiusBottomRight = 10;
-		style.ShadowColor              = new Color(0.45f, 0.08f, 0.95f, 0.70f);
-		style.ShadowSize               = 10;
+		style.BgColor                = new Color(0.04f, 0.01f, 0.12f, 0.90f);
+		style.BorderWidthTop         = style.BorderWidthBottom =
+		style.BorderWidthLeft        = style.BorderWidthRight  = 2;
+		style.BorderColor            = new Color(0.62f, 0.18f, 1f, 1f);
+		style.CornerRadiusTopLeft    = style.CornerRadiusTopRight =
+		style.CornerRadiusBottomLeft = style.CornerRadiusBottomRight = 10;
+		style.ShadowColor            = new Color(0.45f, 0.08f, 0.95f, 0.70f);
+		style.ShadowSize             = 10;
 
 		_roundPanel = new Panel();
-		_roundPanel.AnchorLeft   = 0f;  _roundPanel.AnchorRight  = 0f;
+		_roundPanel.AnchorLeft   = 0f;   _roundPanel.AnchorRight  = 0f;
 		_roundPanel.AnchorTop    = 0.5f; _roundPanel.AnchorBottom = 0.5f;
 		_roundPanel.OffsetLeft   = Margin;
 		_roundPanel.OffsetRight  = Margin + W;
@@ -364,12 +362,11 @@ public partial class HUD : CanvasLayer
 
 		var vbox = new VBoxContainer();
 		vbox.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
-		vbox.AddThemeConstantOverride("separation", 4);
+		vbox.AddThemeConstantOverride("separation", 6);
 		vbox.OffsetLeft = 12; vbox.OffsetRight  = -12;
-		vbox.OffsetTop  =  8; vbox.OffsetBottom = -8;
+		vbox.OffsetTop  =  10; vbox.OffsetBottom = -10;
 		_roundPanel.AddChild(vbox);
 
-		// ⚔  ROUND 1
 		_roundLabel = new Label();
 		_roundLabel.Text = "⚔  ROUND 1";
 		_roundLabel.HorizontalAlignment = HorizontalAlignment.Center;
@@ -379,42 +376,20 @@ public partial class HUD : CanvasLayer
 		_roundLabel.AddThemeConstantOverride("outline_size", 3);
 		vbox.AddChild(_roundLabel);
 
-		// Thin separator line
 		var sep = new ColorRect();
 		sep.Color               = new Color(0.62f, 0.18f, 1f, 0.45f);
 		sep.CustomMinimumSize   = new Vector2(0, 1);
 		sep.SizeFlagsHorizontal = Control.SizeFlags.Fill;
 		vbox.AddChild(sep);
 
-		// Enemy kill progress bar
-		_enemyBarFill = new StyleBoxFlat();
-		_enemyBarFill.BgColor                = new Color(0.1f, 0.85f, 1f, 1f);
-		_enemyBarFill.CornerRadiusTopLeft    = _enemyBarFill.CornerRadiusTopRight =
-		_enemyBarFill.CornerRadiusBottomLeft = _enemyBarFill.CornerRadiusBottomRight = 4;
-
-		_enemyBar = new ProgressBar();
-		_enemyBar.MinValue         = 0; _enemyBar.MaxValue = 1; _enemyBar.Value = 0;
-		_enemyBar.ShowPercentage   = false;
-		_enemyBar.CustomMinimumSize = new Vector2(0, 12);
-		_enemyBar.AddThemeStyleboxOverride("background", MakeBarStyle(new Color(0.1f, 0.1f, 0.2f, 0.8f)));
-		_enemyBar.AddThemeStyleboxOverride("fill",       _enemyBarFill);
-		vbox.AddChild(_enemyBar);
-
-		// "7 / 15  ENEMIES KILLED" counter
-		_enemyCountLabel = new Label();
-		_enemyCountLabel.Text = "0 / 0  KILLED";
-		_enemyCountLabel.HorizontalAlignment = HorizontalAlignment.Center;
-		_enemyCountLabel.AddThemeFontSizeOverride("font_size", 13);
-		_enemyCountLabel.AddThemeColorOverride("font_color", new Color(0.78f, 0.65f, 1f, 1f));
-		vbox.AddChild(_enemyCountLabel);
-
-		// Small label below bar
-		var hint = new Label();
-		hint.Text = "kill all  →  next round";
-		hint.HorizontalAlignment = HorizontalAlignment.Center;
-		hint.AddThemeFontSizeOverride("font_size", 10);
-		hint.AddThemeColorOverride("font_color", new Color(0.55f, 0.45f, 0.75f, 0.8f));
-		vbox.AddChild(hint);
+		_enemyAliveLabel = new Label();
+		_enemyAliveLabel.Text = "0 ALIVE";
+		_enemyAliveLabel.HorizontalAlignment = HorizontalAlignment.Center;
+		_enemyAliveLabel.AddThemeFontSizeOverride("font_size", 15);
+		_enemyAliveLabel.AddThemeColorOverride("font_color",         new Color(1f, 0.45f, 0.45f, 1f));
+		_enemyAliveLabel.AddThemeColorOverride("font_outline_color", new Color(0.2f, 0f, 0f, 1f));
+		_enemyAliveLabel.AddThemeConstantOverride("outline_size", 2);
+		vbox.AddChild(_enemyAliveLabel);
 	}
 
 	// ─────────────────────────────────────────────────────────────────────────
@@ -649,31 +624,20 @@ public partial class HUD : CanvasLayer
 		var mg = MainGame.Instance;
 		if (mg == null || !mg.IsVisibleInTree()) { _roundPanel.Visible = false; return; }
 
-		// Hide once we're in the boss round (RoundNum >= 1) — boss HP bar takes over
-		if (mg.RoundNum >= 1) { _roundPanel.Visible = false; return; }
+		// Hide once we're on the boss round (RoundNum >= 5) — boss HP bar takes over.
+		if (mg.RoundNum >= 5) { _roundPanel.Visible = false; return; }
 
 		_roundPanel.Visible = true;
 
-		int target  = mg.GetRoundEnemyTarget();
-		// Remove freed enemies before reading the count so stale refs don't inflate alive.
-		mg.Enms.RemoveAll(e => !IsInstanceValid(e));
-		int alive   = mg.Enms.Count;
-		int spawned = mg.EnemiesSpawnedThisRound;
-		int killed  = Mathf.Max(0, spawned - alive);
-
 		_roundLabel.Text = $"⚔  ROUND {mg.RoundNum + 1}";
 
-		float progress = target > 0 ? Mathf.Clamp((float)killed / target, 0f, 1f) : 0f;
-		_enemyBar.Value  = progress;
-		_enemyCountLabel.Text = $"{killed} / {target}  KILLED";
-
-		// Colour shifts cyan → gold as you near completion
-		if (progress >= 0.75f)
-			_enemyBarFill.BgColor = new Color(1f, 0.85f, 0.1f, 1f);
-		else if (progress >= 0.5f)
-			_enemyBarFill.BgColor = new Color(0.4f, 1f, 0.5f, 1f);
-		else
-			_enemyBarFill.BgColor = new Color(0.1f, 0.85f, 1f, 1f);
+		mg.Enms.RemoveAll(e => !IsInstanceValid(e));
+		int alive = mg.Enms.Count;
+		_enemyAliveLabel.Text = alive == 0 ? "ALL CLEAR" : $"{alive} ALIVE";
+		_enemyAliveLabel.AddThemeColorOverride("font_color",
+			alive == 0
+				? new Color(0.3f, 1f, 0.4f, 1f)   // green when all dead
+				: new Color(1f,   0.4f, 0.4f, 1f)); // red while enemies remain
 	}
 
 	private void UpdateBossHpWidget()

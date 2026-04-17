@@ -56,10 +56,10 @@ public partial class GenericCore : Node
 	/// <summary>
 	/// Which Port is the server/client connecting to
 	/// </summary>
-	private int _localPort = 7000;
+	private int _localPort;
 
-	private int _portMinimum = 7010;
-	private int _portMaximum = 7000;
+	private int _portMinimum;
+	private int _portMaximum;
 
 
 	[Export]

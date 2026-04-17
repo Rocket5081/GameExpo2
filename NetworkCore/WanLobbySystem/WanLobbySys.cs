@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 public partial class WanLobbySys : Node
 {
 	[Export]
-	private int _portMinimum = 7010;
+	private int _portMinimum;
 	[Export]
-	private int _portMaximum = 7000;
+	private int _portMaximum;
 
 	public int currentPortOffset = 1;
 
