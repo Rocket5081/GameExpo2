@@ -1,4 +1,4 @@
-[gd_scene load_steps=55 format=3 uid="uid://dkloqt2lomuxg"]
+[gd_scene load_steps=56 format=3 uid="uid://dkloqt2lomuxg"]
 
 [ext_resource type="Material" uid="uid://bf80snneu4sbx" path="res://MainGame/VoidParticles.tres" id="1_6bbl1"]
 [ext_resource type="Script" uid="uid://c4ryjwo0gxk68" path="res://MainGame/MainGame.cs" id="1_f0e2v"]
@@ -21,6 +21,7 @@
 [ext_resource type="PackedScene" uid="uid://bs0gdl0x0ytxj" path="res://Assets/Tree/Tree1.glb" id="19_w65ig"]
 [ext_resource type="PackedScene" uid="uid://caquujiq4x5pb" path="res://Assets/Tree/Tree2.glb" id="20_iliv4"]
 [ext_resource type="Script" uid="uid://b8so1gol568sy" path="res://MainGame/WorldTexturer.cs" id="21_wtext"]
+[ext_resource type="AudioStream" uid="uid://bovdd34vj7fic" path="res://Sounds/BossMusicGameExpo.mp3" id="22_m6rcx"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5y8m1"]
 next_pass = ExtResource("1_6bbl1")
@@ -191,6 +192,7 @@ size = Vector3(1, 5, 1)
 [node name="MainGame" type="Node3D" node_paths=PackedStringArray("EnemySpawners")]
 script = ExtResource("1_f0e2v")
 EnemySpawners = []
+BossMusicStream = ExtResource("22_m6rcx")
 
 [node name="VoidParticles" type="GPUParticles3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 296.86932, -261.2442, -520)
@@ -1107,3 +1109,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -229.6, 220, 0)
 
 [node name="WorldTexturer" type="Node" parent="."]
 script = ExtResource("21_wtext")
+
+[node name="Boss music" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("22_m6rcx")
+volume_db = -10.0

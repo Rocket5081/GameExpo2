@@ -36,6 +36,7 @@ properties/7/replication_mode = 1
 [sub_resource type="BoxShape3D" id="BoxShape3D_vy3xu"]
 
 [node name="Enemy1" type="CharacterBody3D" node_paths=PackedStringArray("myId", "myAnimation") groups=["enemy"]]
+collision_layer = 128
 script = ExtResource("1_exnf6")
 myId = NodePath("MultiplayerSynchronizer")
 myAnimation = NodePath("Worm2/AnimationPlayer")
@@ -45,6 +46,8 @@ transform = Transform3D(1, 0, 0, 0, 2.4181361, 0, 0, 0, 15.583252, 0.23597431, 0
 shape = SubResource("BoxShape3D_kvr2i")
 
 [node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
+avoidance_enabled = true
+radius = 7.0
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_l2fd0")
@@ -58,5 +61,14 @@ shape = SubResource("BoxShape3D_vy3xu")
 
 [node name="Worm2" parent="." instance=ExtResource("3_vydh1")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0, 0, 0)
+
+[node name="Skeleton3D" parent="Worm2/Worm" index="0"]
+bones/0/position = Vector3(-0.3792447, -4.522448e-09, 0)
+bones/1/rotation = Quaternion(-1.4148269e-08, 9.136565e-08, -0.09649316, 0.99533373)
+bones/3/rotation = Quaternion(-2.4300364e-08, -2.5552287e-09, -0.103874475, 0.99459046)
+bones/4/rotation = Quaternion(-1.7298457e-07, 9.11939e-11, -0.73182225, 0.68149555)
+bones/5/rotation = Quaternion(1.5457165e-07, 1.27817925e-08, 0.7363176, 0.6766362)
+bones/6/rotation = Quaternion(2.5310799e-08, -3.2296455e-08, 0.013944253, 0.9999028)
+bones/7/rotation = Quaternion(-8.4920395e-12, 5.4549634e-08, 0.24486624, 0.9695569)
 
 [editable path="Worm2"]

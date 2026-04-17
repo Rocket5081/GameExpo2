@@ -46,6 +46,8 @@ transform = Transform3D(-4.371139e-08, 0, 15.583252, 0, 2.4181361, 0, -1, 0, -6.
 shape = SubResource("BoxShape3D_kvr2i")
 
 [node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
+avoidance_enabled = true
+radius = 7.0
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_l2fd0")

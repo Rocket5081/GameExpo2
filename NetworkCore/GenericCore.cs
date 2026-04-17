@@ -109,6 +109,30 @@ public partial class GenericCore : Node
 
 	[Export] public bool rewind = false;
 
+	/// <summary>
+	/// Set to true the moment the real boss spawns.
+	/// Players only start recording rewind data from this point so that
+	/// the rewind brings them back to the start of the boss fight, not
+	/// the start of the entire game.
+	/// </summary>
+	[Export] public bool BossHasSpawned = false;
+
+	/// <summary>Broadcast from server to ALL peers to begin the boss-fight rewind.</summary>
+	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true,
+		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public void StartRewind()
+	{
+		rewind = true;
+	}
+
+	/// <summary>Broadcast from server to ALL peers when the rewind finishes.</summary>
+	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true,
+		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public void EndRewind()
+	{
+		rewind = false;
+	}
+
 	public long GetServerNetId()
 	{
 

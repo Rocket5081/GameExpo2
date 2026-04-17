@@ -5,22 +5,28 @@ using System;
 public partial class MainGame : Node3D
 {
 	[Export] public Node3D[] EnemySpawners;
-
-	/// <summary>
-	/// Place a Marker3D node in the editor in front of Statue2, then drag it
-	/// into this slot. Players will respawn here on death.
-	/// If left empty the code falls back to a hard-coded position near the statue.
-	/// </summary>
 	[Export] public Marker3D StatueRespawnPoint;
 
 	private Timer              _spawnTimer;
 	private double             _elapsedSec  = 0.0;
 	private bool               _started     = false;   // true once we're visible and running
 	private AudioStreamPlayer  _musicPlayer;
+	private AudioStreamPlayer  _bossMusicPlayer;
+
+
+	[Export] public AudioStream BossMusicStream;
 
 	private readonly int[] LevelWeights = { 50, 30, 5, 1 };
 
-	int RoundNum = 0;
+	// Boss once-only guard
+	private bool _bossSpawned         = false;
+	private bool _bossSequenceStarted = false;
+
+	public int RoundNum = 0;
+
+	// Round-based enemy budget: Round 1 = 15, Round 2 = 30, Round 3 = 45 …
+	private int _enemiesSpawnedThisRound = 0;
+	private int _lastTrackedRound        = -1;
 
 	public float RoundTimer = 15f;
 	public float waitTimer = 0f;
@@ -42,6 +48,17 @@ public partial class MainGame : Node3D
 			_musicPlayer.Stream   = stream;
 			_musicPlayer.VolumeDb = -15f;
 			AddChild(_musicPlayer);
+		}
+
+		// Boss music player — stream assigned via BossMusicStream export in Inspector
+		_bossMusicPlayer = new AudioStreamPlayer { Name = "BossMusic" };
+		_bossMusicPlayer.VolumeDb = -15f;
+		AddChild(_bossMusicPlayer);
+		if (BossMusicStream != null)
+		{
+			var bossStream = (AudioStream)BossMusicStream.Duplicate();
+			if (bossStream is AudioStreamMP3 bmp3) bmp3.Loop = true;
+			_bossMusicPlayer.Stream = bossStream;
 		}
 	}
 
@@ -108,14 +125,100 @@ public partial class MainGame : Node3D
 
 	// ── Spawn helpers ─────────────────────────────────────────────────────────
 
+	// How many enemies to spawn total in a given round (0-indexed RoundNum).
+	// Round 1 (RoundNum=0) = 15, Round 2 = 30, Round 3 = 45, …
+	private int GetRoundEnemyTarget() => (RoundNum + 1) * 15;
+
+	// Max simultaneously alive enemies scales with the round budget, capped at 12.
+	private int GetMaxAliveEnemies() => Mathf.Clamp((RoundNum + 1) * 4, 5, 12);
+
 	private void OnSpawnTick()
 	{
-		// Only the server spawns enemies.
 		if (!GenericCore.Instance.IsServer) return;
-		if(RoundTimer > 0f)
-			// SpawnEnemyRPC();
-			// if(RoundNum >= 7)
-			SpawnBossRPC();
+		if (RoundTimer <= 0f) return;
+
+		if (RoundNum >= 2)
+		{
+			if (!_bossSpawned)
+				StartBossSequence();
+			return;
+		}
+
+		// Reset per-round counter whenever a new round starts.
+		if (RoundNum != _lastTrackedRound)
+		{
+			_enemiesSpawnedThisRound = 0;
+			_lastTrackedRound        = RoundNum;
+		}
+
+		// Stop spawning once we've hit this round's total budget.
+		if (_enemiesSpawnedThisRound >= GetRoundEnemyTarget()) return;
+
+		// Still respect the alive-at-once cap so the server isn't overwhelmed.
+		Enms.RemoveAll(b => !IsInstanceValid(b));
+		if (Enms.Count >= GetMaxAliveEnemies()) return;
+
+		SpawnEnemyRPC();
+	}
+
+	// ── Boss intro + single spawn ─────────────────────────────────────────────
+	private async void StartBossSequence()
+	{
+		if (_bossSequenceStarted) return;
+		_bossSequenceStarted = true;
+
+		// Broadcast the fly-up animation to ALL clients (and run locally).
+		if (Multiplayer.HasMultiplayerPeer())
+			Rpc(nameof(AnimateIdleBossRpc));
+		else
+			AnimateIdleBossRpc();
+
+		// Server waits for the same animation duration before spawning.
+		await ToSignal(GetTree().CreateTimer(3.5f), SceneTreeTimer.SignalName.Timeout);
+
+		// Switch music on all peers: stop round music, start boss music.
+		if (Multiplayer.HasMultiplayerPeer())
+			Rpc(nameof(StartBossMusicRpc));
+		else
+			StartBossMusicRpc();
+
+		_bossSpawned = true;
+		SpawnBossRPC();
+	}
+
+
+	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true,
+		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	private void AnimateIdleBossRpc()
+	{
+		var idleBoss = GetNodeOrNull<Node3D>("Boss");
+		if (idleBoss != null)
+		{
+			var tween = CreateTween()
+				.SetEase(Tween.EaseType.In)
+				.SetTrans(Tween.TransitionType.Quad);
+			tween.TweenProperty(idleBoss, "position:y", idleBoss.Position.Y + 600f, 3.5f);
+			tween.TweenCallback(Callable.From(() =>
+			{
+				if (IsInstanceValid(idleBoss)) idleBoss.Visible = false;
+			}));
+		}
+
+		// After the animation window, mark boss-fight recording as live on this peer.
+		GetTree().CreateTimer(3.5f).Timeout += () =>
+		{
+			GenericCore.Instance.BossHasSpawned = true;
+		};
+	}
+
+
+	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true,
+		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	private void StartBossMusicRpc()
+	{
+		_musicPlayer?.Stop();
+		if (_bossMusicPlayer != null && _bossMusicPlayer.Stream != null)
+			_bossMusicPlayer.Play();
 	}
 
 	private void SpawnBossRPC()
@@ -130,14 +233,17 @@ public partial class MainGame : Node3D
 			return;
 		}
 
-		var spawner    = GetTree().Root.FindChild("BossSpawner", true, false) as NetworkCore;
+		var spawner = GetTree().Root.FindChild("BossSpawner", true, false) as NetworkCore;
 		if (spawner == null)
 		{
-			GD.PrintErr("[MainGame] EnemySpawner NetworkCore not found!");
+			GD.PrintErr("[MainGame] BossSpawner NetworkCore not found!");
 			return;
 		}
 
-		spawner.NetCreateObject(0, ((Node3D)spawnPoint).GlobalPosition, Quaternion.Identity, 1);
+		// Spawn 35 units above the fight position so the boss descends into the arena.
+		var fightPos  = ((Node3D)spawnPoint).GlobalPosition;
+		var entryPos  = fightPos + new Vector3(0f, 35f, 0f);
+		spawner.NetCreateObject(0, entryPos, Quaternion.Identity, 1);
 	
 	}
 
@@ -171,7 +277,17 @@ public partial class MainGame : Node3D
 			return;
 		}
 
-		spawner.NetCreateObject(level, spawnPoint.GlobalPosition, Quaternion.Identity, 1);
+		// EnemySpawner scene indices: 0 = Worm, 1 = Bat, 2 = Boss (never spawned here)
+		// GetWeightedLevel returns 1 or 2 — map to the correct scene slot.
+		int sceneIndex = level switch
+		{
+			1 => 1,   // Bat
+			2 => 0,   // Worm
+			_ => 1,
+		};
+		spawner.NetCreateObject(sceneIndex, spawnPoint.GlobalPosition, Quaternion.Identity, 1);
+		_enemiesSpawnedThisRound++;
+		GD.Print($"[MainGame] Spawned enemy (level={level}, index={sceneIndex}) — {_enemiesSpawnedThisRound}/{GetRoundEnemyTarget()} this round.");
 	}
 
 	private void _RefreshSpawners()
@@ -188,8 +304,8 @@ public partial class MainGame : Node3D
 
 	private int GetMaxAllowedLevel(double t)
 	{
-		if (t < 15.0) return 0;
-		return 1;
+		if (t < 5.0) return 0;   // very short grace period at game start
+		return 2;                  // bats + worms available immediately
 	}
 
 	private int GetWeightedLevel(int maxLevel)
@@ -212,10 +328,13 @@ public partial class MainGame : Node3D
 
 	private float GetSpawnInterval(double t)
 	{
-		if (t < 15.0)  return 5f;    // grace period — nothing spawns yet
-		if (t < 30.0)  return 3f;
-		if (t < 60.0)  return 2f;
-		if (t < 120.0) return 1f;
-		return 0.5f;
+		if (t < 5.0)   return 8f;    // brief grace period at game start
+		// Scales faster per round so later rounds feel more intense.
+		return RoundNum switch
+		{
+			0 => 2.5f,   // Round 1 — moderate pace
+			1 => 2.0f,   // Round 2 — faster
+			_ => 1.5f,   // Round 3+ — fast
+		};
 	}
 }

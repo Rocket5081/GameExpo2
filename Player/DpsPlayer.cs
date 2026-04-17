@@ -15,7 +15,7 @@ public partial class DpsPlayer : Player
 	public override void _Ready()
 	{
 		maxHp = 150;
-		speed = 20;
+		speed = 40;
 		hp    = maxHp;   
 		base._Ready();
 
