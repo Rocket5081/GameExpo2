@@ -88,7 +88,20 @@ public partial class Boss : Enemy
 			else if (!SyncedIsMoving)
 			{
 				waitTime      -= (float)delta;
-				SyncedAnimName = "Swipe";
+				RandomNumberGenerator random = new RandomNumberGenerator();
+				random.Randomize();
+				int rand = random.RandiRange(0,2);
+				switch(rand){
+					case 0:
+						SyncedAnimName = "SmashLeft";
+						break;
+					case 1:
+						SyncedAnimName = "Swipe";
+						break;
+					case 2:
+						SyncedAnimName = "SmashRight";
+						break;
+				}
 			}
 			MoveToNext(target);
 		}
