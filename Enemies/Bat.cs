@@ -15,7 +15,7 @@ public partial class Bat : Enemy
 
 	public override void _Ready()
 	{
-		maxHP    = 20;
+		maxHP    = 40;
 		hp       = maxHP;
 		damage   = 10;
 		DeathSfx = GD.Load<AudioStream>("res://Sounds/Dying bat.mp3");
