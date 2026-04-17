@@ -485,6 +485,7 @@ public partial class Player : CharacterBody3D
 	{
 		if (IsShielded) return;
 
+		bloodSplat();
 		// Broadcast the hit sound to all peers so everyone hears it
 		// spatially from this player's world position.
 		if (Multiplayer.HasMultiplayerPeer())
@@ -493,12 +494,21 @@ public partial class Player : CharacterBody3D
 			PlayHitSfx(); // offline / standalone fallback
 	}
 
+	public void bloodSplat()
+	{
+		if (bloodSplatter == null) return;
+		
+		bloodSplatter.Restart();
+		GD.Print("Blood splat: " + bloodSplatter.Emitting);
+	}
+
 	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true,
 		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void PlayHitSfx()
 	{
+		
+		bloodSplat();
 		_hitSoundPlayer?.Play();
-		bloodSplatter.Restart();
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false,

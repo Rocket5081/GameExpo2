@@ -262,6 +262,6 @@ parameters/Shooting/current_index = -1
 parameters/SpecialBlend/blend_amount = 0.0
 
 [node name="BloodSplatter" parent="." instance=ExtResource("10_3ylyi")]
-transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0.09810674, 0.4776864, 0)
+transform = Transform3D(0.29999998, 0, 0, 0, 0.29999998, 0, 0, 0, 0.29999998, 0.09810673, 0.4776864, -9.313226e-10)
 
 [editable path="DPS"]

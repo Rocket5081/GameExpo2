@@ -64,6 +64,8 @@ public partial class Enemy : CharacterBody3D
 				_contactPlayer.hp = Mathf.Max(_contactPlayer.hp - damage, 0);
 				_damageCooldown   = DamageCooldownTime;
 
+				_contactPlayer.OnHitByBullet();
+
 				// Contact damage counts as "damage dealt" for score purposes
 				_contactPlayer.NotifyDamageDealt(damage);
 			}
