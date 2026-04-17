@@ -56,7 +56,7 @@ public partial class SupportPlayer : Player
 	{
 		UltimateSound?.Play();
 		if (!GenericCore.Instance.IsServer)
-			myAnimation?.Play("Special");
+			Rpc("PlayUltAnimation");
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true,
@@ -131,6 +131,13 @@ public partial class SupportPlayer : Player
 				_laserDamageTimer = 0f; // reset so next press fires immediately
 			}
 		}
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true,
+		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public void PlayUltAnimation()
+	{
+		myAnimation?.Play("Special");
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false,

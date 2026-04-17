@@ -7,6 +7,10 @@ public partial class HUD : CanvasLayer
 	private Control _dpsReticle;
 	private Control _tankReticle;
 	private Control _supportReticle;
+
+	private TextureRect scorebg;
+
+	private TextureRect healthborder;
 	private bool _reticleSet = false;
 
 	// ── Shared local-player reference ─────────────────────────────────────────
@@ -53,6 +57,9 @@ public partial class HUD : CanvasLayer
 		_dpsReticle     = GetNode<Control>("DpsReticle");
 		_tankReticle    = GetNode<Control>("TankReticle");
 		_supportReticle = GetNode<Control>("SupportReticle");
+		scorebg = GetNode<TextureRect>("ScorePanel");
+		healthborder = GetNode<TextureRect>("HealthBar");
+		healthborder.ZIndex = 1;  // above HP bar panel
 
 		_dpsReticle.Visible     = false;
 		_tankReticle.Visible    = false;
@@ -79,8 +86,8 @@ public partial class HUD : CanvasLayer
 		_scorePanel = new Panel();
 		_scorePanel.AnchorLeft   = 0f; _scorePanel.AnchorTop    = 0f;
 		_scorePanel.AnchorRight  = 0f; _scorePanel.AnchorBottom = 0f;
-		_scorePanel.OffsetLeft   = Margin;
-		_scorePanel.OffsetTop    = Margin;
+		_scorePanel.OffsetLeft   = Margin+10f;
+		_scorePanel.OffsetTop    = Margin+10f;
 		_scorePanel.OffsetRight  = Margin + W;
 		_scorePanel.OffsetBottom = Margin + H;
 		_scorePanel.MouseFilter  = Control.MouseFilterEnum.Ignore;
@@ -175,7 +182,7 @@ public partial class HUD : CanvasLayer
 		root.MouseFilter = Control.MouseFilterEnum.Ignore;
 		AddChild(root);
 
-		const float W = 280f, H = 52f, BottomMargin = 28f;
+		const float W = 280f, H = 55f, BottomMargin = 28f;
 		_hpPanel = new Panel();
 		_hpPanel.AnchorLeft   = 0.5f; _hpPanel.AnchorTop    = 1f;
 		_hpPanel.AnchorRight  = 0.5f; _hpPanel.AnchorBottom = 1f;
@@ -345,6 +352,8 @@ public partial class HUD : CanvasLayer
 					_hpPanel.Visible   = true;
 					_scorePanel.Visible = true;
 					_reticleSet        = true;
+					scorebg.Visible = true;
+					healthborder.Visible = true;
 					break;
 				}
 			}

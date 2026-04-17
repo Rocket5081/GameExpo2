@@ -1,41 +1,71 @@
-[gd_scene load_steps=3 format=3 uid="uid://c4hud0main001"]
+[gd_scene load_steps=5 format=3 uid="uid://c4hud0main001"]
 
-[ext_resource type="Script" path="res://MainGame/HUD.cs" id="1_hud"]
-[ext_resource type="Script" path="res://Player/Reticle.cs" id="2_reticle"]
+[ext_resource type="Script" uid="uid://dhy2e3atn5h13" path="res://MainGame/HUD.cs" id="1_hud"]
+[ext_resource type="Script" uid="uid://pdqvcyyprvgw" path="res://Player/Reticle.cs" id="2_reticle"]
+[ext_resource type="Texture2D" uid="uid://bykthipo5ave7" path="res://Assets/ScorePanel.png" id="3_m3ex5"]
+[ext_resource type="Texture2D" uid="uid://b7v0rwgu55ptg" path="res://Assets/PlayerHealthBorder.png" id="4_s1ddw"]
 
 [node name="HUD" type="CanvasLayer"]
 layer = 10
 script = ExtResource("1_hud")
 
 [node name="DpsReticle" type="Control" parent="."]
+visible = false
+layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-visible = false
 script = ExtResource("2_reticle")
-reticle_style = 0
 
 [node name="TankReticle" type="Control" parent="."]
+visible = false
+layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-visible = false
 script = ExtResource("2_reticle")
-reticle_style = 1
 
 [node name="SupportReticle" type="Control" parent="."]
+visible = false
+layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-visible = false
 script = ExtResource("2_reticle")
-reticle_style = 2
+
+[node name="ScorePanel" type="TextureRect" parent="."]
+visible = false
+texture_filter = 1
+offset_left = 230.025
+offset_top = 156.0
+offset_right = 550.026
+offset_bottom = 476.0
+rotation = 3.1415927
+scale = Vector2(0.8, 0.6)
+mouse_filter = 2
+texture = ExtResource("3_m3ex5")
+
+[node name="HealthBar" type="TextureRect" parent="."]
+visible = false
+texture_filter = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -186.67499
+offset_top = -224.42499
+offset_right = 195.94397
+offset_bottom = 115.099976
+grow_horizontal = 2
+grow_vertical = 0
+texture = ExtResource("4_s1ddw")

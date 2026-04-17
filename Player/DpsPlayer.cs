@@ -29,8 +29,7 @@ public partial class DpsPlayer : Player
 	protected override void OnLocalUltimateActivated()
 	{
 		UltimateSound?.Play();
-		if (!GenericCore.Instance.IsServer)
-			myAnimation?.Play("SpecialIntro");
+		Rpc("PlayUltAnimation");
 	}
 
 	private async void PlayBurstFlash(int count, float delay)
@@ -88,5 +87,12 @@ public partial class DpsPlayer : Player
 		_ultraActive = true;
 		SpecialActive = true;
 		_ultraTimer  = 5f;   // 5-second rapid-fire window
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true,
+		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public void PlayUltAnimation()
+	{
+		myAnimation?.Play("SpecialIntro");
 	}
 }

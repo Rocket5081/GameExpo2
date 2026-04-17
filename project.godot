@@ -13,11 +13,17 @@ config_version=5
 config/name="GameExpo2"
 run/main_scene="uid://dufyvricl5qqi"
 config/features=PackedStringArray("4.5", "C#", "Forward Plus")
+run/max_fps=60
 
 [autoload]
 
 SceneTransition="*res://SceneTransition/scene_transition.tscn"
 Rewind="*res://Rewind.cs"
+
+[display]
+
+window/stretch/mode="viewport"
+window/dpi/allow_hidpi=false
 
 [dotnet]
 
