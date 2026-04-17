@@ -41,7 +41,10 @@ public partial class LobbyStreamlined : Node
 		AgentAPI.PeerDisconnected += OnPeerDisconnected;
 
 		string[] args = OS.GetCmdlineArgs();
-		AgentSpawner.SpawnFunction = new Callable(this, nameof(SpawnAgent));
+		if (AgentSpawner != null)
+			AgentSpawner.SpawnFunction = new Callable(this, nameof(SpawnAgent));
+		else
+			GD.PushWarning("[LobbyStreamlined] AgentSpawner export is not assigned — check the scene file.");
 		bool isGameServer = false;
 
 		foreach (string arg in args)

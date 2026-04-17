@@ -38,7 +38,7 @@ public partial class Boss : Enemy
 
 	public override void _Ready()
 	{
-		maxHP  = 300;
+		maxHP  = 1;
 		hp     = maxHP;
 		damage = 50;
 		DeathSfx = GD.Load<AudioStream>("res://Sounds/Dying Boss.mp3");
@@ -81,16 +81,19 @@ public partial class Boss : Enemy
 		{
 			if (!SyncedIsMoving && waitTime <= 0f)
 			{
-				target = FindNextLocation();
+				target         = FindNextLocation();
 				SyncedIsMoving = true;
+				SyncedAnimName = "FastMove";
 			}
-			else
-				waitTime -= (float)delta;
+			else if (!SyncedIsMoving)
+			{
+				waitTime      -= (float)delta;
+				SyncedAnimName = "Swipe";
+			}
 			MoveToNext(target);
 		}
 
-		if (!GenericCore.Instance.IsServer){}
-			UpdateAnimation();
+		UpdateAnimation();
 
 		if (GenericCore.Instance.rewind)
 		{
@@ -138,11 +141,10 @@ public partial class Boss : Enemy
 	private void UpdateAnimation()
 	{
 		if (myAnimation == null) return;
-
-		if (SyncedIsMoving)
-			myAnimation.Play("Swipe");
-		else
-			myAnimation.Play("Swipe"); 
+		// SyncedAnimName is set server-side and replicated to all clients via
+		// MultiplayerSynchronizer, so every peer plays the correct clip.
+		if (myAnimation.CurrentAnimation != SyncedAnimName)
+			myAnimation.Play(SyncedAnimName);
 	}
 
 	private Node3D FindNextLocation()
@@ -170,16 +172,19 @@ public partial class Boss : Enemy
 
 	private void MoveToNext(Node3D target)
 	{
-	if(target == null) return;
-	if (GlobalPosition.DistanceTo(target.GlobalPosition) > 5.0f) {
-		LookAt(new Vector3(0,0,0));
-		GlobalPosition += GlobalPosition.DirectionTo(target.GlobalPosition) * speed;
-		waitTime = 8f;
-	}
-	else
-	{
-		SyncedIsMoving = false;
-	}
+		if (target == null) return;
+		if (GlobalPosition.DistanceTo(target.GlobalPosition) > 5.0f)
+		{
+			LookAt(new Vector3(0, 0, 0));
+			GlobalPosition += GlobalPosition.DirectionTo(target.GlobalPosition) * speed;
+			waitTime        = 8f;
+		}
+		else
+		{
+			// Arrived — switch to idle/attack animation and let the wait timer run.
+			SyncedIsMoving = false;
+			SyncedAnimName = "Swipe";
+		}
 	}
 	
 	public override void SetupContactArea()
@@ -226,73 +231,9 @@ public partial class Boss : Enemy
 		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	private void ShowWinScreenRpc()
 	{
-		Input.MouseMode = Input.MouseModeEnum.Visible;
-
-		// ── Full-screen canvas ─────────────────────────────────────────────────
-		var canvas = new CanvasLayer();
-		canvas.Layer = 20;
-		GetTree().Root.AddChild(canvas);
-
-		// Dark backdrop
-		var bg            = new ColorRect();
-		bg.Color          = new Color(0.01f, 0f, 0.06f, 0.93f);
-		bg.AnchorLeft     = 0f;  bg.AnchorTop    = 0f;
-		bg.AnchorRight    = 1f;  bg.AnchorBottom = 1f;
-		bg.GrowHorizontal = Control.GrowDirection.Both;
-		bg.GrowVertical   = Control.GrowDirection.Both;
-		bg.MouseFilter    = Control.MouseFilterEnum.Ignore;
-		canvas.AddChild(bg);
-
-		// "YOU WIN!" title
-		var title              = new Label();
-		title.Text             = "✦  YOU WIN!  ✦";
-		title.AddThemeFontSizeOverride("font_size", 72);
-		title.AddThemeColorOverride("font_color",         new Color(1f, 0.85f, 0.2f));
-		title.AddThemeColorOverride("font_outline_color", new Color(0f, 0f, 0f, 1f));
-		title.AddThemeConstantOverride("outline_size", 4);
-		title.HorizontalAlignment = HorizontalAlignment.Center;
-		title.AnchorLeft     = 0f;    title.AnchorTop    = 0.5f;
-		title.AnchorRight    = 1f;    title.AnchorBottom = 0.5f;
-		title.OffsetTop      = -120f; title.OffsetBottom = -40f;
-		title.GrowHorizontal = Control.GrowDirection.Both;
-		title.GrowVertical   = Control.GrowDirection.Both;
-		title.MouseFilter    = Control.MouseFilterEnum.Ignore;
-		canvas.AddChild(title);
-
-		// Subtitle
-		var sub              = new Label();
-		sub.Text             = "The boss has been slain — your legend is sealed.";
-		sub.AddThemeFontSizeOverride("font_size", 22);
-		sub.AddThemeColorOverride("font_color", new Color(0.75f, 0.65f, 1f));
-		sub.HorizontalAlignment = HorizontalAlignment.Center;
-		sub.AnchorLeft     = 0f;   sub.AnchorTop    = 0.5f;
-		sub.AnchorRight    = 1f;   sub.AnchorBottom = 0.5f;
-		sub.OffsetTop      = -20f; sub.OffsetBottom = 20f;
-		sub.GrowHorizontal = Control.GrowDirection.Both;
-		sub.GrowVertical   = Control.GrowDirection.Both;
-		sub.MouseFilter    = Control.MouseFilterEnum.Ignore;
-		canvas.AddChild(sub);
-
-		// "Return to Lobby" button
-		var btn              = new Button();
-		btn.Text             = "Return to Lobby";
-		btn.AddThemeFontSizeOverride("font_size", 20);
-		btn.AnchorLeft   = 0.5f;  btn.AnchorTop    = 0.5f;
-		btn.AnchorRight  = 0.5f;  btn.AnchorBottom = 0.5f;
-		btn.OffsetLeft   = -130f; btn.OffsetRight  = 130f;
-		btn.OffsetTop    =  60f;  btn.OffsetBottom = 100f;
-		btn.GrowHorizontal = Control.GrowDirection.Both;
-		btn.GrowVertical   = Control.GrowDirection.Both;
-		canvas.AddChild(btn);
-
-		btn.Pressed += () =>
-		{
-			GenericCore.Instance.BossHasSpawned = false;
-			GenericCore.Instance.rewind         = false;
-			GenericCore.Instance.DisconnectFromGame();
-			_ = SceneTransition.Instance.TransitionTo(
-				"res://NetworkCore/WanLobbySystem/BetterLobby/streamlinedLobby.tscn");
-		};
+		// WinScreen lives in the scene tree already (added by MainGame._Ready).
+		// Just tell it to populate the scoreboard and make itself visible.
+		WinScreen.Instance?.ShowFor(GetTree().GetNodesInGroup("Players"));
 	}
 
 	public void rewind()

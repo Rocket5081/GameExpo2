@@ -15,7 +15,7 @@ public partial class PlayerCamera : Camera3D
 
 	public override void _UnhandledInput(InputEvent @event)
 	{
-		if (localPlayer == null) return;
+		if (localPlayer == null || !IsInstanceValid(localPlayer)) return;
 		if (!localPlayer.myId.IsLocal) return;
 
 		if (@event is InputEventMouseMotion mouseMotion)
@@ -41,8 +41,13 @@ public partial class PlayerCamera : Camera3D
 
 	public override void _Process(double delta)
 	{
-		if (localPlayer == null)
+		// Guard against a stale reference from the previous game session.
+		// IsInstanceValid returns false once Godot has freed the underlying object,
+		// even when the C# field isn't null yet — which is exactly what causes the
+		// ObjectDisposedException on second-game startup.
+		if (localPlayer == null || !IsInstanceValid(localPlayer))
 		{
+			localPlayer = null;
 			FindLocalPlayer();
 			return;
 		}

@@ -43,7 +43,7 @@ public partial class WormEnemy : Enemy
 		// MUST call base so Enemy._PhysicsProcess runs the damage tick
 		base._PhysicsProcess(delta);
 
-		if (!GenericCore.Instance.IsServer) return;
+		if (!GenericCore.Instance.IsServer) UpdateAnimation();
 
 		if(GenericCore.Instance.IsServer){
 
@@ -73,9 +73,9 @@ public partial class WormEnemy : Enemy
 		if (myAnimation == null) return;
 
 		if (SyncedIsMoving)
-			myAnimation.Play("move");
+			myAnimation.Play("Move");
 		else
-			myAnimation.Play("move");
+			myAnimation.Play("Move");
 	}
 
 	private Player FindNearestPlayer()
