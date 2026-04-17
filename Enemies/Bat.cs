@@ -28,10 +28,20 @@ public partial class Bat : Enemy
 
 		if(GenericCore.Instance.IsServer){
 			var target = FindNearestPlayer();
+			if (!IsOnFloor())
+			{
+				Velocity       = new Vector3(0, -5, 0);
+				MoveAndSlide();
+			}
+			else
+			{
+				Velocity       = new Vector3(0, 0, 0);
+			}
 			if (target == null)
 			{
-				Velocity       = Vector3.Zero;
+				Velocity       = new Vector3(0, 0, 0);
 				SyncedIsMoving = false;
+				MoveAndSlide();
 			}
 			else
 			{
@@ -75,8 +85,7 @@ public partial class Bat : Enemy
 		Vector3 destination = navAgent.GetNextPathPosition();
 		Vector3 direction = (destination - GlobalPosition).Normalized();
 
-		float currentY = Velocity.Y;
-		Velocity = new Vector3(direction.X * speed, currentY, direction.Z * speed);
+		Velocity = new Vector3(direction.X * speed, 0, direction.Z * speed);
 
 		Vector3 flatDirection = new Vector3(direction.X, 0, direction.Z).Normalized();
 		if (flatDirection.Length() > 0.1f)

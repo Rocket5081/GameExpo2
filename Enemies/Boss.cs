@@ -54,9 +54,9 @@ public partial class Boss : Enemy
 		if (myAnimation == null) return;
 
 		if (SyncedIsMoving)
-			myAnimation.Play("SmashLeft");
+			myAnimation.Play("Swipe");
 		else
-			myAnimation.Play("SmashLeft"); 
+			myAnimation.Play("Swipe"); 
 	}
 
 	private Node3D FindNextLocation()
@@ -93,9 +93,14 @@ public partial class Boss : Enemy
 	else
 	{
 		SyncedIsMoving = false;
-		GD.Print(SyncedIsMoving);
 	}
 	}
+	// private void SetupContactArea()
+	// {
+	// 	foreach(Area3D area in )
+	// 	area.BodyEntered += OnPlayerBodyEntered;
+	// 	area.BodyExited  += OnPlayerBodyExited;
+	// }
 
 	
 }

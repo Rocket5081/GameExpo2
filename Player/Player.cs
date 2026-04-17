@@ -506,8 +506,6 @@ public partial class Player : CharacterBody3D
 
 			bul.Reset();
 			bul.Show();
-			bul.CollisionLayer    = 4;
-			bul.CollisionMask     = 1;
 			bul.Rotation          = Rotation;
 			bul.GlobalPosition    = spawnPos;
 			bul.LinearVelocity    = bul.Transform.Basis.X * 200f;

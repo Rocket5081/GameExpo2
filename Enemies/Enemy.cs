@@ -122,7 +122,7 @@ public partial class Enemy : CharacterBody3D
 		area.Monitoring     = true;
 
 		var shape   = new CollisionShape3D();
-		shape.Shape = new SphereShape3D { Radius = 1.4f };
+		shape.Shape = new BoxShape3D { Size = new Vector3(9,7,16) };
 		area.AddChild(shape);
 		AddChild(area);
 
@@ -130,13 +130,13 @@ public partial class Enemy : CharacterBody3D
 		area.BodyExited  += OnPlayerBodyExited;
 	}
 
-	private void OnPlayerBodyEntered(Node3D body)
+	public void OnPlayerBodyEntered(Node3D body)
 	{
 		if (body is not Player player) return;
 		_contactPlayer = player;
 	}
 
-	private void OnPlayerBodyExited(Node3D body)
+	public void OnPlayerBodyExited(Node3D body)
 	{
 		if (body is Player)
 			_contactPlayer = null;

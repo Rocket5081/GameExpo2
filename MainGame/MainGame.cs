@@ -19,6 +19,8 @@ public partial class MainGame : Node3D
 
 	private readonly int[] LevelWeights = { 50, 30, 5, 1 };
 
+	int RoundNum = 0;
+
 	public float RoundTimer = 15f;
 	public float waitTimer = 0f;
 	public bool upgrading = false;
@@ -83,6 +85,7 @@ public partial class MainGame : Node3D
 					player.ShowUpgradeUI();
 				}
 				upgrading = true;
+				RoundNum++;
 			}
 			if(waitTimer <= 0f){
 				waitTimer = 10f;
@@ -102,6 +105,7 @@ public partial class MainGame : Node3D
 		if (!GenericCore.Instance.IsServer) return;
 		if(RoundTimer > 0f)
 			SpawnEnemyRPC();
+			if(RoundNum >= 7)
 			SpawnBossRPC();
 	}
 

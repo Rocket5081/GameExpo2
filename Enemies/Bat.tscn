@@ -36,6 +36,7 @@ properties/7/replication_mode = 1
 [sub_resource type="BoxShape3D" id="BoxShape3D_vy3xu"]
 
 [node name="Enemy1" type="CharacterBody3D" node_paths=PackedStringArray("myId", "myAnimation") groups=["enemy"]]
+collision_layer = 128
 script = ExtResource("1_ngmul")
 myId = NodePath("MultiplayerSynchronizer")
 myAnimation = NodePath("Bat(Animated)/AnimationPlayer")
