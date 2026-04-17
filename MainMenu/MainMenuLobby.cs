@@ -509,4 +509,50 @@ public partial class MainMenuLobby : Control
 		HP    = 100;
 		Score = 0;
 	}
+
+	// ── Return-to-lobby reset ─────────────────────────────────────────────────
+
+	/// <summary>
+	/// Called by GenericCore.AllPlayersReadyToLeave() on every client when the
+	/// game ends and all players press "Return to Lobby".
+	/// Puts the main menu back into its initial state so a new game can be started.
+	/// </summary>
+	public void ResetForLobby()
+	{
+		// Allow StartGame to fire again next match.
+		_gameStarted = false;
+
+		// Clear per-match registration data.
+		_readyPlayers.Clear();
+		_readyPlayerNames.Clear();
+		_readyRelics.Clear();
+
+		// Reset player name entry so the next player types a fresh name.
+		if (NameEntry != null) NameEntry.Text = "";
+		PlayerName = "Player";
+
+		// Reset class and relic dropdowns back to first option.
+		if (ClassDropdown != null) ClassDropdown.Selected = 0;
+		if (ItemDropdown  != null) ItemDropdown.Selected  = 0;
+		ClassChoice = 0;
+		ItemChoice  = 0;
+
+		// Restore UI to its pre-game state.
+		Visible                = true;
+		OfflinePanel.Visible   = true;
+		OnlinePanel.Visible    = false;
+		ConnectButton.Disabled = false;
+		ConnectButton.Text     = "Connect";
+
+		// Reset player stats.
+		HP    = 100;
+		Score = 0;
+
+		// Restart menu music only if it isn't already playing.
+		_musicShouldPlay = true;
+		if (MenuMusic != null && !MenuMusic.Playing)
+			MenuMusic.Play();
+
+		GD.Print("[MainMenuLobby] ResetForLobby complete — ready for next match.");
+	}
 }

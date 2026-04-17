@@ -133,6 +133,108 @@ public partial class GenericCore : Node
 		rewind = false;
 	}
 
+	// ── Win screen / end-of-game coordination ────────────────────────────────
+
+	/// <summary>How many players have confirmed "Return to Lobby" so far (server only).</summary>
+	private int _readyToLeaveCount = 0;
+
+	/// <summary>
+	/// Called directly (if caller is the server) or via RpcId(1, ...) from each
+	/// client when they press "Return to Lobby".
+	/// Only the server runs the body — tallies confirmations and, once everyone
+	/// has confirmed, broadcasts AllPlayersReadyToLeave to all clients, then
+	/// schedules a self-quit so the game-server process is destroyed.
+	/// The lobby/master server process runs on a different port and is NOT touched.
+	/// </summary>
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public void PlayerReadyToLeave()
+	{
+		if (!IsServer) return;
+
+		_readyToLeaveCount++;
+		int total = GetTree().GetNodesInGroup("Players").Count;
+		GD.Print($"[GenericCore] Ready to leave: {_readyToLeaveCount}/{total}");
+
+		if (_readyToLeaveCount >= total)
+		{
+			_readyToLeaveCount = 0;
+
+			// CallLocal = true so the server also runs AllPlayersReadyToLeave locally.
+			// Inside that method the server branch quits the process; the client branch
+			// disconnects and transitions to lobby.
+			if (Multiplayer?.HasMultiplayerPeer() ?? false)
+				Rpc(nameof(AllPlayersReadyToLeave));   // → all peers INCLUDING server (CallLocal=true)
+			else
+				AllPlayersReadyToLeave();              // offline / solo
+		}
+	}
+
+	/// <summary>
+	/// Runs on ALL peers (CallLocal = true).
+	/// • Headless game-server → waits 600 ms then quits the OS process.
+	/// • Clients → hides win screen, hides MainGame, shows lobby UI, resets menu.
+	/// The lobby/master server runs in a separate process and is NOT touched.
+	/// </summary>
+	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true,
+		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public void AllPlayersReadyToLeave()
+	{
+		// ── Headless game-server branch: just kill the process ────────────────
+		if (IsServer && (Multiplayer?.HasMultiplayerPeer() ?? false))
+		{
+			GD.Print("[GenericCore] Game server shutting down in 600 ms…");
+			_ = QuitGameServerAsync();
+			return;
+		}
+
+		// ── Client (or offline) path ──────────────────────────────────────────
+		GD.Print("[GenericCore] AllPlayersReadyToLeave — returning to lobby.");
+
+		// 1. Hide the win-screen overlay.
+		WinScreen.Instance?.HideScreen();
+
+		// 2. Hide the 3-D game world and reset all per-match state
+		//    (music, spawn timer, HUD, round counters).
+		//    GenericCore IS the GameRoot node, so "MainGame" is a direct child.
+		var mainGame = GetNodeOrNull<MainGame>("MainGame");
+		if (mainGame != null)
+		{
+			mainGame.ResetForLobby();   // stops music, resets HUD, clears state
+			mainGame.Visible = false;
+		}
+		else
+			GD.PrintErr("[GenericCore] AllPlayersReadyToLeave: MainGame child not found!");
+
+		// 3. Show the lobby CanvasLayer that sits next to GameRoot.
+		var genericLobby = GetParent()?.GetNodeOrNull<CanvasLayer>("GenericLobbySystem");
+		if (genericLobby != null)
+			genericLobby.Visible = true;
+		else
+			GD.PrintErr("[GenericCore] AllPlayersReadyToLeave: GenericLobbySystem not found!");
+
+		// 4. Reset MainMenuLobby so players can start a new game.
+		var mainMenu = GetNodeOrNull<MainMenuLobby>("MainMenu");
+		if (mainMenu != null)
+			mainMenu.ResetForLobby();
+		else
+			GD.PrintErr("[GenericCore] AllPlayersReadyToLeave: MainMenu child not found!");
+
+		// 5. Close the game-server ENet connection (lobby AgentAPI on a different
+		//    port is completely unaffected).
+		DisconnectFromGame();
+
+		// 6. Reset game-state flags.
+		BossHasSpawned = false;
+		rewind         = false;
+	}
+
+	private async Task QuitGameServerAsync()
+	{
+		await ToSignal(GetTree().CreateTimer(0.6f), SceneTreeTimer.SignalName.Timeout);
+		GD.Print("[GenericCore] Quitting now.");
+		GetTree().Quit();
+	}
+
 	public long GetServerNetId()
 	{
 
@@ -259,6 +361,13 @@ public partial class GenericCore : Node
 	}
 	public void DisconnectFromGame()
 	{
+		if (Multiplayer == null || Multiplayer.MultiplayerPeer == null)
+		{
+			// Already disconnected or node is mid-free — nothing to do.
+			IsGenericCoreConnected = false;
+			IsServer               = false;
+			return;
+		}
 		if (Multiplayer.MultiplayerPeer != null)
 		{
 			GD.Print("Disconnecting from ENet session<Game Server>");

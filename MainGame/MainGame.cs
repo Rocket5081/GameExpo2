@@ -4,6 +4,8 @@ using System;
 
 public partial class MainGame : Node3D
 {
+	public static MainGame Instance { get; private set; }
+
 	[Export] public Node3D[] EnemySpawners;
 	[Export] public Marker3D StatueRespawnPoint;
 
@@ -12,7 +14,6 @@ public partial class MainGame : Node3D
 	private bool               _started     = false;   // true once we're visible and running
 	private AudioStreamPlayer  _musicPlayer;
 	private AudioStreamPlayer  _bossMusicPlayer;
-
 
 	[Export] public AudioStream BossMusicStream;
 
@@ -32,11 +33,18 @@ public partial class MainGame : Node3D
 	public float waitTimer = 0f;
 	public bool upgrading = false;
 
-	public List<Enemy> Enms     = new List<Enemy>();
+	public List<Enemy> Enms = new List<Enemy>();
+
+	/// <summary>Enemies spawned so far this round — used by HUD for kill-progress.</summary>
+	public int EnemiesSpawnedThisRound => _enemiesSpawnedThisRound;
 
 	public override void _Ready()
 	{
+		Instance = this;
 		_RefreshSpawners();
+
+		// Win screen lives in the scene tree from the start, hidden until boss dies.
+		AddChild(new WinScreen());
 
 
 		var raw = GD.Load<AudioStream>("res://Sounds/RoundMusicGameExpo2.2.mp3");
@@ -125,9 +133,13 @@ public partial class MainGame : Node3D
 
 	// ── Spawn helpers ─────────────────────────────────────────────────────────
 
-	// How many enemies to spawn total in a given round (0-indexed RoundNum).
-	// Round 1 (RoundNum=0) = 15, Round 2 = 30, Round 3 = 45, …
-	private int GetRoundEnemyTarget() => (RoundNum + 1) * 15;
+	public override void _ExitTree()
+	{
+		if (Instance == this) Instance = null;
+	}
+
+
+	public int GetRoundEnemyTarget() => (RoundNum + 1) * 15;
 
 	// Max simultaneously alive enemies scales with the round budget, capped at 12.
 	private int GetMaxAliveEnemies() => Mathf.Clamp((RoundNum + 1) * 4, 5, 12);
@@ -137,7 +149,7 @@ public partial class MainGame : Node3D
 		if (!GenericCore.Instance.IsServer) return;
 		if (RoundTimer <= 0f) return;
 
-		if (RoundNum >= 2)
+		if (RoundNum >= 1)
 		{
 			if (!_bossSpawned)
 				StartBossSequence();
@@ -336,5 +348,45 @@ public partial class MainGame : Node3D
 			1 => 2.0f,   // Round 2 — faster
 			_ => 1.5f,   // Round 3+ — fast
 		};
+	}
+
+	// ── Return-to-lobby reset ─────────────────────────────────────────────────
+
+	/// <summary>
+	/// Called by GenericCore.AllPlayersReadyToLeave() on every client.
+	/// Stops all in-game music, tears down the spawn timer, and resets all
+	/// per-match state so the next StartGame() fires clean.
+	/// </summary>
+	public void ResetForLobby()
+	{
+		// ── Stop music ────────────────────────────────────────────────────────
+		_bossMusicPlayer?.Stop();
+		_musicPlayer?.Stop();
+
+		// ── Tear down spawn timer ─────────────────────────────────────────────
+		if (_spawnTimer != null)
+		{
+			_spawnTimer.Stop();
+			_spawnTimer.QueueFree();
+			_spawnTimer = null;
+		}
+
+		// ── Reset all per-match flags and counters ────────────────────────────
+		_started                 = false;
+		_elapsedSec              = 0.0;
+		_bossSpawned             = false;
+		_bossSequenceStarted     = false;
+		_enemiesSpawnedThisRound = 0;
+		_lastTrackedRound        = -1;
+		RoundNum                 = 0;
+		RoundTimer               = 15f;
+		waitTimer                = 0f;
+		upgrading                = false;
+		Enms.Clear();
+
+		// ── Reset HUD ─────────────────────────────────────────────────────────
+		GetNodeOrNull<HUD>("HUD")?.ResetForLobby();
+
+		GD.Print("[MainGame] ResetForLobby complete.");
 	}
 }

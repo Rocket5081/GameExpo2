@@ -18,6 +18,7 @@ public partial class Player : CharacterBody3D
 	private float _footstepTimer = 0f;
 
 	private AudioStreamPlayer3D _hitSoundPlayer;
+	private AudioStreamPlayer3D  _RWSFX;
 
 	[Export] public string PlayerDisplayName = "";
 
@@ -64,6 +65,8 @@ public partial class Player : CharacterBody3D
 
 	// ── Score system ────────────────────────────────────────────────────────
 	public int   Score          = 0;
+	public int   Kills          = 0;
+	public int   Deaths         = 0;
 	public float Multiplier     = 1f;
 	private float _noDamageTimer = 0f;
 	private const float MultiplierResetTime = 15f;
@@ -101,6 +104,15 @@ public partial class Player : CharacterBody3D
 
 	public override void _Ready()
 	{
+		// Explicitly reset all per-match stats so that every new spawn starts
+		// from zero, regardless of any state left over from a previous session.
+		Score      = 0;
+		Kills      = 0;
+		Deaths     = 0;
+		Multiplier = 1f;
+		// hp / maxHp are set by the subclass _Ready() before calling base._Ready(),
+		// so they are already correct by the time we reach here.
+
 		GD.Print(myId.IsLocal);
 		base._Ready();
 		AddToGroup("Players");
@@ -112,7 +124,13 @@ public partial class Player : CharacterBody3D
 		_hitSoundPlayer.MaxDistance = 40f;
 		_hitSoundPlayer.UnitSize   = 10f;
 		AddChild(_hitSoundPlayer);
-
+		
+		_RWSFX           = new AudioStreamPlayer3D();
+		_RWSFX.Stream     = GD.Load<AudioStream>("res://Sounds/RewindSFX.mp3");
+		_RWSFX.VolumeDb   = -10f;
+		_RWSFX.MaxDistance = 30f;
+		_RWSFX.UnitSize   = 10f;
+		AddChild(_RWSFX);
 		//if (myAnimTree != null){
 		//	myAnimTree.Active = true;
 		//}
@@ -592,6 +610,8 @@ public partial class Player : CharacterBody3D
 	private void NotifyDied()
 	{
 		_respawnPending = true;   // latch: blocks all death re-entry until DoRespawn clears it
+		Deaths++;
+		Rpc(MethodName.SyncStatsRpc, Score, Multiplier, Kills, Deaths);
 		ResetMultiplier();
 		GD.Print($"[Player] {PlayerDisplayName} died — respawning in {RespawnDelay}s");
 		var t = GetTree().CreateTimer(RespawnDelay);
@@ -647,17 +667,17 @@ public partial class Player : CharacterBody3D
 		Multiplier      = Mathf.Min(Multiplier + 0.05f, 4f);
 		_noDamageTimer  = 0f;
 		// Push updated values to all peers so the HUD stays in sync
-		Rpc(MethodName.SyncScoreRpc, Score, Multiplier);
+		Rpc(MethodName.SyncStatsRpc, Score, Multiplier, Kills, Deaths);
 	}
 
 	/// <summary>Called by Enemy.Die() when this player's bullet lands the kill.</summary>
 	public void NotifyKill()
 	{
 		Score          += Mathf.RoundToInt(KillScoreBase * Multiplier);
+		Kills++;
 		Multiplier      = Mathf.Min(Multiplier + 0.25f, 4f);
 		_noDamageTimer  = 0f;
-		Rpc(MethodName.SyncScoreRpc, Score, Multiplier);
-
+		Rpc(MethodName.SyncStatsRpc, Score, Multiplier, Kills, Deaths);
 	}
 
 	public void ShowUpgradeUI()
@@ -672,18 +692,19 @@ public partial class Player : CharacterBody3D
 	{
 		Multiplier     = 1f;
 		_noDamageTimer = 0f;
-		// Only the server (authority) may broadcast SyncScoreRpc
+		// Only the server (authority) may broadcast SyncStatsRpc
 		if (GenericCore.Instance.IsServer)
-			Rpc(MethodName.SyncScoreRpc, Score, Multiplier);
+			Rpc(MethodName.SyncStatsRpc, Score, Multiplier, Kills, Deaths);
 	}
-
 
 	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true,
 		 TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
-	private void SyncScoreRpc(int score, float multiplier)
+	private void SyncStatsRpc(int score, float multiplier, int kills, int deaths)
 	{
 		Score      = score;
 		Multiplier = multiplier;
+		Kills      = kills;
+		Deaths     = deaths;
 	}
 
 	// ── Upgrades ──────────────────────────────────────────────────────────────
@@ -748,7 +769,12 @@ public partial class Player : CharacterBody3D
 
 	public void rewind()
 	{
+		
+		if (!rewinding)
+{_RWSFX?.Play();}
+
 		rewinding = true;
+		
 	}
 
 	//https://www.youtube.com/watch?v=XoETrCrSkks a link for a complete description of rewind feature: 1:12 - 3:44
@@ -761,6 +787,7 @@ public partial class Player : CharacterBody3D
 
 		if (posArr.Count == 0)
 		{
+			_RWSFX?.Stop();
 			rewinding = false;
 			if (Multiplayer.HasMultiplayerPeer())
 				GenericCore.Instance.Rpc(nameof(GenericCore.EndRewind));

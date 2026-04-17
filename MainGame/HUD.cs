@@ -46,6 +46,21 @@ public partial class HUD : CanvasLayer
 	private Tween  _multPulseTween;
 	private float  _lastMultiplier = 1f;
 
+	// ── Round info widget — middle-left ──────────────────────────────────────
+	private Panel        _roundPanel;
+	private Label        _roundLabel;
+	private ProgressBar  _enemyBar;
+	private StyleBoxFlat _enemyBarFill;
+	private Label        _enemyCountLabel;
+
+	// ── Boss HP widget — top-centre ───────────────────────────────────────────
+	private Panel        _bossHpPanel;
+	private Label        _bossNameLabel;
+	private ProgressBar  _bossHpBar;
+	private StyleBoxFlat _bossHpFill;
+	private Label        _bossHpValueLabel;
+	private Tween        _bossPulseTween;
+
 	// Class accent colours
 	private static readonly Color ColDps     = new Color("ff4444");
 	private static readonly Color ColTank    = new Color("4488ff");
@@ -70,6 +85,8 @@ public partial class HUD : CanvasLayer
 		BuildHPWidget();
 		BuildRelicIcon();
 		BuildScoreWidget();
+		BuildRoundWidget();
+		BuildBossHpWidget();
 	}
 
 	// ─────────────────────────────────────────────────────────────────────────
@@ -314,6 +331,159 @@ public partial class HUD : CanvasLayer
 	}
 
 	// ─────────────────────────────────────────────────────────────────────────
+	//  Round info widget — middle-left
+	// ─────────────────────────────────────────────────────────────────────────
+	private void BuildRoundWidget()
+	{
+		const float W = 210f, H = 108f, Margin = 18f;
+
+		var style = new StyleBoxFlat();
+		style.BgColor                  = new Color(0.04f, 0.01f, 0.12f, 0.90f);
+		style.BorderWidthTop           = style.BorderWidthBottom =
+		style.BorderWidthLeft          = style.BorderWidthRight  = 2;
+		style.BorderColor              = new Color(0.62f, 0.18f, 1f,   1f);
+		style.CornerRadiusTopLeft      = style.CornerRadiusTopRight =
+		style.CornerRadiusBottomLeft   = style.CornerRadiusBottomRight = 10;
+		style.ShadowColor              = new Color(0.45f, 0.08f, 0.95f, 0.70f);
+		style.ShadowSize               = 10;
+
+		_roundPanel = new Panel();
+		_roundPanel.AnchorLeft   = 0f;  _roundPanel.AnchorRight  = 0f;
+		_roundPanel.AnchorTop    = 0.5f; _roundPanel.AnchorBottom = 0.5f;
+		_roundPanel.OffsetLeft   = Margin;
+		_roundPanel.OffsetRight  = Margin + W;
+		_roundPanel.OffsetTop    = -(H * 0.5f);
+		_roundPanel.OffsetBottom =  (H * 0.5f);
+		_roundPanel.MouseFilter  = Control.MouseFilterEnum.Ignore;
+		_roundPanel.AddThemeStyleboxOverride("panel", style);
+		_roundPanel.Visible = false;
+		AddChild(_roundPanel);
+
+		var vbox = new VBoxContainer();
+		vbox.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+		vbox.AddThemeConstantOverride("separation", 4);
+		vbox.OffsetLeft = 12; vbox.OffsetRight  = -12;
+		vbox.OffsetTop  =  8; vbox.OffsetBottom = -8;
+		_roundPanel.AddChild(vbox);
+
+		// ⚔  ROUND 1
+		_roundLabel = new Label();
+		_roundLabel.Text = "⚔  ROUND 1";
+		_roundLabel.HorizontalAlignment = HorizontalAlignment.Center;
+		_roundLabel.AddThemeFontSizeOverride("font_size", 17);
+		_roundLabel.AddThemeColorOverride("font_color",         new Color(1f,   0.9f, 0.3f, 1f));
+		_roundLabel.AddThemeColorOverride("font_outline_color", new Color(0.3f, 0f,   0.6f, 1f));
+		_roundLabel.AddThemeConstantOverride("outline_size", 3);
+		vbox.AddChild(_roundLabel);
+
+		// Thin separator line
+		var sep = new ColorRect();
+		sep.Color               = new Color(0.62f, 0.18f, 1f, 0.45f);
+		sep.CustomMinimumSize   = new Vector2(0, 1);
+		sep.SizeFlagsHorizontal = Control.SizeFlags.Fill;
+		vbox.AddChild(sep);
+
+		// Enemy kill progress bar
+		_enemyBarFill = new StyleBoxFlat();
+		_enemyBarFill.BgColor                = new Color(0.1f, 0.85f, 1f, 1f);
+		_enemyBarFill.CornerRadiusTopLeft    = _enemyBarFill.CornerRadiusTopRight =
+		_enemyBarFill.CornerRadiusBottomLeft = _enemyBarFill.CornerRadiusBottomRight = 4;
+
+		_enemyBar = new ProgressBar();
+		_enemyBar.MinValue         = 0; _enemyBar.MaxValue = 1; _enemyBar.Value = 0;
+		_enemyBar.ShowPercentage   = false;
+		_enemyBar.CustomMinimumSize = new Vector2(0, 12);
+		_enemyBar.AddThemeStyleboxOverride("background", MakeBarStyle(new Color(0.1f, 0.1f, 0.2f, 0.8f)));
+		_enemyBar.AddThemeStyleboxOverride("fill",       _enemyBarFill);
+		vbox.AddChild(_enemyBar);
+
+		// "7 / 15  ENEMIES KILLED" counter
+		_enemyCountLabel = new Label();
+		_enemyCountLabel.Text = "0 / 0  KILLED";
+		_enemyCountLabel.HorizontalAlignment = HorizontalAlignment.Center;
+		_enemyCountLabel.AddThemeFontSizeOverride("font_size", 13);
+		_enemyCountLabel.AddThemeColorOverride("font_color", new Color(0.78f, 0.65f, 1f, 1f));
+		vbox.AddChild(_enemyCountLabel);
+
+		// Small label below bar
+		var hint = new Label();
+		hint.Text = "kill all  →  next round";
+		hint.HorizontalAlignment = HorizontalAlignment.Center;
+		hint.AddThemeFontSizeOverride("font_size", 10);
+		hint.AddThemeColorOverride("font_color", new Color(0.55f, 0.45f, 0.75f, 0.8f));
+		vbox.AddChild(hint);
+	}
+
+	// ─────────────────────────────────────────────────────────────────────────
+	//  Boss HP widget — top-centre
+	// ─────────────────────────────────────────────────────────────────────────
+	private void BuildBossHpWidget()
+	{
+		const float W = 440f, H = 72f, TopMargin = 14f;
+
+		var style = new StyleBoxFlat();
+		style.BgColor                  = new Color(0.08f, 0.01f, 0.01f, 0.92f);
+		style.BorderWidthTop           = style.BorderWidthBottom =
+		style.BorderWidthLeft          = style.BorderWidthRight  = 2;
+		style.BorderColor              = new Color(1f, 0.25f, 0.08f, 1f);
+		style.CornerRadiusTopLeft      = style.CornerRadiusTopRight =
+		style.CornerRadiusBottomLeft   = style.CornerRadiusBottomRight = 10;
+		style.ShadowColor              = new Color(1f, 0.1f, 0.05f, 0.75f);
+		style.ShadowSize               = 14;
+
+		_bossHpPanel = new Panel();
+		_bossHpPanel.AnchorLeft   = 0.5f; _bossHpPanel.AnchorRight  = 0.5f;
+		_bossHpPanel.AnchorTop    = 0f;   _bossHpPanel.AnchorBottom = 0f;
+		_bossHpPanel.OffsetLeft   = -(W * 0.5f);
+		_bossHpPanel.OffsetRight  =  (W * 0.5f);
+		_bossHpPanel.OffsetTop    = TopMargin;
+		_bossHpPanel.OffsetBottom = TopMargin + H;
+		_bossHpPanel.MouseFilter  = Control.MouseFilterEnum.Ignore;
+		_bossHpPanel.AddThemeStyleboxOverride("panel", style);
+		_bossHpPanel.Visible = false;
+		AddChild(_bossHpPanel);
+
+		var vbox = new VBoxContainer();
+		vbox.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+		vbox.AddThemeConstantOverride("separation", 3);
+		vbox.OffsetLeft = 14; vbox.OffsetRight  = -14;
+		vbox.OffsetTop  =  6; vbox.OffsetBottom = -6;
+		_bossHpPanel.AddChild(vbox);
+
+		// ◈  BOSS  ◈  name row
+		_bossNameLabel = new Label();
+		_bossNameLabel.Text = "◈  THE BOSS  ◈";
+		_bossNameLabel.HorizontalAlignment = HorizontalAlignment.Center;
+		_bossNameLabel.AddThemeFontSizeOverride("font_size", 14);
+		_bossNameLabel.AddThemeColorOverride("font_color",         new Color(1f,   0.5f, 0.12f, 1f));
+		_bossNameLabel.AddThemeColorOverride("font_outline_color", new Color(0.4f, 0f,   0f,    1f));
+		_bossNameLabel.AddThemeConstantOverride("outline_size", 3);
+		vbox.AddChild(_bossNameLabel);
+
+		// HP bar
+		_bossHpFill = new StyleBoxFlat();
+		_bossHpFill.BgColor                = new Color(0.95f, 0.18f, 0.05f, 1f);
+		_bossHpFill.CornerRadiusTopLeft    = _bossHpFill.CornerRadiusTopRight =
+		_bossHpFill.CornerRadiusBottomLeft = _bossHpFill.CornerRadiusBottomRight = 4;
+
+		_bossHpBar = new ProgressBar();
+		_bossHpBar.MinValue          = 0; _bossHpBar.MaxValue = 1; _bossHpBar.Value = 1;
+		_bossHpBar.ShowPercentage    = false;
+		_bossHpBar.CustomMinimumSize = new Vector2(0, 16);
+		_bossHpBar.AddThemeStyleboxOverride("background", MakeBarStyle(new Color(0.15f, 0.04f, 0.04f, 1f)));
+		_bossHpBar.AddThemeStyleboxOverride("fill",       _bossHpFill);
+		vbox.AddChild(_bossHpBar);
+
+		// HP value "1200 / 3000"
+		_bossHpValueLabel = new Label();
+		_bossHpValueLabel.Text = "";
+		_bossHpValueLabel.HorizontalAlignment = HorizontalAlignment.Center;
+		_bossHpValueLabel.AddThemeFontSizeOverride("font_size", 12);
+		_bossHpValueLabel.AddThemeColorOverride("font_color", new Color(1f, 0.75f, 0.75f, 1f));
+		vbox.AddChild(_bossHpValueLabel);
+	}
+
+	// ─────────────────────────────────────────────────────────────────────────
 	//  Per-frame
 	// ─────────────────────────────────────────────────────────────────────────
 	public override void _Process(double delta)
@@ -415,6 +585,12 @@ public partial class HUD : CanvasLayer
 		}
 		_lastMultiplier = mult;
 
+		// ── Round info widget ─────────────────────────────────────────────────
+		UpdateRoundWidget();
+
+		// ── Boss HP widget ─────────────────────────────────────────────────────
+		UpdateBossHpWidget();
+
 		// ── Relic icon ────────────────────────────────────────────────────────
 		if (_localPlayer.ChosenRelic != Player.RelicType.None && !_relicIcon.Visible)
 		{
@@ -445,6 +621,136 @@ public partial class HUD : CanvasLayer
 			_relicGlowTween.TweenProperty(_relicIconLabel, "modulate:a", 1f, 0.8f)
 						   .SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
 		}
+	}
+
+	// ─────────────────────────────────────────────────────────────────────────
+	//  Round / Boss update helpers
+	// ─────────────────────────────────────────────────────────────────────────
+
+	private void UpdateRoundWidget()
+	{
+		if (_roundPanel == null) return;
+		var mg = MainGame.Instance;
+		if (mg == null || !mg.IsVisibleInTree()) { _roundPanel.Visible = false; return; }
+
+		// Hide during boss round (round 3+) — boss HP bar takes over
+		if (mg.RoundNum >= 2) { _roundPanel.Visible = false; return; }
+
+		_roundPanel.Visible = true;
+
+		int target  = mg.GetRoundEnemyTarget();
+		int alive   = mg.Enms.Count;
+		int spawned = mg.EnemiesSpawnedThisRound;
+		int killed  = Mathf.Max(0, spawned - alive);
+
+		_roundLabel.Text = $"⚔  ROUND {mg.RoundNum + 1}";
+
+		float progress = target > 0 ? Mathf.Clamp((float)killed / target, 0f, 1f) : 0f;
+		_enemyBar.Value  = progress;
+		_enemyCountLabel.Text = $"{killed} / {target}  KILLED";
+
+		// Colour shifts cyan → gold as you near completion
+		if (progress >= 0.75f)
+			_enemyBarFill.BgColor = new Color(1f, 0.85f, 0.1f, 1f);
+		else if (progress >= 0.5f)
+			_enemyBarFill.BgColor = new Color(0.4f, 1f, 0.5f, 1f);
+		else
+			_enemyBarFill.BgColor = new Color(0.1f, 0.85f, 1f, 1f);
+	}
+
+	private void UpdateBossHpWidget()
+	{
+		if (_bossHpPanel == null) return;
+
+		// Find the first valid boss in the scene
+		Boss boss = null;
+		foreach (Node n in GetTree().GetNodesInGroup("Bosses"))
+		{
+			if (n is Boss b && IsInstanceValid(b)) { boss = b; break; }
+		}
+
+		if (boss == null)
+		{
+			_bossHpPanel.Visible = false;
+			_bossPulseTween?.Kill();
+			return;
+		}
+
+		_bossHpPanel.Visible = true;
+
+		float frac = boss.maxHP > 0
+			? Mathf.Clamp((float)boss.hp / boss.maxHP, 0f, 1f)
+			: 0f;
+
+		_bossHpBar.Value          = frac;
+		_bossHpValueLabel.Text    = $"{boss.hp:N0}  /  {boss.maxHP:N0}";
+
+		// Colour: red at full health → dark crimson when low
+		if (frac > 0.5f)
+			_bossHpFill.BgColor = new Color(0.95f, 0.18f, 0.05f, 1f);
+		else if (frac > 0.25f)
+			_bossHpFill.BgColor = new Color(0.85f, 0.08f, 0.35f, 1f);
+		else
+			_bossHpFill.BgColor = new Color(0.6f, 0.0f, 0.55f, 1f);  // ominous purple at low HP
+
+		// Pulse the panel border when boss is below 25 %
+		if (frac < 0.25f && (_bossPulseTween == null || !_bossPulseTween.IsRunning()))
+		{
+			_bossPulseTween?.Kill();
+			_bossPulseTween = CreateTween().SetLoops();
+			_bossPulseTween.TweenProperty(_bossHpPanel, "modulate",
+				new Color(1f, 0.5f, 0.5f, 1f), 0.35f)
+				.SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
+			_bossPulseTween.TweenProperty(_bossHpPanel, "modulate",
+				Colors.White, 0.35f)
+				.SetTrans(Tween.TransitionType.Sine).SetEase(Tween.EaseType.InOut);
+		}
+		else if (frac >= 0.25f)
+		{
+			_bossPulseTween?.Kill();
+			_bossHpPanel.Modulate = Colors.White;
+		}
+	}
+
+	// ─────────────────────────────────────────────────────────────────────────
+	//  Lobby reset — call when all players return to lobby
+	// ─────────────────────────────────────────────────────────────────────────
+	public void ResetForLobby()
+	{
+		// Clear player tracking so the next game finds a fresh player.
+		_localPlayer   = null;
+		_reticleSet    = false;
+		_gameStartSent = false;
+		_startTickMsec = 0;
+		_lastMultiplier = 1f;
+
+		// Kill any looping tweens.
+		_relicGlowTween?.Kill();
+		_multPulseTween?.Kill();
+		_bossPulseTween?.Kill();
+		if (_bossHpPanel != null) _bossHpPanel.Modulate = Colors.White;
+
+		// Hide every widget panel so nothing bleeds through to the lobby screen.
+		_dpsReticle.Visible     = false;
+		_tankReticle.Visible    = false;
+		_supportReticle.Visible = false;
+		if (scorebg       != null) scorebg.Visible       = false;
+		if (healthborder  != null) healthborder.Visible  = false;
+		if (_hpPanel      != null) _hpPanel.Visible      = false;
+		if (_ultPanel     != null) _ultPanel.Visible     = false;
+		if (_scorePanel   != null) _scorePanel.Visible   = false;
+		if (_timerPanel   != null) _timerPanel.Visible   = false;
+		if (_relicIcon    != null) _relicIcon.Visible    = false;
+		if (_roundPanel   != null) _roundPanel.Visible   = false;
+		if (_bossHpPanel  != null) _bossHpPanel.Visible  = false;
+
+		// Reset displayed values so stale numbers don't flash when the next
+		// game starts before the first SyncStats RPC arrives.
+		if (_scoreValueLabel != null) _scoreValueLabel.Text = "0";
+		if (_multLabel       != null) _multLabel.Text       = "× 1.0";
+		if (_timerLabel      != null) _timerLabel.Text      = "0:00";
+
+		GD.Print("[HUD] ResetForLobby complete.");
 	}
 
 	// ─────────────────────────────────────────────────────────────────────────
