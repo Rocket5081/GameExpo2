@@ -12,10 +12,12 @@ public partial class SupportPlayer : Player
 
 	private bool pressing = false;
 
-	
 	private float _laserDamageTimer  = 0f;
 	private const float LaserDamageInterval = 0.15f; // seconds between laser ticks
 	private const float LaserDamagePerTick  = 5f;    // damage per tick
+
+	// Laser beam thickness — grows when AP or PC upgrades are chosen.
+	private float _laserThickness = 0.3f;
 
 	public override void _Ready()
 	{
@@ -177,7 +179,10 @@ public partial class SupportPlayer : Player
 		Vector3 direction = Transform.Basis.X.Normalized();
 		Vector3 end       = origin + direction * LaserRange;
 
-		var query = PhysicsRayQueryParameters3D.Create(origin, end, 0b1001);
+		// Mask covers all physics layers so the ray can hit enemies regardless of
+		// which layer they happen to be on (enemies use layer 128 in the scene).
+		// Type filtering is done below via "is Enemy" so this is safe.
+		var query = PhysicsRayQueryParameters3D.Create(origin, end, 0x7FFFFFFF);
 		query.Exclude.Add(GetRid());
 
 		var result = spaceState.IntersectRay(query);
@@ -187,6 +192,36 @@ public partial class SupportPlayer : Player
 		// a C# base class through Godot's scripting reflection layer.
 		if (result["collider"].As<Node>() is Enemy hitEnemy && IsInstanceValid(hitEnemy))
 			hitEnemy.OnHitByBullet((int)dmg, this);
+	}
+
+	// ── Upgrade override: scale beam on AP / PC picks ────────────────────────
+
+	public override void upgrade(string[] splitOpt)
+	{
+		base.upgrade(splitOpt);   // handles stat changes + SyncUpgradeRpc to all peers
+
+		// For a Support player, "more projectiles" means a wider beam,
+		// and "faster fire rate" means a thicker, more intense beam.
+		string kind = splitOpt[0];
+		if (kind == "AP" || kind == "PC")
+		{
+			int level       = splitOpt[1].ToInt();
+			_laserThickness = Mathf.Min(_laserThickness + 0.18f * level, 2.0f);
+			Rpc(nameof(SyncLaserBeamSize), _laserThickness);
+		}
+	}
+
+	/// <summary>
+	/// Broadcast the new beam thickness to every peer so the visual stays in sync.
+	/// CallLocal = true means the caller also applies it immediately.
+	/// </summary>
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true,
+		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	private void SyncLaserBeamSize(float thickness)
+	{
+		_laserThickness = thickness;
+		if (LaserBeam?.Mesh is BoxMesh box)
+			box.Size = new Vector3(40f, thickness, thickness);
 	}
 
 	// ── Support Ultimate: Healing Circle ──────────────────────────────────────

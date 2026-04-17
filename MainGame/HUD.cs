@@ -19,6 +19,9 @@ public partial class HUD : CanvasLayer
 	// ── Timer ─────────────────────────────────────────────────────────────────
 	private ulong _startTickMsec = 0;
 	private bool  _gameStartSent = false;
+
+	/// <summary>The server tick (ms) when this game session started. 0 if not yet started.</summary>
+	public ulong GameStartTick => _startTickMsec;
 	private Label _timerLabel;
 	private Panel _timerPanel;
 
@@ -514,6 +517,12 @@ public partial class HUD : CanvasLayer
 			int total = (int)((Time.GetTicksMsec() - _startTickMsec) / 1000UL);
 			_timerLabel.Text = $"{total / 60}:{total % 60:00}";
 		}
+		else if (_startTickMsec == 0 && _timerLabel != null)
+		{
+			// Not yet started — keep label at zero so no stale time flashes
+			// when the HUD becomes visible before SyncGameStart fires.
+			_timerLabel.Text = "0:00";
+		}
 
 		// ── Find local player (once) ──────────────────────────────────────────
 		if (!_reticleSet)
@@ -640,8 +649,8 @@ public partial class HUD : CanvasLayer
 		var mg = MainGame.Instance;
 		if (mg == null || !mg.IsVisibleInTree()) { _roundPanel.Visible = false; return; }
 
-		// Hide during boss round (round 3+) — boss HP bar takes over
-		if (mg.RoundNum >= 2) { _roundPanel.Visible = false; return; }
+		// Hide once we're in the boss round (RoundNum >= 1) — boss HP bar takes over
+		if (mg.RoundNum >= 1) { _roundPanel.Visible = false; return; }
 
 		_roundPanel.Visible = true;
 
@@ -771,10 +780,13 @@ public partial class HUD : CanvasLayer
 		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void SyncGameStart(long serverTickMsec)
 	{
-		// Always accept — ResetForLobby zeroes _startTickMsec so a second game
-		// can start the timer fresh.  The old guard blocked re-entry correctly
-		// for the first game but prevented a clean restart on second play.
-		_startTickMsec = (ulong)serverTickMsec;
+		// Use the LOCAL machine's tick at the moment this RPC is received, NOT the
+		// server's tick.  Each machine's Time.GetTicksMsec() counts from its own
+		// process start, so server and client values are completely unrelated —
+		// subtracting them would give a wildly wrong elapsed time.
+		// The tiny network latency (~few ms) is negligible for a game timer.
+		_ = serverTickMsec;   // parameter kept for RPC signature compatibility
+		_startTickMsec = Time.GetTicksMsec();
 	}
 
 	// ─────────────────────────────────────────────────────────────────────────

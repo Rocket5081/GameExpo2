@@ -724,7 +724,7 @@ public partial class Player : CharacterBody3D
 	/// upgrade to the server. The server applies the stat change authoritatively,
 	/// then broadcasts the new values back to all peers so every display stays in sync.
 	/// </summary>
-	public void upgrade(string[] splitOpt)
+	public virtual void upgrade(string[] splitOpt)
 	{
 		int level = splitOpt[1].ToInt();
 		switch (splitOpt[0])

@@ -35,7 +35,12 @@ public partial class WinScreen : CanvasLayer
 		_returnBtn.Disabled = false;
 		_returnBtn.Text     = "Return to Lobby";
 		_waitLabel.Text     = "Waiting for all players to leave…";
-		PopulateScoreboard(players);
+
+		// Capture the final game duration before showing the screen.
+		ulong startTick   = MainGame.Instance?.GetNodeOrNull<HUD>("HUD")?.GameStartTick ?? 0;
+		ulong durationMs  = startTick > 0 ? Time.GetTicksMsec() - startTick : 0;
+
+		PopulateScoreboard(players, durationMs);
 		Visible             = true;
 		Input.MouseMode     = Input.MouseModeEnum.Visible;
 	}
@@ -146,7 +151,7 @@ public partial class WinScreen : CanvasLayer
 
 	// ── Scoreboard population (called each time ShowFor fires) ────────────────
 
-	private void PopulateScoreboard(Godot.Collections.Array<Node> players)
+	private void PopulateScoreboard(Godot.Collections.Array<Node> players, ulong durationMs)
 	{
 		// Clear any rows from a previous show
 		foreach (Node child in _scoreTable.GetChildren())
@@ -201,6 +206,47 @@ public partial class WinScreen : CanvasLayer
 			row.AddChild(MakeCell(p.Deaths.ToString(), 14, rowColor));
 			_scoreTable.AddChild(row);
 		}
+
+		// ── Clear time row ────────────────────────────────────────────────────────
+		var timeDivider = new ColorRect();
+		timeDivider.Color               = new Color(0.6f, 0.5f, 1f, 0.35f);
+		timeDivider.CustomMinimumSize   = new Vector2(0, 2);
+		timeDivider.SizeFlagsHorizontal = Control.SizeFlags.Fill;
+		_scoreTable.AddChild(timeDivider);
+
+		int totalSec = (int)(durationMs / 1000UL);
+		int mins     = totalSec / 60;
+		int secs     = totalSec % 60;
+		string timeStr = $"{mins}:{secs:00}";
+
+		var timeRow = new HBoxContainer();
+		timeRow.Alignment           = BoxContainer.AlignmentMode.Center;
+		timeRow.AddThemeConstantOverride("separation", 12);
+		timeRow.SizeFlagsHorizontal = Control.SizeFlags.Fill;
+
+		var clockIcon = new Label();
+		clockIcon.Text = "⏱";
+		clockIcon.AddThemeFontSizeOverride("font_size", 18);
+		clockIcon.AddThemeColorOverride("font_color", new Color(0.7f, 0.9f, 1f));
+		timeRow.AddChild(clockIcon);
+
+		var timeLabel = new Label();
+		timeLabel.Text = "CLEAR TIME";
+		timeLabel.AddThemeFontSizeOverride("font_size", 15);
+		timeLabel.AddThemeColorOverride("font_color", new Color(0.7f, 0.9f, 1f));
+		timeRow.AddChild(timeLabel);
+
+		var timeValue = new Label();
+		timeValue.Text = timeStr;
+		timeValue.AddThemeFontSizeOverride("font_size", 20);
+		timeValue.AddThemeColorOverride("font_color",         new Color(0.55f, 1f, 0.85f));
+		timeValue.AddThemeColorOverride("font_outline_color", new Color(0f, 0.1f, 0.2f));
+		timeValue.AddThemeConstantOverride("outline_size", 3);
+		timeValue.SizeFlagsHorizontal = Control.SizeFlags.Expand | Control.SizeFlags.Fill;
+		timeValue.HorizontalAlignment = HorizontalAlignment.Center;
+		timeRow.AddChild(timeValue);
+
+		_scoreTable.AddChild(timeRow);
 	}
 
 	private static Label MakeCell(string text, int fontSize, Color col)

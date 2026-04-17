@@ -25,13 +25,17 @@ public partial class MainGame : Node3D
 
 	public int RoundNum = 0;
 
-	// Round-based enemy budget: Round 1 = 15, Round 2 = 30, Round 3 = 45 …
+	// Round-based enemy budget: Round 1 = 15 enemies total
 	private int _enemiesSpawnedThisRound = 0;
 	private int _lastTrackedRound        = -1;
 
-	public float RoundTimer = 15f;
+	// Inter-round upgrade window countdown (seconds).
 	public float waitTimer = 0f;
 	public bool upgrading = false;
+
+	// Idle boss node — cached so ResetForLobby can restore it each game.
+	private Vector3 _idleBossOriginalPos       = Vector3.Zero;
+	private bool    _idleBossOriginalPosCached = false;
 
 	public List<Enemy> Enms = new List<Enemy>();
 
@@ -42,6 +46,14 @@ public partial class MainGame : Node3D
 	{
 		Instance = this;
 		_RefreshSpawners();
+
+		// Cache the idle boss starting position so ResetForLobby can restore it.
+		var idleBoss = GetNodeOrNull<Node3D>("Boss");
+		if (idleBoss != null)
+		{
+			_idleBossOriginalPos       = idleBoss.Position;
+			_idleBossOriginalPosCached = true;
+		}
 
 		// Win screen lives in the scene tree from the start, hidden until boss dies.
 		AddChild(new WinScreen());
@@ -114,25 +126,29 @@ public partial class MainGame : Node3D
 		}
 
 		Enms.RemoveAll(b => !IsInstanceValid(b));
-		if(RoundTimer > 0f)
-			RoundTimer -= (float)delta;
-		else if(RoundTimer <= 0f && Enms.Count == 0){
-			if(!upgrading){
-				foreach (Player player in GetTree().GetNodesInGroup("Players"))
-				{
-					player.ShowUpgradeUI();
-				}
-				upgrading = true;
-				RoundNum++;
-			}
-			if(waitTimer <= 0f){
-				waitTimer = 10f;
-				RoundTimer = 45f;
-				upgrading = false;
-			}
-			else
+
+		if (upgrading)
+		{
+			// Count down the inter-round upgrade window, then let play resume.
 			waitTimer -= (float)delta;
+			if (waitTimer <= 0f)
+				upgrading = false;
 		}
+		else if (RoundNum == 0)
+		{
+			// Round 1 ends once every target enemy has been spawned AND killed.
+			int killed = Mathf.Max(0, _enemiesSpawnedThisRound - Enms.Count);
+			if (killed >= GetRoundEnemyTarget() && Enms.Count == 0)
+			{
+				upgrading = true;
+				waitTimer = 10f;
+				RoundNum  = 1;   // triggers boss sequence on next OnSpawnTick
+				foreach (Player player in GetTree().GetNodesInGroup("Players"))
+					player.ShowUpgradeUI();
+				GD.Print("[MainGame] Round 1 complete — starting upgrade phase.");
+			}
+		}
+		// RoundNum >= 1: boss round — managed entirely by OnSpawnTick → StartBossSequence.
 	}
 
 	// ── Spawn helpers ─────────────────────────────────────────────────────────
@@ -151,14 +167,17 @@ public partial class MainGame : Node3D
 	private void OnSpawnTick()
 	{
 		if (!GenericCore.Instance.IsServer) return;
-		if (RoundTimer <= 0f) return;
 
 		if (RoundNum >= 1)
 		{
+			// Boss round — kick off the intro sequence once, then stop ticking.
 			if (!_bossSpawned)
 				StartBossSequence();
 			return;
 		}
+
+		// Pause spawning while the upgrade screen is showing.
+		if (upgrading) return;
 
 		// Reset per-round counter whenever a new round starts.
 		if (RoundNum != _lastTrackedRound)
@@ -383,10 +402,19 @@ public partial class MainGame : Node3D
 		_enemiesSpawnedThisRound = 0;
 		_lastTrackedRound        = -1;
 		RoundNum                 = 0;
-		RoundTimer               = 15f;
 		waitTimer                = 0f;
 		upgrading                = false;
 		Enms.Clear();
+
+		// ── Restore the idle boss head to its original map position ───────────────
+		// AnimateIdleBossRpc() floats it up 600 units and hides it; put it back
+		// so it appears correctly at the start of the next match.
+		var idleBoss = GetNodeOrNull<Node3D>("Boss");
+		if (idleBoss != null && _idleBossOriginalPosCached)
+		{
+			idleBoss.Position = _idleBossOriginalPos;
+			idleBoss.Visible  = true;
+		}
 
 		// ── Free all spawned player nodes ─────────────────────────────────────
 		// MultiplayerSpawner does NOT auto-free nodes when the ENet peer closes,
