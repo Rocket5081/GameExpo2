@@ -351,14 +351,6 @@ public partial class MainMenuLobby : Control
 		OnlinePanel.Visible  = false;
 		Visible = false;
 
-		// LobbyStreamlined._Process() re-shows this node every frame by setting
-		// Visible = true on GameRoot's children.  It does NOT touch our children,
-		// so explicitly hiding the background visuals is the only reliable way to
-		// keep them from covering the 3-D game world.
-		GetNodeOrNull<CanvasItem>("Background")?.Hide();
-		GetNodeOrNull<CanvasItem>("VoidParticles")?.Hide();
-		GetNodeOrNull<CanvasItem>("CthuluBackground")?.Hide();
-
 		var gameRoot     = GetParent();
 		var absoluteRoot = gameRoot.GetParent();
 
@@ -549,11 +541,6 @@ public partial class MainMenuLobby : Control
 		Visible                = true;
 		OfflinePanel.Visible   = true;
 		OnlinePanel.Visible    = false;
-
-		// Restore the lobby background visuals hidden by StartGame().
-		GetNodeOrNull<CanvasItem>("Background")?.Show();
-		GetNodeOrNull<CanvasItem>("VoidParticles")?.Show();
-		GetNodeOrNull<CanvasItem>("CthuluBackground")?.Show();
 		ConnectButton.Disabled = false;
 		ConnectButton.Text     = "Connect";
 
