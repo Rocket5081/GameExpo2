@@ -96,6 +96,10 @@ public partial class MainGame : Node3D
 			// StopMenuMusicRpc() before StartGame fires, so there's no overlap.
 			_musicPlayer?.Play();
 
+			// Re-show the HUD — it was hidden when players returned to lobby last time.
+			// CanvasLayer ignores parent visibility so we must set it explicitly.
+			GetNodeOrNull<HUD>("HUD")?.Show();
+
 			GD.Print("[MainGame] Game visible — enemy spawning and music started.");
 		}
 
@@ -383,6 +387,28 @@ public partial class MainGame : Node3D
 		waitTimer                = 0f;
 		upgrading                = false;
 		Enms.Clear();
+
+		// ── Free all spawned player nodes ─────────────────────────────────────
+		// MultiplayerSpawner does NOT auto-free nodes when the ENet peer closes,
+		// so stale player nodes would persist into the next game and the HUD
+		// would read their old Score / HP / Multiplier / UltimateCooldown.
+		foreach (Node node in GetTree().GetNodesInGroup("Players"))
+		{
+			if (IsInstanceValid(node))
+				node.QueueFree();
+		}
+
+		// ── Free all remaining enemy nodes ────────────────────────────────────
+		foreach (Node node in GetTree().GetNodesInGroup("enemy"))
+		{
+			if (IsInstanceValid(node))
+				node.GetParent()?.QueueFree();   // free the CharacterBody3D root
+		}
+		foreach (Node node in GetTree().GetNodesInGroup("Bosses"))
+		{
+			if (IsInstanceValid(node))
+				node.QueueFree();
+		}
 
 		// ── Reset HUD ─────────────────────────────────────────────────────────
 		GetNodeOrNull<HUD>("HUD")?.ResetForLobby();
