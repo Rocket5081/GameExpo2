@@ -25,7 +25,7 @@ public partial class Enemy : CharacterBody3D
 
 	public override void _Ready()
 	{
-		AddToGroup("enemy");
+		//AddToGroup("enemy");
 		base._Ready();
 
 		BuildHealthBar();
@@ -114,7 +114,7 @@ public partial class Enemy : CharacterBody3D
 			mat.AlbedoColor = new Color(1f - ratio, ratio * 0.9f, 0.05f);
 	}
 
-	private void SetupContactArea()
+	public virtual void SetupContactArea()
 	{
 		var area            = new Area3D();
 		area.CollisionLayer = 8;

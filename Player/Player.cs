@@ -290,12 +290,17 @@ public partial class Player : CharacterBody3D
 				RpcId(1, "UseUltimate");
 			}
 			if (Input.IsActionJustPressed("Rewind"))
-				rewind();
+				GenericCore.Instance.rewind = true;
 
 		}
 
 		if (!GenericCore.Instance.IsServer)
 			UpdateAnimation();
+
+		if (GenericCore.Instance.rewind)
+		{
+			rewind();
+		}
 
 	}
 
@@ -706,6 +711,7 @@ public partial class Player : CharacterBody3D
 			Rotation = (Vector3)rot;
 			SyncedVelocity = (Vector3)((Godot.Collections.Array)rewindValues["velocity"]).First();
 			Rpc("computeRewindRPC", pos, rot);
+			
 
 		}
 		Position = (Vector3)pos;

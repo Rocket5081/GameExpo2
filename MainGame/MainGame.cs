@@ -104,8 +104,8 @@ public partial class MainGame : Node3D
 		// Only the server spawns enemies.
 		if (!GenericCore.Instance.IsServer) return;
 		if(RoundTimer > 0f)
-			SpawnEnemyRPC();
-			if(RoundNum >= 7)
+			// SpawnEnemyRPC();
+			// if(RoundNum >= 7)
 			SpawnBossRPC();
 	}
 
