@@ -92,8 +92,7 @@ public partial class MainGame : Node3D
 		{
 			_started = true;
 			_elapsedSec = 0.0;
-			// NOTE: do NOT call _RefreshSpawners() here — enemies may already be
-			// children of EnemySpawns by this frame and would pollute the array.
+
 
 			_spawnTimer = new Timer
 			{
@@ -168,7 +167,7 @@ public partial class MainGame : Node3D
 	{
 		if (!GenericCore.Instance.IsServer) return;
 
-		if (RoundNum >= 1)
+		if (RoundNum >= 5)
 		{
 			// Boss round — kick off the intro sequence once, then stop ticking.
 			if (!_bossSpawned)
@@ -316,8 +315,8 @@ public partial class MainGame : Node3D
 		// GetWeightedLevel returns 1 or 2 — map to the correct scene slot.
 		int sceneIndex = level switch
 		{
-			1 => 1,   // Bat
-			2 => 0,   // Worm
+			1 => 1,   
+			2 => 0,   
 			_ => 1,
 		};
 		spawner.NetCreateObject(sceneIndex, spawnPoint.GlobalPosition, Quaternion.Identity, 1);
@@ -375,11 +374,7 @@ public partial class MainGame : Node3D
 
 	// ── Return-to-lobby reset ─────────────────────────────────────────────────
 
-	/// <summary>
-	/// Called by GenericCore.AllPlayersReadyToLeave() on every client.
-	/// Stops all in-game music, tears down the spawn timer, and resets all
-	/// per-match state so the next StartGame() fires clean.
-	/// </summary>
+
 	public void ResetForLobby()
 	{
 		// ── Stop music ────────────────────────────────────────────────────────
@@ -417,9 +412,7 @@ public partial class MainGame : Node3D
 		}
 
 		// ── Free all spawned player nodes ─────────────────────────────────────
-		// MultiplayerSpawner does NOT auto-free nodes when the ENet peer closes,
-		// so stale player nodes would persist into the next game and the HUD
-		// would read their old Score / HP / Multiplier / UltimateCooldown.
+		
 		foreach (Node node in GetTree().GetNodesInGroup("Players"))
 		{
 			if (IsInstanceValid(node))
