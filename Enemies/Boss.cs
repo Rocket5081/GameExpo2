@@ -130,9 +130,13 @@ public partial class Boss : Enemy
 			((Godot.Collections.Array)rewindValues["position"]).Add(Position);
 			((Godot.Collections.Array)rewindValues["rotation"]).Add(Rotation);
 		}
-		else //if(hp <= 0 && !phaseTwo && rewinding)
+		else
 		{
-			computeRewind();
+			for (int i = 0; i < 5; i++)
+			{
+				computeRewind();
+				if (!rewinding) break;   // EndRewind was called inside computeRewind
+			}
 			
 		}
 		}
