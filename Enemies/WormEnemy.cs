@@ -9,7 +9,7 @@ public partial class WormEnemy : Enemy
 	}
 	[Export] public bool SyncedIsMoving = false;
 
-	public int speed = 5;
+	public int speed =20;
 
 	public override void _Ready()
 	{
@@ -73,9 +73,9 @@ public partial class WormEnemy : Enemy
 		if (myAnimation == null) return;
 
 		if (SyncedIsMoving)
-			myAnimation.Play("Move");
+			myAnimation.Play("move");
 		else
-			myAnimation.Play("Move");
+			myAnimation.Play("move");
 	}
 
 	private Player FindNearestPlayer()

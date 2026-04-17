@@ -87,7 +87,9 @@ public partial class Player : CharacterBody3D
 	public float burstDelay = 0.1f;
 
 	public bool rewinding = false;
-	
+	// Tracks whether we've started recording boss-fight rewind data yet.
+	// Prevents old pre-boss frames from filling the rewind buffer.
+	private bool _rewindRecordingStarted = false;
 
 	public Godot.Collections.Dictionary rewindValues = new Godot.Collections.Dictionary
 	{
@@ -139,7 +141,24 @@ public partial class Player : CharacterBody3D
 
 	public override void _Process(double delta)
 	{
-		if(rewinding){return;}
+	
+		if (GenericCore.Instance.rewind && GenericCore.Instance.BossHasSpawned)
+		{
+			rewind();   // sets rewinding = true on this peer
+		}
+		else if (rewinding && !GenericCore.Instance.rewind)
+		{
+			// EndRewind RPC has fired — reset state on this peer so the player
+			// can move again and recording restarts cleanly for phase two.
+			rewinding = false;
+			((Godot.Collections.Array)rewindValues["position"]).Clear();
+			((Godot.Collections.Array)rewindValues["rotation"]).Clear();
+			((Godot.Collections.Array)rewindValues["velocity"]).Clear();
+			_rewindRecordingStarted = false;
+		}
+
+		if (rewinding) return;   // still mid-rewind — skip all input/physics below
+
 		base._Process(delta);
 		if (myId == null) return;
 
@@ -307,25 +326,37 @@ public partial class Player : CharacterBody3D
 		if (!GenericCore.Instance.IsServer)
 			UpdateAnimation();
 
-		if (GenericCore.Instance.rewind)
-		{
-			rewind();
-		}
-
 	}
 
 	public override void _PhysicsProcess(double delta)
 	{
 		if (!rewinding)
 		{
-			((Godot.Collections.Array)rewindValues["position"]).Add(Position);
-			((Godot.Collections.Array)rewindValues["rotation"]).Add(Rotation);
-			((Godot.Collections.Array)rewindValues["velocity"]).Add(SyncedVelocity);
+			// Only record once the boss has actually spawned so the buffer only
+			// contains frames from the boss-fight start onward.
+			if (GenericCore.Instance.BossHasSpawned)
+			{
+				if (!_rewindRecordingStarted)
+				{
+					((Godot.Collections.Array)rewindValues["position"]).Clear();
+					((Godot.Collections.Array)rewindValues["rotation"]).Clear();
+					((Godot.Collections.Array)rewindValues["velocity"]).Clear();
+					_rewindRecordingStarted = true;
+				}
+				((Godot.Collections.Array)rewindValues["position"]).Add(Position);
+				((Godot.Collections.Array)rewindValues["rotation"]).Add(Rotation);
+				((Godot.Collections.Array)rewindValues["velocity"]).Add(SyncedVelocity);
+			}
 		}
-		else
+		else if (GenericCore.Instance.IsServer)
 		{
-			computeRewind();
-			
+			// Drain X frames per physics tick → ~5× faster rewind.
+
+			for (int i = 0; i < 5; i++)
+			{
+				computeRewind();
+				if (!rewinding) break;   // EndRewind was called inside computeRewind
+			}
 		}
 	}
 
@@ -537,7 +568,7 @@ public partial class Player : CharacterBody3D
 			bul.Show();
 			bul.Rotation          = Rotation;
 			bul.GlobalPosition    = spawnPos;
-			bul.LinearVelocity    = bul.Transform.Basis.X * 200f;
+			bul.LinearVelocity    = bul.Transform.Basis.X * 140f;
 			bul.damage            = damage;
 			bul.Shooter           = this;
 
@@ -713,7 +744,7 @@ public partial class Player : CharacterBody3D
 
 	// ── Rewind ────────────────────────────────────────────────────────────────
 
-	//RPC REWIND NEEDS TO EXSIST SO THAT THE SERVER WILL UPDATE POSITION OF THE PLAYER WHILE REWINDING
+
 
 	public void rewind()
 	{
@@ -723,34 +754,49 @@ public partial class Player : CharacterBody3D
 	//https://www.youtube.com/watch?v=XoETrCrSkks a link for a complete description of rewind feature: 1:12 - 3:44
 	public void computeRewind()
 	{
-		var pos = ((Godot.Collections.Array)rewindValues["position"]).Last();
-		var rot = ((Godot.Collections.Array)rewindValues["rotation"]).Last();
-		((Godot.Collections.Array)rewindValues["position"]).RemoveAt(((Godot.Collections.Array)rewindValues["position"]).Count -1);
-		((Godot.Collections.Array)rewindValues["rotation"]).RemoveAt(((Godot.Collections.Array)rewindValues["rotation"]).Count -1);
-		if(((Godot.Collections.Array)rewindValues["position"]).Count == 0)
-		{
-			GetNode<CollisionShape3D>("CollisionShape3D").SetDeferred("disabled", false);
-			rewinding = false;
-			Position = (Vector3)pos;
-			Rotation = (Vector3)rot;
-			SyncedVelocity = (Vector3)((Godot.Collections.Array)rewindValues["velocity"]).First();
-			Rpc("computeRewindRPC", pos, rot);
-			
+		var posArr = (Godot.Collections.Array)rewindValues["position"];
+		var rotArr = (Godot.Collections.Array)rewindValues["rotation"];
+		var velArr = (Godot.Collections.Array)rewindValues["velocity"];
 
+
+		if (posArr.Count == 0)
+		{
+			rewinding = false;
+			if (Multiplayer.HasMultiplayerPeer())
+				GenericCore.Instance.Rpc(nameof(GenericCore.EndRewind));
+			else
+				GenericCore.Instance.EndRewind();
+			return;
 		}
+
+		var pos = posArr.Last();
+		var rot = rotArr.Last();
+		posArr.RemoveAt(posArr.Count - 1);
+		rotArr.RemoveAt(rotArr.Count - 1);
+
 		Position = (Vector3)pos;
 		Rotation = (Vector3)rot;
-		Rpc("computeRewindRPC", pos, rot);
-	}
-[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true,
-		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
-	public void computeRewindRPC( Vector3 pos, Vector3 rot)
-	{
-		if (GenericCore.Instance.IsServer)
+		Rpc("computeRewindRPC", (Vector3)pos, (Vector3)rot);
+
+		if (posArr.Count == 0)
 		{
-			SyncedVelocity = (Vector3)((Godot.Collections.Array)rewindValues["velocity"]).First();
-			Position = pos;
-			Rotation = rot;
+			GetNode<CollisionShape3D>("CollisionShape3D").SetDeferred("disabled", false);
+			rewinding      = false;
+			SyncedVelocity = velArr.Count > 0
+				? (Vector3)velArr[0]
+				: Vector3.Zero;
+			if (Multiplayer.HasMultiplayerPeer())
+				GenericCore.Instance.Rpc(nameof(GenericCore.EndRewind));
+			else
+				GenericCore.Instance.EndRewind();
 		}
+	}
+	// Authority sends this; all peers (incl. server via CallLocal) apply the position.
+	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true,
+		 TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable)]
+	public void computeRewindRPC(Vector3 pos, Vector3 rot)
+	{
+		Position = pos;
+		Rotation = rot;
 	}
 }

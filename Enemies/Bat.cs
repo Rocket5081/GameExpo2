@@ -9,7 +9,7 @@ public partial class Bat : Enemy
 	}
 	[Export] public bool SyncedIsMoving = false;
 
-	public int speed = 10;
+	public int speed = 20;
 	[Export] public float MaxFlyHeight = 12f;
 
 

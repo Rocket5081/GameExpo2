@@ -15,7 +15,7 @@ public partial class TankPlayer : Player
 	public override void _Ready()
 	{
 		maxHp = 200;
-		speed = 10;
+		speed = 30;
 		hp    = maxHp ; 
 		damage = 10f;
 		base._Ready();

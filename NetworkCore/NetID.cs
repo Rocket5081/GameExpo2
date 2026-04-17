@@ -12,9 +12,7 @@ public partial class NetID : MultiplayerSynchronizer
 	[Export] public bool IsNetworkReady = false;
 	[Export] public bool IsSynced = false;
 
-	/// <summary>
-	/// Will emit once net ID is valid to use.
-	/// </summary>
+	
 	[Signal]
 	public delegate void NetIDReadyEventHandler();
 	public override void _EnterTree()

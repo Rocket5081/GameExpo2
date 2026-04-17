@@ -20,7 +20,7 @@ public partial class SupportPlayer : Player
 	public override void _Ready()
 	{
 		maxHp = 100;
-		speed = 20;
+		speed = 45;
 		hp    = maxHp;   
 		base._Ready();
 

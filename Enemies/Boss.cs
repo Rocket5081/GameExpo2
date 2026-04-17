@@ -13,6 +13,16 @@ public partial class Boss : Enemy
 
 	public int speed = 5;
 
+	// ── Entry sequence ────────────────────────────────────────────────────────
+	// Boss spawns 35 units above the arena and descends into position.
+	private bool  _isEntering   = true;
+	private float _entryFloorY;
+	private const float EntrySpeed = 22f;   // units per second descent speed
+
+	// Synced animation name — server sets this, MultiplayerSynchronizer replicates
+	// it to all clients so every peer plays the correct clip.
+	[Export] public string SyncedAnimName = "FastMove";
+
 	public float waitTime = 8f;
 	public string curLocation = "BossL1";
 	public bool phaseTwo = false;
@@ -28,20 +38,47 @@ public partial class Boss : Enemy
 
 	public override void _Ready()
 	{
-
-		maxHP  = 1;
+		maxHP  = 300;
 		hp     = maxHP;
-		damage = 30;
+		damage = 50;
 		DeathSfx = GD.Load<AudioStream>("res://Sounds/Dying Boss.mp3");
 		LookAt(new Vector3(0,0,0));
 		base._Ready();
-		SpawnAmbientSound("res://Sounds/dragon-studio-alien-sounds-463202.mp3", volumeDb: -8f, maxDist: 80f);
+		AddToGroup("Bosses");
+		SpawnAmbientSound("res://Sounds/dragon-studio-alien-sounds-463202.mp3", volumeDb: -14f, maxDist: 180f);
+
+		// Boss spawns 35 units above its fight position — record where the floor is.
+		_entryFloorY = GlobalPosition.Y - 35f;
 	}
 
 	public override void _Process(double delta)
 	{
-		if (GenericCore.Instance.IsServer){
-			
+		// ── Entry descent — boss flies down from above into the arena ─────────
+		if (_isEntering)
+		{
+			if (GenericCore.Instance.IsServer)
+			{
+				var pos  = GlobalPosition;
+				pos.Y   -= EntrySpeed * (float)delta;
+
+				if (pos.Y <= _entryFloorY)
+				{
+					pos.Y      = _entryFloorY;
+					_isEntering = false;
+					waitTime    = 2f;   // brief pause before patrol begins
+					GD.Print("[Boss] Entry complete — starting patrol.");
+				}
+
+				GlobalPosition = pos;
+				LookAt(new Vector3(GlobalPosition.X, GlobalPosition.Y, 0f));
+			}
+			UpdateAnimation();
+			return;   // skip patrol and rewind logic until fully landed
+		}
+
+		// ── Normal patrol ─────────────────────────────────────────────────────
+		if (GenericCore.Instance.IsServer)
+		{
 			if (!SyncedIsMoving && waitTime <= 0f)
 			{
 				target = FindNextLocation();
@@ -50,10 +87,9 @@ public partial class Boss : Enemy
 			else
 				waitTime -= (float)delta;
 			MoveToNext(target);
-			
 		}
 
-		if (!GenericCore.Instance.IsServer){} 
+		if (!GenericCore.Instance.IsServer){}
 			UpdateAnimation();
 
 		if (GenericCore.Instance.rewind)
@@ -165,12 +201,98 @@ public partial class Boss : Enemy
 	{
 		if (!phaseTwo)
 		{
-			GenericCore.Instance.rewind = true;
-			hp = maxHP;
+			// First kill — broadcast rewind to ALL peers via RPC so every client
+			// sets GenericCore.rewind = true and starts their rewind logic.
+			if (Multiplayer.HasMultiplayerPeer())
+				GenericCore.Instance.Rpc(nameof(GenericCore.StartRewind));
+			else
+				GenericCore.Instance.StartRewind();
+			hp       = maxHP;
 			phaseTwo = true;
 		}
 		else
-		QueueFree();
+		{
+			// Second kill — show the win screen on every peer, then free the boss.
+			if (Multiplayer.HasMultiplayerPeer())
+				Rpc(nameof(ShowWinScreenRpc));
+			else
+				ShowWinScreenRpc();
+
+			QueueFree();
+		}
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true,
+		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	private void ShowWinScreenRpc()
+	{
+		Input.MouseMode = Input.MouseModeEnum.Visible;
+
+		// ── Full-screen canvas ─────────────────────────────────────────────────
+		var canvas = new CanvasLayer();
+		canvas.Layer = 20;
+		GetTree().Root.AddChild(canvas);
+
+		// Dark backdrop
+		var bg            = new ColorRect();
+		bg.Color          = new Color(0.01f, 0f, 0.06f, 0.93f);
+		bg.AnchorLeft     = 0f;  bg.AnchorTop    = 0f;
+		bg.AnchorRight    = 1f;  bg.AnchorBottom = 1f;
+		bg.GrowHorizontal = Control.GrowDirection.Both;
+		bg.GrowVertical   = Control.GrowDirection.Both;
+		bg.MouseFilter    = Control.MouseFilterEnum.Ignore;
+		canvas.AddChild(bg);
+
+		// "YOU WIN!" title
+		var title              = new Label();
+		title.Text             = "✦  YOU WIN!  ✦";
+		title.AddThemeFontSizeOverride("font_size", 72);
+		title.AddThemeColorOverride("font_color",         new Color(1f, 0.85f, 0.2f));
+		title.AddThemeColorOverride("font_outline_color", new Color(0f, 0f, 0f, 1f));
+		title.AddThemeConstantOverride("outline_size", 4);
+		title.HorizontalAlignment = HorizontalAlignment.Center;
+		title.AnchorLeft     = 0f;    title.AnchorTop    = 0.5f;
+		title.AnchorRight    = 1f;    title.AnchorBottom = 0.5f;
+		title.OffsetTop      = -120f; title.OffsetBottom = -40f;
+		title.GrowHorizontal = Control.GrowDirection.Both;
+		title.GrowVertical   = Control.GrowDirection.Both;
+		title.MouseFilter    = Control.MouseFilterEnum.Ignore;
+		canvas.AddChild(title);
+
+		// Subtitle
+		var sub              = new Label();
+		sub.Text             = "The boss has been slain — your legend is sealed.";
+		sub.AddThemeFontSizeOverride("font_size", 22);
+		sub.AddThemeColorOverride("font_color", new Color(0.75f, 0.65f, 1f));
+		sub.HorizontalAlignment = HorizontalAlignment.Center;
+		sub.AnchorLeft     = 0f;   sub.AnchorTop    = 0.5f;
+		sub.AnchorRight    = 1f;   sub.AnchorBottom = 0.5f;
+		sub.OffsetTop      = -20f; sub.OffsetBottom = 20f;
+		sub.GrowHorizontal = Control.GrowDirection.Both;
+		sub.GrowVertical   = Control.GrowDirection.Both;
+		sub.MouseFilter    = Control.MouseFilterEnum.Ignore;
+		canvas.AddChild(sub);
+
+		// "Return to Lobby" button
+		var btn              = new Button();
+		btn.Text             = "Return to Lobby";
+		btn.AddThemeFontSizeOverride("font_size", 20);
+		btn.AnchorLeft   = 0.5f;  btn.AnchorTop    = 0.5f;
+		btn.AnchorRight  = 0.5f;  btn.AnchorBottom = 0.5f;
+		btn.OffsetLeft   = -130f; btn.OffsetRight  = 130f;
+		btn.OffsetTop    =  60f;  btn.OffsetBottom = 100f;
+		btn.GrowHorizontal = Control.GrowDirection.Both;
+		btn.GrowVertical   = Control.GrowDirection.Both;
+		canvas.AddChild(btn);
+
+		btn.Pressed += () =>
+		{
+			GenericCore.Instance.BossHasSpawned = false;
+			GenericCore.Instance.rewind         = false;
+			GenericCore.Instance.DisconnectFromGame();
+			_ = SceneTransition.Instance.TransitionTo(
+				"res://NetworkCore/WanLobbySystem/BetterLobby/streamlinedLobby.tscn");
+		};
 	}
 
 	public void rewind()
@@ -195,7 +317,11 @@ public partial class Boss : Enemy
 			rewinding = false;
 			GlobalPosition = (Vector3)pos;
 			Rotation = (Vector3)rot;
-			GenericCore.Instance.rewind = false;
+			// Broadcast EndRewind to ALL peers so their players stop rewinding too
+			if (Multiplayer.HasMultiplayerPeer())
+				GenericCore.Instance.Rpc(nameof(GenericCore.EndRewind));
+			else
+				GenericCore.Instance.EndRewind();
 		}
 		GlobalPosition = (Vector3)pos;
 		Rotation = (Vector3)rot;
