@@ -107,7 +107,7 @@ public partial class GenericCore : Node
 	[Export]
 	public bool IsListening = true;
 
-	public bool rewind = false;
+	[Export] public bool rewind = false;
 
 	public long GetServerNetId()
 	{

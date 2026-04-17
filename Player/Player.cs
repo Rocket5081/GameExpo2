@@ -289,8 +289,8 @@ public partial class Player : CharacterBody3D
 				OnLocalUltimateActivated();   // subclass plays its activation sound
 				RpcId(1, "UseUltimate");
 			}
-			if (Input.IsActionJustPressed("Rewind"))
-				GenericCore.Instance.rewind = true;
+
+				
 
 		}
 

@@ -18,7 +18,7 @@ public partial class Boss : Enemy
 	public bool phaseTwo = false;
 	Node3D target = null;
 
-	public bool rewinding = false;
+	[Export] public bool rewinding = false;
 	public Godot.Collections.Dictionary rewindValues = new Godot.Collections.Dictionary
 	{
 		{"position", new Godot.Collections.Array {}},
@@ -28,7 +28,7 @@ public partial class Boss : Enemy
 
 	public override void _Ready()
 	{
-		maxHP  = 150;
+		maxHP  = 1;
 		hp     = maxHP;
 		damage = 30;
 		LookAt(new Vector3(0,0,0));
@@ -38,8 +38,7 @@ public partial class Boss : Enemy
     public override void _Process(double delta)
     {
         if (GenericCore.Instance.IsServer){
-			
-			if (!SyncedIsMoving && waitTime <= 0f)
+			if (!SyncedIsMoving && waitTime <= 0f && !rewinding)
 			{
 				target = FindNextLocation();
 				SyncedIsMoving = true;
@@ -129,11 +128,26 @@ public partial class Boss : Enemy
 	{
 		foreach(Area3D area in GetTree().GetNodesInGroup("enemy"))
 		{
+			area.SetCollisionLayerValue(1, false);
+			area.SetCollisionMaskValue(1, false);
+			area.SetCollisionLayerValue(8, true);
 			area.SetCollisionMaskValue(2, true);
 			area.BodyEntered += OnPlayerBodyEntered;
 			area.BodyExited  += OnPlayerBodyExited;
 		}
 		
+	}
+
+	protected override void Die()
+	{
+		if (!phaseTwo)
+		{
+			GenericCore.Instance.rewind = true;
+			hp = maxHP;
+			phaseTwo = true;
+		}
+		else
+		QueueFree();
 	}
 
 	public void rewind()
@@ -149,8 +163,8 @@ public partial class Boss : Enemy
 		((Godot.Collections.Array)rewindValues["position"]).RemoveAt(((Godot.Collections.Array)rewindValues["position"]).Count -1);
 		((Godot.Collections.Array)rewindValues["rotation"]).RemoveAt(((Godot.Collections.Array)rewindValues["rotation"]).Count -1);
 		waitTime = 8f;
-		curLocation = "BossL1";
-		target = null;
+		curLocation = "BossL4";
+		target = FindNextLocation();
 		hp = maxHP;
 		if(((Godot.Collections.Array)rewindValues["position"]).Count == 0)
 		{
@@ -159,7 +173,6 @@ public partial class Boss : Enemy
 			GlobalPosition = (Vector3)pos;
 			Rotation = (Vector3)rot;
 			GenericCore.Instance.rewind = false;
-			GD.Print(GlobalPosition);
 		}
 		GlobalPosition = (Vector3)pos;
 		Rotation = (Vector3)rot;

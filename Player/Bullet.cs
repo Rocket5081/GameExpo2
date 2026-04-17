@@ -15,9 +15,6 @@ public partial class Bullet : RigidBody3D
 
 	public override void _Ready()
 	{
-		CollisionLayer = 4;
-		CollisionMask  = 1;
-
 		if (GenericCore.Instance != null && !GenericCore.Instance.IsServer)
 			Freeze = true;
 	}
@@ -34,6 +31,7 @@ public partial class Bullet : RigidBody3D
 
 	private void OnAreaEntered(Node body)
 	{
+		GD.Print("hi");
 		if (!GenericCore.Instance.IsServer) return;
 		if (_isDying) return;
 
@@ -41,6 +39,7 @@ public partial class Bullet : RigidBody3D
 
 		if (body is Enemy enemy && IsInstanceValid(enemy))
 		{
+			
 			// Pass the shooter so the enemy can credit score correctly
 			enemy.OnHitByBullet((int)damage, Shooter);
 			HideBullet();
