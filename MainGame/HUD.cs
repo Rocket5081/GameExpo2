@@ -488,10 +488,19 @@ public partial class HUD : CanvasLayer
 	// ─────────────────────────────────────────────────────────────────────────
 	public override void _Process(double delta)
 	{
+		// Don't tick anything while the HUD is hidden (i.e. we're in the lobby).
+		if (!Visible) return;
+
 		// ── Timer ─────────────────────────────────────────────────────────────
 		if (!_gameStartSent && GenericCore.Instance != null && GenericCore.Instance.IsServer)
 		{
-			if (GetTree().GetNodesInGroup("Players").Count > 0)
+			// Only count players that are fully valid — stale QueueFree'd nodes
+			// from the previous game can still appear in the group briefly.
+			int validPlayers = 0;
+			foreach (Node n in GetTree().GetNodesInGroup("Players"))
+				if (IsInstanceValid(n)) validPlayers++;
+
+			if (validPlayers > 0)
 			{
 				_gameStartSent = true;
 				Rpc(nameof(SyncGameStart), (long)Time.GetTicksMsec());
@@ -528,6 +537,10 @@ public partial class HUD : CanvasLayer
 				}
 			}
 		}
+
+		// ── Round info + Boss HP (run regardless of local player) ───────────────
+		UpdateRoundWidget();
+		UpdateBossHpWidget();
 
 		if (_localPlayer == null || !IsInstanceValid(_localPlayer)) return;
 
@@ -585,12 +598,6 @@ public partial class HUD : CanvasLayer
 		}
 		_lastMultiplier = mult;
 
-		// ── Round info widget ─────────────────────────────────────────────────
-		UpdateRoundWidget();
-
-		// ── Boss HP widget ─────────────────────────────────────────────────────
-		UpdateBossHpWidget();
-
 		// ── Relic icon ────────────────────────────────────────────────────────
 		if (_localPlayer.ChosenRelic != Player.RelicType.None && !_relicIcon.Visible)
 		{
@@ -639,6 +646,8 @@ public partial class HUD : CanvasLayer
 		_roundPanel.Visible = true;
 
 		int target  = mg.GetRoundEnemyTarget();
+		// Remove freed enemies before reading the count so stale refs don't inflate alive.
+		mg.Enms.RemoveAll(e => !IsInstanceValid(e));
 		int alive   = mg.Enms.Count;
 		int spawned = mg.EnemiesSpawnedThisRound;
 		int killed  = Mathf.Max(0, spawned - alive);
@@ -717,6 +726,8 @@ public partial class HUD : CanvasLayer
 	// ─────────────────────────────────────────────────────────────────────────
 	public void ResetForLobby()
 	{
+		// CanvasLayer ignores parent Node3D visibility, so hide ourselves explicitly.
+		Visible = false;
 		// Clear player tracking so the next game finds a fresh player.
 		_localPlayer   = null;
 		_reticleSet    = false;
@@ -760,7 +771,9 @@ public partial class HUD : CanvasLayer
 		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	public void SyncGameStart(long serverTickMsec)
 	{
-		if (_startTickMsec != 0) return;
+		// Always accept — ResetForLobby zeroes _startTickMsec so a second game
+		// can start the timer fresh.  The old guard blocked re-entry correctly
+		// for the first game but prevented a clean restart on second play.
 		_startTickMsec = (ulong)serverTickMsec;
 	}
 
