@@ -49,8 +49,16 @@ public partial class About : Button
 
 	private void OnPressed()
 	{
-		var lobby = GetOwner<MainMenuLobby>();
-		lobby?.ShowDevelopersPanel();
+		Node node = GetParent();
+		while (node != null)
+		{
+			if (node is MainMenuLobby lobby)
+			{
+				lobby.ShowDevelopersPanel();
+				return;
+			}
+			node = node.GetParent();
+		}
 	}
 
 	private void AnimateTo(float target)

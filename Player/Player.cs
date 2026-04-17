@@ -8,7 +8,7 @@ public partial class Player : CharacterBody3D
 	[Export] public AnimationPlayer myAnimation;
 	[Export] public NetID myId;
 	[Export] public Marker3D BulletSpawn;
-	[Export] public CanvasLayer ReticleLayer;  // kept for legacy wiring; HUD.cs handles display
+	[Export] public CanvasLayer ReticleLayer;  
 	[Export] public Label3D NameLabel;
 
 	// ── Sound ────────────────────────────────────────────────────────────────
@@ -16,6 +16,8 @@ public partial class Player : CharacterBody3D
 	[Export] public float FootstepInterval = 0.45f;
 
 	private float _footstepTimer = 0f;
+
+	private AudioStreamPlayer3D _hitSoundPlayer;
 
 	[Export] public string PlayerDisplayName = "";
 
@@ -98,6 +100,14 @@ public partial class Player : CharacterBody3D
 		GD.Print(myId.IsLocal);
 		base._Ready();
 		AddToGroup("Players");
+
+		
+		_hitSoundPlayer            = new AudioStreamPlayer3D();
+		_hitSoundPlayer.Stream     = GD.Load<AudioStream>("res://Sounds/Getting Hit.mp3");
+		_hitSoundPlayer.VolumeDb   = 0f;
+		_hitSoundPlayer.MaxDistance = 40f;
+		_hitSoundPlayer.UnitSize   = 10f;
+		AddChild(_hitSoundPlayer);
 
 		//if (myAnimTree != null){
 		//	myAnimTree.Active = true;
@@ -199,9 +209,7 @@ public partial class Player : CharacterBody3D
 				_isDead = true;
 				NotifyDied();
 			}
-			// Revive — only after DoRespawn has finished AND immunity has expired.
-			// _respawnPending stays true until DoRespawn clears it, so relic/healing
-			// can never raise hp > 0 and accidentally trigger this while the timer runs.
+
 			else if (hp > 0 && _isDead && !_respawnPending && _respawnImmunityTimer <= 0f)
 			{
 				_isDead = false;
@@ -425,7 +433,20 @@ public partial class Player : CharacterBody3D
 	public virtual void OnHitByBullet()
 	{
 		if (IsShielded) return;
-		// Damage is handled by the game's health system; hook here as needed.
+
+		// Broadcast the hit sound to all peers so everyone hears it
+		// spatially from this player's world position.
+		if (Multiplayer.HasMultiplayerPeer())
+			Rpc(nameof(PlayHitSfx));
+		else
+			PlayHitSfx(); // offline / standalone fallback
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true,
+		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	public void PlayHitSfx()
+	{
+		_hitSoundPlayer?.Play();
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = false,

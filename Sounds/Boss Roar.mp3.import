@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://d2mw5ngclxtye"
+path="res://.godot/imported/Boss Roar.mp3-7bc66efde992b438c52e5034ff6afd41.mp3str"
+
+[deps]
+
+source_file="res://Sounds/Boss Roar.mp3"
+dest_files=["res://.godot/imported/Boss Roar.mp3-7bc66efde992b438c52e5034ff6afd41.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

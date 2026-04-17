@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://dlid2vanroa85"
+path="res://.godot/imported/Getting Hit.mp3-c479e315336a5d5d8696f5f50b628385.mp3str"
+
+[deps]
+
+source_file="res://Sounds/Getting Hit.mp3"
+dest_files=["res://.godot/imported/Getting Hit.mp3-c479e315336a5d5d8696f5f50b628385.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

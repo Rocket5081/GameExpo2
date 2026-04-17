@@ -13,10 +13,29 @@ public partial class WormEnemy : Enemy
 
 	public override void _Ready()
 	{
-		maxHP  = 50;
-		hp     = maxHP;
-		damage = 10;
+		maxHP    = 50;
+		hp       = maxHP;
+		damage   = 10;
+		DeathSfx = GD.Load<AudioStream>("res://Sounds/Dying Worm.mp3");
 		base._Ready();
+		SpawnAmbientSound("res://Sounds/universfield-worm-movement-277577.mp3", volumeDb: -6f, maxDist: 50f);
+	}
+
+	private void SpawnAmbientSound(string path, float volumeDb, float maxDist)
+	{
+		var raw = GD.Load<AudioStream>(path);
+		if (raw == null) return;
+
+		var stream = (AudioStream)raw.Duplicate();
+		if (stream is AudioStreamMP3 mp3) mp3.Loop = true;
+
+		var sfx = new AudioStreamPlayer3D();
+		sfx.Stream      = stream;
+		sfx.VolumeDb    = volumeDb;
+		sfx.MaxDistance = maxDist;
+		sfx.UnitSize    = 10f;
+		sfx.Autoplay    = true;
+		AddChild(sfx);
 	}
 
 	public override void _PhysicsProcess(double delta)

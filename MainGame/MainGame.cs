@@ -13,9 +13,10 @@ public partial class MainGame : Node3D
 	/// </summary>
 	[Export] public Marker3D StatueRespawnPoint;
 
-	private Timer  _spawnTimer;
-	private double _elapsedSec = 0.0;
-	private bool   _started    = false;   // true once we're visible and running
+	private Timer              _spawnTimer;
+	private double             _elapsedSec  = 0.0;
+	private bool               _started     = false;   // true once we're visible and running
+	private AudioStreamPlayer  _musicPlayer;
 
 	private readonly int[] LevelWeights = { 50, 30, 5, 1 };
 
@@ -29,15 +30,19 @@ public partial class MainGame : Node3D
 
 	public override void _Ready()
 	{
-		// Collect spawn points ONCE before any enemies are spawned into EnemySpawns.
-		// We never call _RefreshSpawners() again so the array only contains the
-		// original static marker nodes, not freed enemy instances.
 		_RefreshSpawners();
 
-		// Do NOT start any timer here.
-		// MainGame is loaded hidden inside generic_lobby_system.tscn while the main
-		// menu is shown. Spawning must not begin until the scene is actually visible.
-		
+
+		var raw = GD.Load<AudioStream>("res://Sounds/RoundMusicGameExpo2.2.mp3");
+		if (raw != null)
+		{
+			_musicPlayer = new AudioStreamPlayer { Name = "GameMusic" };
+			var stream = (AudioStream)raw.Duplicate();
+			if (stream is AudioStreamMP3 mp3) mp3.Loop = true;
+			_musicPlayer.Stream   = stream;
+			_musicPlayer.VolumeDb = -15f;
+			AddChild(_musicPlayer);
+		}
 	}
 
 	public override void _Process(double delta)
@@ -45,7 +50,7 @@ public partial class MainGame : Node3D
 		// Wait until this node is actually visible to players before starting spawns.
 		if (!IsVisibleInTree()) return;
 
-		// First visible frame — kick off the spawn timer once.
+		// First visible frame — kick off the spawn timer and start the game music.
 		if (!_started)
 		{
 			_started = true;
@@ -62,7 +67,11 @@ public partial class MainGame : Node3D
 			AddChild(_spawnTimer);
 			_spawnTimer.Timeout += OnSpawnTick;
 
-			GD.Print("[MainGame] Game visible — enemy spawning started.");
+			// Start game music. Menu music is already stopped on all peers via
+			// StopMenuMusicRpc() before StartGame fires, so there's no overlap.
+			_musicPlayer?.Play();
+
+			GD.Print("[MainGame] Game visible — enemy spawning and music started.");
 		}
 
 		_elapsedSec += delta;

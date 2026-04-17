@@ -28,17 +28,21 @@ public partial class Boss : Enemy
 
 	public override void _Ready()
 	{
+
 		maxHP  = 1;
 		hp     = maxHP;
 		damage = 30;
+		DeathSfx = GD.Load<AudioStream>("res://Sounds/Dying Boss.mp3");
 		LookAt(new Vector3(0,0,0));
 		base._Ready();
+		SpawnAmbientSound("res://Sounds/dragon-studio-alien-sounds-463202.mp3", volumeDb: -8f, maxDist: 80f);
 	}
 
-    public override void _Process(double delta)
-    {
-        if (GenericCore.Instance.IsServer){
-			if (!SyncedIsMoving && waitTime <= 0f && !rewinding)
+	public override void _Process(double delta)
+	{
+		if (GenericCore.Instance.IsServer){
+			
+			if (!SyncedIsMoving && waitTime <= 0f)
 			{
 				target = FindNextLocation();
 				SyncedIsMoving = true;
@@ -56,9 +60,27 @@ public partial class Boss : Enemy
 		{
 			rewind();
 		}
-    }
+	}
 
 
+	private void SpawnAmbientSound(string path, float volumeDb, float maxDist)
+	{
+		var raw = GD.Load<AudioStream>(path);
+		if (raw == null) return;
+
+		
+		var stream = (AudioStream)raw.Duplicate();
+		if (stream is AudioStreamMP3 mp3) mp3.Loop = true;
+
+		var sfx = new AudioStreamPlayer3D();
+		sfx.Stream      = stream;
+		sfx.VolumeDb    = volumeDb;
+		sfx.MaxDistance = maxDist;
+		sfx.UnitSize    = 15f;
+		sfx.Autoplay    = true;
+		AddChild(sfx);
+	}
+	
 	public override void _PhysicsProcess(double delta)
 	{
 		// MUST call base so Enemy._PhysicsProcess runs the damage tick

@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3 uid="uid://bfxq16gxvblha"]
+[gd_scene load_steps=27 format=3 uid="uid://bfxq16gxvblha"]
 
 [ext_resource type="Script" uid="uid://yo2i7m3b6pph" path="res://NetworkCore/NetID.cs" id="1_7ks6i"]
 [ext_resource type="Script" uid="uid://fy4vxbxhv0ql" path="res://Player/DpsPlayer.cs" id="1_k2htt"]
@@ -9,7 +9,6 @@
 [ext_resource type="AudioStream" uid="uid://ppjebi50m8yd" path="res://Sounds/Footstep SFX.mp3" id="6_f4wrp"]
 [ext_resource type="PackedScene" uid="uid://br1l666tmqbyw" path="res://Assets/Cowboy/DPS.glb" id="8_yrita"]
 [ext_resource type="PackedScene" uid="uid://l5qklon8275i" path="res://Player/ShotParticles.tscn" id="9_3ylyi"]
-[ext_resource type="AudioStream" uid="uid://v85a56osk0cx" path="res://Sounds/Revive sound.mp3" id="9_6f1m7"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_wsqot"]
 size = Vector3(1, 2, 1)
@@ -152,7 +151,7 @@ nodes/SpecialBlend/node = SubResource("AnimationNodeBlend2_s8v7y")
 nodes/SpecialBlend/position = Vector2(-820, 1080)
 node_connections = [&"JumpBlend", 0, &"Animation", &"JumpBlend", 1, &"Animation 2", &"JumpBlend", 2, &"Animation 3", &"WalkBlend", 0, &"Animation 4", &"WalkBlend", 1, &"Animation 5", &"JumpWalk", 0, &"WalkBlend", &"JumpWalk", 1, &"JumpBlend", &"OneShot", 0, &"JumpWalk", &"OneShot", 1, &"Shooting", &"Shooting", 0, &"Animation 6", &"Shooting", 1, &"SpecialBlend", &"SpecialBlend", 0, &"Animation 7", &"SpecialBlend", 1, &"Animation 8"]
 
-[node name="DPS_Player" type="CharacterBody3D" node_paths=PackedStringArray("ShootSoundPlayer", "UltimateSound", "gunFlash", "myAnimation", "myId", "BulletSpawn", "ReticleLayer", "NameLabel", "FootstepPlayer", "RespawnSound") groups=["Players"]]
+[node name="DPS_Player" type="CharacterBody3D" node_paths=PackedStringArray("ShootSoundPlayer", "UltimateSound", "gunFlash", "myAnimation", "myId", "BulletSpawn", "ReticleLayer", "NameLabel", "FootstepPlayer") groups=["Players"]]
 transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
 collision_layer = 2
 script = ExtResource("1_k2htt")
@@ -166,7 +165,6 @@ ReticleLayer = NodePath("ReticleLayer")
 NameLabel = NodePath("NameLabel")
 FootstepPlayer = NodePath("Footsteps")
 FootstepInterval = 5.93
-RespawnSound = NodePath("RespawnSound")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1936655, 0)
@@ -204,11 +202,11 @@ script = ExtResource("1_7ks6i")
 
 [node name="Shooting" type="AudioStreamPlayer3D" parent="."]
 stream = ExtResource("5_f4wrp")
-volume_db = -15.0
+volume_db = -10.0
 
 [node name="Footsteps" type="AudioStreamPlayer3D" parent="."]
 stream = ExtResource("6_f4wrp")
-volume_db = -16.0
+volume_db = -10.0
 
 [node name="Ultimate" type="AudioStreamPlayer3D" parent="."]
 stream = ExtResource("2_pio5l")
@@ -250,4 +248,12 @@ parameters/WalkBlend/blend_amount = 0.0
 parameters/JumpWalk/current_state = "IsGrounded"
 parameters/JumpWalk/transition_request = ""
 parameters/JumpWalk/current_index = 0
-parameters/OneShot/active
+parameters/OneShot/active = false
+parameters/OneShot/internal_active = false
+parameters/OneShot/request = 0
+parameters/Shooting/current_state = ""
+parameters/Shooting/transition_request = ""
+parameters/Shooting/current_index = -1
+parameters/SpecialBlend/blend_amount = 0.0
+
+[editable path="DPS"]

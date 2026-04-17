@@ -292,6 +292,32 @@ _maxConnections = 4
 
 [node name="MainMenu" parent="GameRoot" instance=ExtResource("3_nacce")]
 
+[node name="TitleLabel" parent="GameRoot/MainMenu" index="2"]
+offset_top = 0.0
+offset_bottom = 50.0
+
+[node name="PreviewBG" parent="GameRoot/MainMenu/OfflinePanel/CharacterPreviewArea" index="0"]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 0.0
+
+[node name="PreviewLabel" parent="GameRoot/MainMenu/OfflinePanel/CharacterPreviewArea" index="1"]
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 34.0
+
+[node name="TitleLabel" parent="GameRoot/MainMenu/ControlsOverlay" index="1"]
+offset_left = -300.0
+offset_top = 0.0
+offset_right = 300.0
+offset_bottom = 58.0
+
+[node name="TitleLabel" parent="GameRoot/MainMenu/DevelopersOverlay" index="1"]
+offset_top = 0.0
+offset_bottom = 50.0
+
 [node name="MainGame" parent="GameRoot" instance=ExtResource("5_dijh2")]
 visible = false
 

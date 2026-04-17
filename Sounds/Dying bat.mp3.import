@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://ddia8wtlufen8"
+path="res://.godot/imported/Dying bat.mp3-f7a231910e5b27f7c3530ca0e9e84ece.mp3str"
+
+[deps]
+
+source_file="res://Sounds/Dying bat.mp3"
+dest_files=["res://.godot/imported/Dying bat.mp3-f7a231910e5b27f7c3530ca0e9e84ece.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

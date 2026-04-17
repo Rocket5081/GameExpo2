@@ -1,4 +1,4 @@
-[gd_scene load_steps=54 format=3 uid="uid://dkloqt2lomuxg"]
+[gd_scene load_steps=55 format=3 uid="uid://dkloqt2lomuxg"]
 
 [ext_resource type="Material" uid="uid://bf80snneu4sbx" path="res://MainGame/VoidParticles.tres" id="1_6bbl1"]
 [ext_resource type="Script" uid="uid://c4ryjwo0gxk68" path="res://MainGame/MainGame.cs" id="1_f0e2v"]
@@ -20,6 +20,7 @@
 [ext_resource type="Script" uid="uid://cc3mpn6y6ykrx" path="res://MainMenu/PreviewAutoPlay.cs" id="18_xfdxe"]
 [ext_resource type="PackedScene" uid="uid://bs0gdl0x0ytxj" path="res://Assets/Tree/Tree1.glb" id="19_w65ig"]
 [ext_resource type="PackedScene" uid="uid://caquujiq4x5pb" path="res://Assets/Tree/Tree2.glb" id="20_iliv4"]
+[ext_resource type="Script" uid="uid://b8so1gol568sy" path="res://MainGame/WorldTexturer.cs" id="21_wtext"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5y8m1"]
 next_pass = ExtResource("1_6bbl1")
@@ -255,15 +256,12 @@ mesh = SubResource("PlaneMesh_8e541")
 
 [node name="HUD" parent="." instance=ExtResource("7_hud01")]
 
-[node name="WorldSounds" type="Node" parent="." node_paths=PackedStringArray("LightningSound", "AirSound", "EnvironmentSound", "Enemy1Sound", "Enemy2Sound", "Enemy3Sound")]
+[node name="WorldSounds" type="Node" parent="." node_paths=PackedStringArray("LightningSound", "AirSound", "EnvironmentSound")]
 script = ExtResource("8_wsnd")
 LightningSound = NodePath("LightningSound")
 AirSound = NodePath("AirSound")
 EnvironmentSound = NodePath("EnvironmentSound")
 LightningInterval = 16.0
-Enemy1Sound = NodePath("Enemy1Sound")
-Enemy2Sound = NodePath("Enemy2Sound")
-Enemy3Sound = NodePath("Enemy3Sound")
 
 [node name="LightningSound" type="AudioStreamPlayer" parent="WorldSounds"]
 stream = ExtResource("10_dwi20")
@@ -271,11 +269,11 @@ volume_db = -15.22
 
 [node name="AirSound" type="AudioStreamPlayer" parent="WorldSounds"]
 stream = ExtResource("12_e85xm")
-volume_db = -20.293
+volume_db = -25.0
 
 [node name="EnvironmentSound" type="AudioStreamPlayer" parent="WorldSounds"]
 stream = ExtResource("13_qf7iq")
-volume_db = -50.0
+volume_db = -40.0
 
 [node name="Enemy1Sound" type="AudioStreamPlayer" parent="WorldSounds"]
 stream = ExtResource("14_i36yx")
@@ -1106,3 +1104,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 220, 229.6)
 
 [node name="BossL4" type="Node3D" parent="BossLocations"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -229.6, 220, 0)
+
+[node name="WorldTexturer" type="Node" parent="."]
+script = ExtResource("21_wtext")

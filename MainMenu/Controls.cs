@@ -49,8 +49,16 @@ public partial class Controls : Button
 
 	private void OnPressed()
 	{
-		var lobby = GetOwner<MainMenuLobby>();
-		lobby?.ShowControlsPanel();
+		Node node = GetParent();
+		while (node != null)
+		{
+			if (node is MainMenuLobby lobby)
+			{
+				lobby.ShowControlsPanel();
+				return;
+			}
+			node = node.GetParent();
+		}
 	}
 
 	private void AnimateTo(float target)

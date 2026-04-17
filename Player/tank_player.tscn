@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://crynxmhfqxpn2"]
+[gd_scene load_steps=12 format=3 uid="uid://crynxmhfqxpn2"]
 
 [ext_resource type="Script" uid="uid://lo1q22j2v18t" path="res://Player/TankPlayer.cs" id="1_pm5gu"]
 [ext_resource type="Script" uid="uid://yo2i7m3b6pph" path="res://NetworkCore/NetID.cs" id="2_bwhdg"]
@@ -8,6 +8,7 @@
 [ext_resource type="AudioStream" uid="uid://cj8irjfvrrw5k" path="res://Sounds/blunderbuss-shot.mp3" id="5_8hwvg"]
 [ext_resource type="AudioStream" uid="uid://ppjebi50m8yd" path="res://Sounds/Footstep SFX.mp3" id="6_8hwvg"]
 [ext_resource type="PackedScene" uid="uid://b3umo383v0otl" path="res://Assets/Pirate/Tank.glb" id="8_a30e7"]
+[ext_resource type="PackedScene" uid="uid://l5qklon8275i" path="res://Player/ShotParticles.tscn" id="9_o6woj"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_nxeor"]
 size = Vector3(0.8, 1.6757813, 0.8)
@@ -113,11 +114,10 @@ script = ExtResource("2_bwhdg")
 
 [node name="Shooting" type="AudioStreamPlayer3D" parent="."]
 stream = ExtResource("5_8hwvg")
-volume_db = -4.0
 
 [node name="Footsteps" type="AudioStreamPlayer3D" parent="."]
 stream = ExtResource("6_8hwvg")
-volume_db = -16.0
+volume_db = -10.0
 
 [node name="Ultimate" type="AudioStreamPlayer3D" parent="."]
 stream = ExtResource("2_nxeor")
@@ -125,3 +125,8 @@ volume_db = -15.0
 
 [node name="Tank" parent="." instance=ExtResource("8_a30e7")]
 transform = Transform3D(0.3, 0, 0, 0, 0.3, 0, 0, 0, 0.3, 0.007922649, -1.0139239, 0.023831487)
+
+[node name="GPUParticles3D" parent="Tank/Pirate/Skeleton3D/Blunderbuss/BlunderBuss" index="0" instance=ExtResource("9_o6woj")]
+transform = Transform3D(0.08042502, 0.99676055, -4.685322e-08, -0.9967605, 0.08042503, -9.424758e-08, -9.017417e-08, 5.4281294e-08, 1, 0.14431474, -1.6464673, 0)
+
+[editable path="Tank"]
