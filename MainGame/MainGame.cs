@@ -143,6 +143,8 @@ public partial class MainGame : Node3D
 				{
 					upgrading = true;
 					waitTimer = 10f;
+					foreach (Player player in GetTree().GetNodesInGroup("Players"))
+						player.ShowUpgradeUI();
 					GD.Print($"[MainGame] Round {RoundNum + 1} complete — boss next: {RoundNum + 1 >= 5}");
 					if (Multiplayer.HasMultiplayerPeer())
 						Rpc(nameof(AdvanceRoundRpc));
