@@ -168,7 +168,9 @@ public partial class Boss : Enemy
 	{
 		var parent = GetParent();
 		var child = parent.GetChildren();
-		for(int i=0; i<child.Count; i++)
+		if (!phaseTwo)
+		{
+			for(int i=0; i<child.Count; i++)
 		{
 			if(child[i].Name == curLocation)
 			{
@@ -184,6 +186,16 @@ public partial class Boss : Enemy
 				}	
 			}
 		}
+		}
+		else
+		{
+			RandomNumberGenerator random = new RandomNumberGenerator();
+			random.Randomize();
+			int rand = random.RandiRange(0,3);
+			curLocation = child[rand].Name;
+			return (Node3D)child[rand];
+		}
+
 		return null;
 	}
 

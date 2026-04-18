@@ -394,9 +394,9 @@ public partial class MainGame : Node3D
 		// Scales faster per round so later rounds feel more intense.
 		return RoundNum switch
 		{
-			0 => 1.0f,   // Round 1 — fast
-			1 => 0.75f,  // Round 2 — faster
-			_ => 0.5f,   // Round 3+ — very fast
+			0 => .75f,   // Round 1 — fast
+			1 => 0.5f,  // Round 2 — faster
+			_ => 0.25f,   // Round 3+ — very fast
 		};
 	}
 
