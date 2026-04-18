@@ -430,7 +430,7 @@ public partial class HUD : CanvasLayer
 
 		// ◈  BOSS  ◈  name row
 		_bossNameLabel = new Label();
-		_bossNameLabel.Text = "◈  THE BOSS  ◈";
+		_bossNameLabel.Text = "◈  The Great Old One  ◈";
 		_bossNameLabel.HorizontalAlignment = HorizontalAlignment.Center;
 		_bossNameLabel.AddThemeFontSizeOverride("font_size", 14);
 		_bossNameLabel.AddThemeColorOverride("font_color",         new Color(1f,   0.5f, 0.12f, 1f));
