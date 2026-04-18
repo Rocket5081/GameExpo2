@@ -146,10 +146,7 @@ public partial class MainGame : Node3D
 					foreach (Player player in GetTree().GetNodesInGroup("Players"))
 						player.ShowUpgradeUI();
 					GD.Print($"[MainGame] Round {RoundNum + 1} complete — boss next: {RoundNum + 1 >= 5}");
-					if (Multiplayer.HasMultiplayerPeer())
-						Rpc(nameof(AdvanceRoundRpc));
-					else
-						AdvanceRoundRpc();
+					Rpc("AdvanceRoundRpc");
 				}
 			}
 		}
@@ -166,7 +163,7 @@ public partial class MainGame : Node3D
 	/// Server calls this RPC to advance the round and show the upgrade UI on
 	/// every peer simultaneously.  CallLocal = true so the server also applies it.
 	/// </summary>
-	[Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = true,
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true,
 		 TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
 	private void AdvanceRoundRpc()
 	{
