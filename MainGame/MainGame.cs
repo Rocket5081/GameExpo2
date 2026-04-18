@@ -87,6 +87,18 @@ public partial class MainGame : Node3D
 		// Wait until this node is actually visible to players before starting spawns.
 		if (!IsVisibleInTree()) return;
 
+		// LobbyStreamlined._Process() forces ALL GameRoot children visible every frame,
+		// including MainGame. Guard here so we never start game logic (spawn timer,
+		// HUD.Show, music) unless the player is genuinely connected to a game server.
+		// This also prevents the HUD from re-appearing in the lobby after a reset.
+		if (GenericCore.Instance == null || !GenericCore.Instance.IsGenericCoreConnected)
+		{
+			// If something brought the HUD back up while we're in the lobby, slam it back down.
+			var hud = GetNodeOrNull<HUD>("HUD");
+			if (hud != null && hud.Visible) hud.Hide();
+			return;
+		}
+
 		// First visible frame — kick off the spawn timer and start the game music.
 		if (!_started)
 		{

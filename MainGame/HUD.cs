@@ -733,9 +733,14 @@ public partial class HUD : CanvasLayer
 
 		// Reset displayed values so stale numbers don't flash when the next
 		// game starts before the first SyncStats RPC arrives.
-		if (_scoreValueLabel != null) _scoreValueLabel.Text = "0";
-		if (_multLabel       != null) _multLabel.Text       = "× 1.0";
-		if (_timerLabel      != null) _timerLabel.Text      = "0:00";
+		if (_scoreValueLabel  != null) _scoreValueLabel.Text  = "0";
+		if (_multLabel        != null) _multLabel.Text        = "× 1.0";
+		if (_timerLabel       != null) _timerLabel.Text       = "0:00";
+		if (_hpLabel          != null) _hpLabel.Text          = "HEALTH";
+		if (_hpBar            != null) _hpBar.Value           = 1.0;
+		if (_ultBar           != null) _ultBar.Value          = 0.0;
+		if (_ultTimeLabel     != null) _ultTimeLabel.Text     = "—";
+		if (_bossHpValueLabel != null) _bossHpValueLabel.Text = "";
 
 		GD.Print("[HUD] ResetForLobby complete.");
 	}

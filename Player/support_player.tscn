@@ -9,7 +9,7 @@
 [ext_resource type="AudioStream" uid="uid://ppjebi50m8yd" path="res://Sounds/Footstep SFX.mp3" id="6_tuikc"]
 [ext_resource type="PackedScene" uid="uid://cefr484mm864e" path="res://Assets/Bishop/Support.glb" id="8_s6hfy"]
 [ext_resource type="AudioStream" uid="uid://v85a56osk0cx" path="res://Sounds/Revive sound.mp3" id="9_05rq7"]
-[ext_resource type="PackedScene" path="res://Player/blood_splatter.tscn" id="10_p5oyt"]
+[ext_resource type="PackedScene" uid="uid://dri7otxm0mjyx" path="res://Player/blood_splatter.tscn" id="10_p5oyt"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_km5gb"]
 size = Vector3(1, 2, 1)
@@ -127,7 +127,7 @@ script = ExtResource("1_acfcq")
 
 [node name="Shooting" type="AudioStreamPlayer3D" parent="."]
 stream = ExtResource("5_8uuee")
-volume_db = -30.0
+volume_db = -20.0
 
 [node name="Footsteps" type="AudioStreamPlayer3D" parent="."]
 stream = ExtResource("6_tuikc")
