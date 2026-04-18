@@ -177,7 +177,7 @@ public partial class MainGame : Node3D
 			player.ShowUpgradeUI();
 	}
 
-	public int GetRoundEnemyTarget() => (RoundNum + 1) * 15;
+	public int GetRoundEnemyTarget() => 15;
 
 	// Max simultaneously alive enemies scales with the round budget, capped at 12.
 	private int GetMaxAliveEnemies() => Mathf.Clamp((RoundNum + 1) * 4, 5, 12);
@@ -381,13 +381,13 @@ public partial class MainGame : Node3D
 
 	private float GetSpawnInterval(double t)
 	{
-		if (t < 5.0)   return 8f;    // brief grace period at game start
+		if (t < 3.0)   return 4f;    // brief grace period at game start
 		// Scales faster per round so later rounds feel more intense.
 		return RoundNum switch
 		{
-			0 => 2.5f,   // Round 1 — moderate pace
-			1 => 2.0f,   // Round 2 — faster
-			_ => 1.5f,   // Round 3+ — fast
+			0 => 1.0f,   // Round 1 — fast
+			1 => 0.75f,  // Round 2 — faster
+			_ => 0.5f,   // Round 3+ — very fast
 		};
 	}
 

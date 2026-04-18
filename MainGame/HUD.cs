@@ -627,6 +627,9 @@ public partial class HUD : CanvasLayer
 		// Hide once we're on the boss round (RoundNum >= 5) — boss HP bar takes over.
 		if (mg.RoundNum >= 5) { _roundPanel.Visible = false; return; }
 
+		// Keep hidden until the game has actually started (timer begins when first player spawns).
+		if (_startTickMsec == 0) { _roundPanel.Visible = false; return; }
+
 		_roundPanel.Visible = true;
 
 		_roundLabel.Text = $"⚔  ROUND {mg.RoundNum + 1}";
