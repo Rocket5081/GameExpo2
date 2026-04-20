@@ -9,11 +9,11 @@ public partial class WormEnemy : Enemy
 	}
 	[Export] public bool SyncedIsMoving = false;
 
-	public int speed =20;
+	public int speed =40;
 
 	public override void _Ready()
 	{
-		maxHP    = 60;
+		maxHP    = 50;
 		hp       = maxHP;
 		damage   = 20;
 		DeathSfx = GD.Load<AudioStream>("res://Sounds/Dying Worm.mp3");

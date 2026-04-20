@@ -186,7 +186,7 @@ public partial class MainGame : Node3D
 			player.ShowUpgradeUI();
 	}
 
-	public int GetRoundEnemyTarget() => 30;
+	public int GetRoundEnemyTarget() => 20;
 
 	// Max simultaneously alive enemies scales with round, capped at 20.
 	private int GetMaxAliveEnemies() => Mathf.Clamp((RoundNum + 1) * 6, 8, 20);
@@ -195,7 +195,7 @@ public partial class MainGame : Node3D
 	{
 		if (!GenericCore.Instance.IsServer) return;
 
-		if (RoundNum >= 5)
+		if (RoundNum >= 3)
 		{
 			// Boss round — kick off the intro sequence once, then stop ticking.
 			if (!_bossSpawned)

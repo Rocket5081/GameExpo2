@@ -59,7 +59,7 @@ public partial class TankPlayer : Player
 		gunFlash?.Restart();
 
 		float[] angles = GetSpreadAngles();
-		if (Buls.Count < angles.Length * 4)
+		if (Buls.Count < 20)
 			SpawnBulletSpread(angles);
 		else
 			ShootBulletSpread(angles);

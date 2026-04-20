@@ -82,12 +82,12 @@ shadow_size = 14
 
 [node name="GenericLobbySystem" type="CanvasLayer" parent="." node_paths=PackedStringArray("AgentSpawner", "GameNameBox")]
 script = ExtResource("1_nacce")
-PublicIP = "23.128.112.62"
+PublicIP = "23.128.112.61"
 PrivateIP = "10.200.208.181"
 PortMinimum = 9000
 AgentSpawner = NodePath("UI/Columns/Right/Pad/GamesList/Scroll/AgentList/MultiplayerSpawner")
 GameNameBox = NodePath("UI/Columns/Left/Pad/Form/GameName")
-MaxGameTime = 500.0
+MaxGameTime = 900.0
 
 [node name="UI" type="Control" parent="GenericLobbySystem"]
 layout_mode = 3
@@ -284,8 +284,8 @@ render_target_update_mode = 4
 [node name="GameRoot" type="Node" parent="." node_paths=PackedStringArray("MainNetworkCore")]
 script = ExtResource("3_p6o7m")
 MainNetworkCore = NodePath("MainGame/PlayerSpawner")
-_portMaximum = 7000
-_portMinimum = 7010
+_portMaximum = 7010
+_portMinimum = 7000
 _localPort = 7000
 _serverAddress = "127.0.0.1"
 _maxConnections = 4

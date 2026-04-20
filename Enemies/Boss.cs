@@ -38,7 +38,7 @@ public partial class Boss : Enemy
 
 	public override void _Ready()
 	{
-		maxHP  = 1000;
+		maxHP  = 5000;
 		hp     = maxHP;
 		damage = 50;
 		DeathSfx = GD.Load<AudioStream>("res://Sounds/Dying Boss.mp3");

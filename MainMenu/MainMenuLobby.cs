@@ -34,7 +34,7 @@ public partial class MainMenuLobby : Control
 	private static readonly Color ColorPirate = new Color("4488ff");
 	private static readonly Color ColorPriest = new Color("44cc66");
 
-	private const int RequiredPlayers = 2;
+	private const int RequiredPlayers = 4;
 
 	private readonly Dictionary<int, int>    _readyPlayers     = new();
 	private readonly Dictionary<int, string> _readyPlayerNames = new();

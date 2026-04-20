@@ -127,7 +127,7 @@ public partial class Player : CharacterBody3D
 		
 		_RWSFX           = new AudioStreamPlayer3D();
 		_RWSFX.Stream     = GD.Load<AudioStream>("res://Sounds/RewindSFX.mp3");
-		_RWSFX.VolumeDb   = -10f;
+		_RWSFX.VolumeDb   = 10f;
 		_RWSFX.MaxDistance = 30f;
 		_RWSFX.UnitSize   = 10f;
 		AddChild(_RWSFX);

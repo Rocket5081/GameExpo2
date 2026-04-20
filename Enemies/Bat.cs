@@ -9,13 +9,13 @@ public partial class Bat : Enemy
 	}
 	[Export] public bool SyncedIsMoving = false;
 
-	public int speed = 20;
+	public int speed = 28;
 	[Export] public float MaxFlyHeight = 12f;
 
 
 	public override void _Ready()
 	{
-		maxHP    = 40;
+		maxHP    = 60;
 		hp       = maxHP;
 		damage   = 10;
 		DeathSfx = GD.Load<AudioStream>("res://Sounds/Dying bat.mp3");
